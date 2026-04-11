@@ -130,23 +130,23 @@ html, body {
 .legend-color { width: 14px; height: 14px; display: inline-block; margin-right: 8px; border-radius: 0; }
 
 /* ── DASHBOARD STYLES ── */
-/* Seaborn-inspired light palette */
+/* Storymap color palette applied */
 :root {
-  --bg-dash:    #f7f7f7;
+  --bg-dash:    #ffffff;
   --white: #ffffff;
-  --s:     #eaeaf2;
-  --b:     #ccccdd;
-  --t:     #2d2d3a;
-  --m:     #666680;
-  --dim:   #999aaa;
-  --grid:  #e8e8f0;
-  --c1: #4c72b0; --c2: #8172b2; --c3: #55a868;
-  --c4: #64b5cd; --c5: #c44e52; --c6: #dd8452;
-  --q1: #4c72b0; --q2: #8172b2; --q3: #55a868;
-  --q4: #64b5cd; --q5: #c44e52; --q6: #dd8452;
+  --s:     #0f3460;
+  --b:     #0f3460;
+  --t:     #0f3460;
+  --m:     #0f3460;
+  --dim:   #39d0d8;
+  --grid:  #0f3460;
+  --c1: #f26522; --c2: #39d0d8; --c3: #f26522;
+  --c4: #39d0d8; --c5: #f26522; --c6: #f26522;
+  --q1: #f26522; --q2: #39d0d8; --q3: #f26522;
+  --q4: #39d0d8; --q5: #f26522; --q6: #f26522;
 }
 
-#dashboard-container { background: var(--bg-dash); color: var(--t); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 13px; min-height: 100vh; }
+#dashboard-container { background: var(--bg-dash); color: var(--t); font-family: 'Calibri', 'Segoe UI', sans-serif; font-size: 16px; min-height: 100vh; }
 #dashboard-container {
   display: flex; flex-direction: column; overflow: visible;
 }
@@ -154,107 +154,107 @@ html, body {
 /* ── HEADER ── */
 .hdr {
   background: var(--white); border-bottom: 2px solid var(--s);
-  padding: 10px 24px; display: flex; align-items: center;
+  padding: 20px 40px; display: flex; align-items: center;
   justify-content: space-between; flex-shrink: 0;
-  box-shadow: 0 1px 4px rgba(0,0,0,.06);
+  box-shadow: none;
 }
-.hdr-left h1 { font-size: 15px; font-weight: 700; }
-.hdr-left p  { font-size: 11px; color: var(--m); margin-top: 1px; }
-.hdr-stats   { display: flex; gap: 20px; }
-.hdr-stat .n { font-size: 16px; font-weight: 800; color: var(--c1); line-height: 1; text-align:center; }
-.hdr-stat .l { font-size: 9px; color: var(--m); text-transform: uppercase; letter-spacing: .06em; text-align:center;}
+.hdr-left h1 { font-size: 28px; font-weight: 800; color: var(--t); }
+.hdr-left p  { font-size: 14px; color: var(--t); margin-top: 8px; }
+.hdr-stats   { display: flex; gap: 30px; }
+.hdr-stat .n { font-size: 28px; font-weight: 800; color: var(--c1); line-height: 1; text-align:center; }
+.hdr-stat .l { font-size: 11px; color: var(--t); text-transform: uppercase; letter-spacing: .08em; text-align:center; font-weight: 700;}
 
 /* ── TABS ── */
 .tabs {
   display: flex; background: var(--white);
   border-bottom: 2px solid var(--s); flex-shrink: 0;
-  overflow-x: auto; padding: 0 12px;
+  overflow-x: auto; padding: 0 20px;
 }
 .tab {
-  padding: 9px 18px; font-size: 12px; font-weight: 600;
-  color: var(--m); cursor: pointer; white-space: nowrap;
+  padding: 14px 24px; font-size: 15px; font-weight: 600;
+  color: var(--t); cursor: pointer; white-space: nowrap;
   border-bottom: 3px solid transparent; margin-bottom: -2px;
   transition: color .15s, border-color .15s; user-select: none;
 }
-.tab:hover { color: var(--t); }
-.tab.on { color: var(--qc); border-bottom-color: var(--qc); }
+.tab:hover { color: var(--c1); font-weight: 700; }
+.tab.on { color: var(--qc); border-bottom-color: var(--qc); font-weight: 700; }
 
 /* ── PAGES ── */
 .pages { flex: 1; overflow: hidden; }
-.page  { display: none; height: 100%; padding: 14px 22px; overflow-y: auto; }
+.page  { display: none; height: 100%; padding: 30px 40px; overflow-y: auto; }
 .page.on { display: block; }
 
 /* ── KPI ROW ── */
 .kpi-row {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
-  gap: 9px; margin-bottom: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 15px; margin-bottom: 25px;
 }
 .kpi {
-  background: var(--white); border: 1px solid var(--b);
-  border-top: 3px solid var(--qc); border-radius: 7px; padding: 10px 13px;
+  background: var(--white); border: 2px solid var(--s);
+  border-top: 6px solid var(--qc); border-radius: 0; padding: 20px 18px;
 }
-.kpi .lbl { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--m); margin-bottom: 3px; }
-.kpi .val { font-size: 22px; font-weight: 800; color: var(--qc); line-height: 1; }
-.kpi .sub { font-size: 10px; color: var(--dim); margin-top: 2px; }
+.kpi .lbl { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--t); margin-bottom: 8px; }
+.kpi .val { font-size: 32px; font-weight: 800; color: var(--qc); line-height: 1; }
+.kpi .sub { font-size: 13px; color: var(--t); margin-top: 5px; }
 
 /* ── GRIDS ── */
-.cg2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
-.cg3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 10px; }
-.cg1 { display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 10px; }
+.cg2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 18px; }
+.cg3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; margin-bottom: 18px; }
+.cg1 { display: grid; grid-template-columns: 1fr; gap: 18px; margin-bottom: 18px; }
 
 .card {
-  background: var(--white); border: 1px solid var(--b);
-  border-radius: 7px; padding: 12px;
+  background: var(--white); border: 2px solid var(--s);
+  border-radius: 0; padding: 20px; border-top: 6px solid var(--qc);
 }
 .card-t {
-  font-size: 10px; font-weight: 700; text-transform: uppercase;
-  letter-spacing: .06em; color: var(--m); margin-bottom: 8px;
+  font-size: 13px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .08em; color: var(--t); margin-bottom: 14px;
 }
 .ch { position: relative; width: 100%; }
 .ch canvas { position: absolute; top:0;left:0;width:100%!important;height:100%!important; }
-.h150{height:150px;}.h180{height:180px;}.h200{height:200px;}
-.h220{height:220px;}.h250{height:250px;}.h280{height:280px;}
+.h150{height:200px;}.h180{height:240px;}.h200{height:280px;}
+.h220{height:300px;}.h250{height:350px;}.h280{height:380px;}
 
 /* ── FINDINGS ── */
 .find {
-  margin-top: 8px; padding: 8px 11px; border-radius: 5px;
-  font-size: 11px; line-height: 1.5; color: var(--m);
-  background: rgba(0,0,0,.022); border-left: 3px solid var(--qc);
+  margin-top: 14px; padding: 14px 16px; border-radius: 0;
+  font-size: 14px; line-height: 1.6; color: var(--t);
+  background: rgba(0,0,0,.022); border-left: 4px solid var(--qc);
 }
-.find strong { color: var(--t); display: block; margin-bottom: 2px; }
+.find strong { color: var(--t); display: block; margin-bottom: 5px; font-weight: 700; font-size: 15px; }
 .hl { font-weight: 800; color: var(--qc); }
 
 /* ── RACE TABLE ── */
-.rtable { width:100%; border-collapse:collapse; font-size:11px; }
-.rtable th { padding:5px 8px; color:var(--dim); font-size:9px; text-transform:uppercase; letter-spacing:.06em; border-bottom:1.5px solid var(--s); text-align:left; }
-.rtable td { padding:5px 8px; border-bottom:1px solid var(--s); }
+.rtable { width:100%; border-collapse:collapse; font-size:14px; }
+.rtable th { padding:12px 14px; color:var(--t); font-size:12px; text-transform:uppercase; letter-spacing:.08em; border-bottom:2px solid var(--s); text-align:left; font-weight: 700; }
+.rtable td { padding:12px 14px; border-bottom:1px solid var(--s); color: var(--t); }
 .rtable tr:hover td { background:var(--bg-dash); }
-.bcell { position:relative;height:15px;background:var(--bg-dash);border-radius:3px;overflow:hidden;min-width:60px; }
-.bfill { position:absolute;inset-block:0;left:0;border-radius:3px;transition:width 1s; }
+.bcell { position:relative;height:15px;background:var(--bg-dash);border-radius:0;overflow:hidden;min-width:60px; }
+.bfill { position:absolute;inset-block:0;left:0;border-radius:0;transition:width 1s; }
 .blbl  { position:absolute;right:3px;top:50%;transform:translateY(-50%);font-size:9px;font-weight:700;color:var(--t); }
 
 /* ── ARCHETYPE GRID ── */
-.arch-grid { display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:10px; }
-.arch-card { background:var(--white);border:1px solid var(--b);border-radius:7px;padding:10px 8px;text-align:center; }
-.arch-n   { font-size:18px;font-weight:800; }
-.arch-lbl { font-size:9px;color:var(--m);margin:2px 0 5px;line-height:1.3; }
-.tag { display:inline-block;font-size:8px;font-weight:700;padding:1px 5px;border-radius:8px;margin:1px; }
+.arch-grid { display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:18px; }
+.arch-card { background:var(--white);border:2px solid var(--s);border-radius:0;padding:16px 12px;text-align:center;border-top:6px solid var(--qc); }
+.arch-n   { font-size:26px;font-weight:800;color:var(--qc); }
+.arch-lbl { font-size:12px;color:var(--t);margin:5px 0 8px;line-height:1.4;font-weight: 700; }
+.tag { display:inline-block;font-size:11px;font-weight:700;padding:3px 8px;border-radius:0;margin:2px;border:1px solid var(--s); }
 
 /* ── DONUT LEGEND ── */
-.dl  { display:flex;align-items:center;gap:7px;margin-bottom:5px;font-size:11px; }
-.dld { width:9px;height:9px;border-radius:50%;flex-shrink:0; }
-.dll { flex:1;color:var(--m); }
-.dln { font-weight:700;color:var(--t);width:36px; }
-.dlp { color:var(--dim);width:28px;text-align:right; }
+.dl  { display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:14px; }
+.dld { width:14px;height:14px;border-radius:50%;flex-shrink:0; }
+.dll { flex:1;color:var(--t);font-weight: 500; }
+.dln { font-weight:700;color:var(--t);width:45px; }
+.dlp { color:var(--t);width:40px;text-align:right; }
 
 /* ── NOISE ── */
 .noise {
-  margin-top:8px;padding:7px 11px;border-radius:5px;
-  font-size:10px;color:var(--dim);line-height:1.5;
-  background:#f0f0f8;border:1px solid var(--s);
+  margin-top:14px;padding:14px 16px;border-radius:0;
+  font-size:13px;color:var(--t);line-height:1.6;
+  background:#f0f0f8;border:2px solid var(--s);border-top:4px solid var(--qc);
 }
-.noise b { color:var(--c1); }
+.noise b { color:var(--c1);font-weight: 700; }
 
 @media(max-width:760px){
   .cg2,.cg3{grid-template-columns:1fr;}
@@ -557,21 +557,21 @@ const D = {
   q2_age: [{d:"0–9",p:18.7},{d:"10–19",p:10.2},{d:"20–29",p:12.6},{d:"30–39",p:12.3},{d:"40–49",p:12.2},{d:"50–59",p:10.5},{d:"60–69",p:10.2},{d:"70–79",p:11.0},{d:"80–89",p:11.8},{d:"90+",p:14.3}],
   q2_race:[{r:"White",p:10.7},{r:"Some Other",p:10.6},{r:"Black/Af.Am.",p:10.7},{r:"Two+",p:12.0},{r:"Asian",p:10.4},{r:"AIAN",p:10.3},{r:"NH/PI",p:9.7}],
   q3_svi: [{q:"Q1 Low",days:164,vis:2.43,esc:6.1,ed:0.056},{q:"Q2",days:159,vis:2.37,esc:6.8,ed:0.063},{q:"Q3",days:156,vis:2.35,esc:8.7,ed:0.084},{q:"Q4 High",days:139,vis:2.25,esc:11.8,ed:0.119}],
-  q3_stress:[{l:"Not at all",n:19145,pct:35.4,col:"#55a868"},{l:"Only a little",n:15022,pct:27.8,col:"#4c72b0"},{l:"To some extent",n:11592,pct:21.5,col:"#c5b0d5"},{l:"Rather much",n:4522,pct:8.4,col:"#dd8452"},{l:"Very much",n:3769,pct:7.0,col:"#c44e52"}],
+  q3_stress:[{l:"Not at all",n:19145,pct:35.4,col:"#39d0d8"},{l:"Only a little",n:15022,pct:27.8,col:"#39d0d8"},{l:"To some extent",n:11592,pct:21.5,col:"#f26522"},{l:"Rather much",n:4522,pct:8.4,col:"#f26522"},{l:"Very much",n:3769,pct:7.0,col:"#f26522"}],
   q4_dist:[{b:"<5 mi",med:30},{b:"5–15 mi",med:28},{b:"15–30 mi",med:29},{b:"30–60 mi",med:32},{b:">60 mi",med:48}],
   q4_tele:[{t:"In-Person",avg:119,med:28},{t:"Telemedicine",avg:104,med:37}],
   q5_race:[{r:"White",esc:12.1,cd:17376,cc:17577,tot:2054641},{r:"Some Other",esc:16.6,cd:2105,cc:1288,tot:192303},{r:"Black/Af.Am.",esc:26.1,cd:3023,cc:2303,tot:167609},{r:"Two+",esc:22.5,cd:1409,cc:609,tot:72828},{r:"Asian",esc:10.6,cd:159,cc:124,tot:20247},{r:"AIAN",esc:22.8,cd:265,cc:216,tot:18081},{r:"NH/PI",esc:26.2,cd:57,cc:49,tot:3856}],
   q5_county:[{c:"Shawnee",esc:10.8,days:142,n:2039255},{c:"Geary",esc:24.1,days:63,n:163723},{c:"Lyon",esc:0.1,days:167,n:142188},{c:"Riley",esc:0.3,days:105,n:127600},{c:"Osage",esc:0.7,days:200,n:55327},{c:"Pottawatomie",esc:0.2,days:148,n:35719},{c:"Jefferson",esc:0.5,days:190,n:17592},{c:"Jackson",esc:0.4,days:175,n:16259},{c:"Douglas",esc:0.0,days:226,n:2146}],
-  q6_arch:[{a:"Single Visit",n:1603648,days:0,esc:13.3,col:"#4c72b0"},{a:"Episodic",n:567839,days:355,esc:0.4,col:"#8172b2"},{a:"Managed Chronic",n:241710,days:538,esc:0.0,col:"#55a868"},{a:"Resolved Acute",n:174230,days:127,esc:0.0,col:"#64b5cd"},{a:"Crisis Driven",n:24451,days:258,esc:100.0,col:"#dd8452"},{a:"Crisis Chronic",n:22223,days:351,esc:100.0,col:"#c44e52"}]
+  q6_arch:[{a:"Single Visit",n:1603648,days:0,esc:13.3,col:"#39d0d8"},{a:"Episodic",n:567839,days:355,esc:0.4,col:"#39d0d8"},{a:"Managed Chronic",n:241710,days:538,esc:0.0,col:"#39d0d8"},{a:"Resolved Acute",n:174230,days:127,esc:0.0,col:"#39d0d8"},{a:"Crisis Driven",n:24451,days:258,esc:100.0,col:"#f26522"},{a:"Crisis Chronic",n:22223,days:351,esc:100.0,col:"#f26522"}]
 };
 
-// Chart.js defaults — seaborn light feel
-Chart.defaults.color = '#666680';
-Chart.defaults.font.family = "-apple-system,'Segoe UI',sans-serif";
+// Chart.js defaults — Storymap color scheme
+Chart.defaults.color = '#0f3460';
+Chart.defaults.font.family = "'Calibri', 'Segoe UI', sans-serif";
 Chart.defaults.font.size = 11;
-const gridColor = '#e8e8f0';
-const sc  = () => ({ ticks:{color:'#666680',font:{size:10}}, grid:{color:gridColor} });
-const noG = () => ({ ticks:{color:'#444',font:{size:10}}, grid:{display:false} });
+const gridColor = '#0f3460';
+const sc  = () => ({ ticks:{color:'#0f3460',font:{size:10}}, grid:{color:gridColor} });
+const noG = () => ({ ticks:{color:'#0f3460',font:{size:10}}, grid:{display:false} });
 
 function hbar(id, labels, data, colors){
   new Chart(document.getElementById(id),{type:'bar',
@@ -621,7 +621,7 @@ const maxE=Math.max(...D.q5_race.map(r=>r.esc));
 let th=`<table class="rtable"><thead><tr><th>Race</th><th>Single-Visit Esc%</th><th>Crisis %</th><th>Journeys</th></tr></thead><tbody>`;
 D.q5_race.forEach(r=>{
   const w=(r.esc/maxE*100).toFixed(0);
-  const col=r.esc>20?'#c44e52':r.esc>15?'#dd8452':r.esc<12?'#55a868':'#c5b0d5';
+  const col=r.esc>20?'#f26522':r.esc>15?'#f26522':r.esc<12?'#39d0d8':'#39d0d8';
   const crisis=((r.cd+r.cc)/r.tot*100).toFixed(1);
   th+=`<tr><td style="font-weight:600">${r.r}</td>
     <td><div class="bcell"><div class="bfill" style="width:${w}%;background:${col}"></div><div class="blbl">${r.esc}%</div></div></td>
@@ -644,43 +644,43 @@ D.q3_stress.forEach(s=>{
 
 // Q1
 bar('c_q1_dist',['P25','P50','P75','P95','Avg'],[3,28,135,438,110],
-  ['#c8d8f0','#4c72b0','#8172b2','#c44e52','#dd8452']);
+  ['#39d0d855','#39d0d8','#39d0d8cc','#f2652299','#f26522']);
 hbar('c_q1_myc',D.q1_myc.map(r=>r.s),D.q1_myc.map(r=>r.avg),
-  D.q1_myc.map(r=>r.avg>150?'#c44e5299':r.avg<100?'#55a86899':'#4c72b088'));
+  D.q1_myc.map(r=>r.avg>150?'#f2652299':r.avg<100?'#39d0d899':'#f2652288'));
 hbar('c_q1_race',D.q1_race.map(r=>r.r),D.q1_race.map(r=>r.avg),
-  D.q1_race.map(r=>r.avg>120?'#dd845299':r.avg<100?'#55a86899':'#4c72b088'));
+  D.q1_race.map(r=>r.avg>120?'#f2652299':r.avg<100?'#39d0d899':'#f2652288'));
 bar('c_q1_svi',D.q1_svi.map(r=>r.q),D.q1_svi.map(r=>r.pct),
-  ['#aec7e899','#c5b0d599','#ffbb7899','#ff9898aa'],true);
+  ['#39d0d844','#39d0d888','#f2652244','#f2652288'],true);
 
 // Q2
 hbar('c_q2_type',D.q2_type.map(r=>r.t),D.q2_type.map(r=>r.p),
-  D.q2_type.map(r=>r.p>60?'#8172b288':r.p>30?'#c5b0d5aa':'#4c72b088'));
+  D.q2_type.map(r=>r.p>60?'#f2652288':r.p>30?'#39d0d8aa':'#f2652288'));
 hbar('c_q2_cond',D.q2_cond.map(r=>r.g),D.q2_cond.map(r=>r.p),
-  D.q2_cond.map(r=>r.p>70?'#c44e5299':r.p>50?'#dd845299':'#8172b288'));
+  D.q2_cond.map(r=>r.p>70?'#f2652299':r.p>50?'#f2652299':'#f2652288'));
 bar('c_q2_age',D.q2_age.map(r=>r.d),D.q2_age.map(r=>r.p),
-  D.q2_age.map(r=>r.p>15?'#c44e5299':r.p>12?'#dd845299':'#8172b288'),true);
-bar('c_q2_race',D.q2_race.map(r=>r.r),D.q2_race.map(r=>r.p),'#8172b288',true);
+  D.q2_age.map(r=>r.p>15?'#f2652299':r.p>12?'#f2652299':'#f2652288'),true);
+bar('c_q2_race',D.q2_race.map(r=>r.r),D.q2_race.map(r=>r.p),'#f2652288',true);
 
 // Q3 — SVI dual
 new Chart(document.getElementById('c_q3_svi'),{type:'bar',
   data:{labels:D.q3_svi.map(r=>r.q),
     datasets:[
       {label:'Escalation %',data:D.q3_svi.map(r=>r.esc),
-       backgroundColor:['#aec7e899','#c5b0d599','#ffbb7899','#c44e5299'],borderRadius:4},
+       backgroundColor:['#39d0d899','#39d0d899','#f2652299','#f2652299'],borderRadius:0},
       {label:'Avg ED visits ×10',data:D.q3_svi.map(r=>+(r.ed*10).toFixed(2)),
-       backgroundColor:['#aec7e844','#c5b0d544','#ffbb7844','#c44e5244'],
-       borderColor:['#aec7e8','#c5b0d5','#ffbb78','#c44e52'],borderWidth:1.5,borderRadius:4}
+       backgroundColor:['#39d0d844','#39d0d844','#f2652244','#f2652244'],
+       borderColor:['#39d0d8','#39d0d8','#f26522','#f26522'],borderWidth:1.5,borderRadius:0}
     ]},
   options:{responsive:true,maintainAspectRatio:false,
-    plugins:{legend:{labels:{color:'#666680',font:{size:10}}}},
-    scales:{x:noG(),y:{...sc(),ticks:{callback:v=>v+'%',color:'#666680',font:{size:10}}}}}});
+    plugins:{legend:{labels:{color:'#0f3460',font:{size:10}}}},
+    scales:{x:noG(),y:{...sc(),ticks:{callback:v=>v+'%',color:'#0f3460',font:{size:10}}}}}});
 
 // Q3 — stress donut
 new Chart(document.getElementById('c_q3_stress'),{type:'doughnut',
   data:{labels:D.q3_stress.map(r=>r.l),
     datasets:[{data:D.q3_stress.map(r=>r.n),
-      backgroundColor:D.q3_stress.map(r=>r.col+'bb'),
-      borderColor:D.q3_stress.map(r=>r.col),borderWidth:1.5,hoverOffset:5}]},
+      backgroundColor:D.q3_stress.map(r=>'#f26522'+(Math.floor(Math.random()*5)+7)+'0'),
+      borderColor:D.q3_stress.map(r=>'#0f3460'),borderWidth:1.5,hoverOffset:5}]},
   options:{responsive:true,maintainAspectRatio:false,cutout:'65%',
     plugins:{legend:{display:false},
       tooltip:{callbacks:{label:ctx=>{const s=D.q3_stress[ctx.dataIndex];return ` ${s.l}: ${s.n.toLocaleString()} (${s.pct}%)`;}}}}
@@ -690,50 +690,50 @@ new Chart(document.getElementById('c_q3_stress'),{type:'doughnut',
 new Chart(document.getElementById('c_q3_full'),{type:'bar',
   data:{labels:D.q3_svi.map(r=>r.q),
     datasets:[
-      {label:'Avg Duration (days)',data:D.q3_svi.map(r=>r.days),backgroundColor:'#4c72b066',borderColor:'#4c72b0',borderWidth:1,borderRadius:4},
-      {label:'Avg Visits ×60',data:D.q3_svi.map(r=>+(r.vis*60).toFixed(0)),backgroundColor:'#55a86866',borderColor:'#55a868',borderWidth:1,borderRadius:4}
+      {label:'Avg Duration (days)',data:D.q3_svi.map(r=>r.days),backgroundColor:'#f2652266',borderColor:'#f26522',borderWidth:1,borderRadius:0},
+      {label:'Avg Visits ×60',data:D.q3_svi.map(r=>+(r.vis*60).toFixed(0)),backgroundColor:'#39d0d866',borderColor:'#39d0d8',borderWidth:1,borderRadius:0}
     ]},
   options:{responsive:true,maintainAspectRatio:false,
-    plugins:{legend:{labels:{color:'#666680',font:{size:10}}}},
+    plugins:{legend:{labels:{color:'#0f3460',font:{size:10}}}},
     scales:{x:noG(),y:sc()}}});
 
 // Q4
 hbar('c_q4_dist',D.q4_dist.map(r=>r.b),D.q4_dist.map(r=>r.med),
-  D.q4_dist.map(r=>r.med>40?'#c44e5299':r.med<29?'#55a86899':'#64b5cd88'));
+  D.q4_dist.map(r=>r.med>40?'#f2652299':r.med<29?'#39d0d899':'#39d0d888'));
 new Chart(document.getElementById('c_q4_tele'),{type:'bar',
   data:{labels:D.q4_tele.map(r=>r.t),
     datasets:[
-      {label:'Avg gap',data:D.q4_tele.map(r=>r.avg),backgroundColor:['#4c72b088','#64b5cd88'],borderRadius:5},
-      {label:'Median gap',data:D.q4_tele.map(r=>r.med),backgroundColor:['#4c72b044','#64b5cd44'],borderColor:['#4c72b0','#64b5cd'],borderWidth:1.5,borderRadius:5}
+      {label:'Avg gap',data:D.q4_tele.map(r=>r.avg),backgroundColor:['#f2652288','#39d0d888'],borderRadius:0},
+      {label:'Median gap',data:D.q4_tele.map(r=>r.med),backgroundColor:['#f2652244','#39d0d844'],borderColor:['#f26522','#39d0d8'],borderWidth:1.5,borderRadius:0}
     ]},
   options:{responsive:true,maintainAspectRatio:false,
-    plugins:{legend:{labels:{color:'#666680',font:{size:10}}}},
-    scales:{x:noG(),y:{...sc(),ticks:{callback:v=>v+'d',color:'#666680',font:{size:10}}}}}});
+    plugins:{legend:{labels:{color:'#0f3460',font:{size:10}}}},
+    scales:{x:noG(),y:{...sc(),ticks:{callback:v=>v+'d',color:'#0f3460',font:{size:10}}}}}});
 
 // Q5
 bar('c_q5_esc',D.q5_race.map(r=>r.r),D.q5_race.map(r=>r.esc),
-  D.q5_race.map(r=>r.esc>22?'#c44e52aa':r.esc>16?'#dd8452aa':r.esc<12?'#55a868aa':'#c5b0d5aa'),true);
+  D.q5_race.map(r=>r.esc>22?'#f2652299':r.esc>16?'#f2652299':r.esc<12?'#39d0d8aa':'#39d0d8aa'),true);
 new Chart(document.getElementById('c_q5_county'),{type:'bubble',
   data:{datasets:D.q5_county.map(c=>({
     label:c.c,data:[{x:c.days,y:c.esc,r:Math.sqrt(c.n/1e3)*1.9}],
-    backgroundColor:c.esc>15?'#c44e5255':c.esc>5?'#dd845255':'#55a86855',
-    borderColor:c.esc>15?'#c44e52':c.esc>5?'#dd8452':'#55a868',borderWidth:1.5}))},
+    backgroundColor:c.esc>15?'#f2652255':c.esc>5?'#f2652255':'#39d0d855',
+    borderColor:c.esc>15?'#f26522':c.esc>5?'#f26522':'#39d0d8',borderWidth:1.5}))},
   options:{responsive:true,maintainAspectRatio:false,
-    plugins:{legend:{position:'right',labels:{color:'#666680',font:{size:10},boxWidth:9,padding:5}},
+    plugins:{legend:{position:'right',labels:{color:'#0f3460',font:{size:10},boxWidth:9,padding:5}},
       tooltip:{callbacks:{label:ctx=>{const c=D.q5_county[ctx.datasetIndex];return ` ${c.c}: ${c.esc}% esc · ${c.days}d avg`;}}}}
     ,scales:{
-      x:{...sc(),title:{display:true,text:'Avg journey duration (days)',color:'#999',font:{size:10}}},
-      y:{...sc(),title:{display:true,text:'Escalation %',color:'#999',font:{size:10}},ticks:{callback:v=>v+'%',color:'#666680',font:{size:10}}}
-    }}});
+      x:{...sc(),title:{display:true,text:'Avg journey duration (days)',color:'#0f3460',font:{size:10}}},
+      y:{...sc(),title:{display:true,text:'Escalation %',color:'#0f3460',font:{size:10}},ticks:{callback:v=>v+'%',color:'#0f3460',font:{size:10}}}
+    }}}); 
 
 // Q6
 new Chart(document.getElementById('c_q6_arch'),{type:'doughnut',
   data:{labels:D.q6_arch.map(a=>a.a),
     datasets:[{data:D.q6_arch.map(a=>a.n),
-      backgroundColor:D.q6_arch.map(a=>a.col+'aa'),
-      borderColor:D.q6_arch.map(a=>a.col),borderWidth:1.5,hoverOffset:8}]},
+      backgroundColor:D.q6_arch.map(a=>a.col+'88'),
+      borderColor:D.q6_arch.map(a=>'#0f3460'),borderWidth:1.5,hoverOffset:8}]},
   options:{responsive:true,maintainAspectRatio:false,cutout:'52%',
-    plugins:{legend:{position:'right',labels:{color:'#666680',font:{size:10},boxWidth:9,padding:5}},
+    plugins:{legend:{position:'right',labels:{color:'#0f3460',font:{size:10},boxWidth:9,padding:5}},
       tooltip:{callbacks:{label:ctx=>{const a=D.q6_arch[ctx.dataIndex];const p=(a.n/archTotal*100).toFixed(1);return ` ${a.a}: ${a.n.toLocaleString()} (${p}%)`;}}}}
   }});
 hbar('c_q6_dur',D.q6_arch.map(a=>a.a),D.q6_arch.map(a=>a.days),
