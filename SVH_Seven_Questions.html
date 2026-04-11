@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1.0" name="viewport"/>
+<title>SVH Research Questions Dashboard | DataFest 2026</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{--bg:#0d1117;--s:#161b22;--c:#1c2128;--b:#30363d;--t:#e6edf3;--m:#8b949e;
+  --p:#58a6ff;--g:#3fb950;--y:#d29922;--o:#f0883e;--r:#f85149;--v:#bc8cff;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;}
+.hdr{padding:20px 32px;background:var(--s);border-bottom:1px solid var(--b);display:flex;align-items:center;justify-content:space-between;}
+.hdr h1{font-size:18px;font-weight:700;}.hdr h1 span{color:var(--p);}
+.hdr small{color:var(--m);font-size:12px;}
+.nav{display:flex;padding:0 32px;background:var(--s);border-bottom:1px solid var(--b);overflow-x:auto;gap:0;}
+.nav-btn{padding:12px 16px;font-size:12px;font-weight:600;cursor:pointer;color:var(--m);
+  border-bottom:2px solid transparent;white-space:nowrap;transition:.15s;}
+.nav-btn:hover{color:var(--t);}
+.nav-btn.on{color:var(--p);border-bottom-color:var(--p);}
+.pg{display:none;padding:24px 32px;}
+.pg.on{display:block;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px;}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px;}
+.card{background:var(--s);border:1px solid var(--b);border-radius:10px;padding:16px;}
+.card-t{font-size:11px;font-weight:700;color:var(--m);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px;}
+.kpi{background:var(--c);border:1px solid var(--b);border-radius:10px;padding:14px;}
+.kpi .lbl{font-size:10px;color:var(--m);text-transform:uppercase;letter-spacing:.06em;}
+.kpi .val{font-size:26px;font-weight:800;margin:3px 0;}
+.kpi .sub{font-size:11px;color:var(--m);}
+.finding{border-radius:8px;padding:12px 14px;margin-top:12px;font-size:13px;line-height:1.5;}
+.finding b{display:block;margin-bottom:3px;}
+.f-r{background:rgba(248,81,73,.06);border-left:3px solid var(--r);}
+.f-r b{color:var(--r);}
+.f-o{background:rgba(240,136,62,.06);border-left:3px solid var(--o);}
+.f-o b{color:var(--o);}
+.f-g{background:rgba(63,185,80,.06);border-left:3px solid var(--g);}
+.f-g b{color:var(--g);}
+.f-b{background:rgba(88,166,255,.06);border-left:3px solid var(--p);}
+.f-b b{color:var(--p);}
+.f-y{background:rgba(210,153,34,.06);border-left:3px solid var(--y);}
+.f-y b{color:var(--y);}
+.pg-hdr{margin-bottom:20px;}
+.pg-hdr h2{font-size:20px;font-weight:800;margin-bottom:4px;}
+.pg-hdr p{font-size:13px;color:var(--m);}
+.noise{background:rgba(88,166,255,.04);border:1px solid rgba(88,166,255,.15);border-radius:8px;
+  padding:12px 14px;margin-top:12px;font-size:12px;color:var(--m);line-height:1.5;}
+.noise b{color:var(--p);}
+.ch{position:relative;width:100%;}
+.ch canvas{position:absolute;top:0;left:0;width:100%!important;height:100%!important;}
+.h200{height:200px;}.h240{height:240px;}.h260{height:260px;}.h280{height:280px;}.h300{height:300px;}.h340{height:340px;}
+table{width:100%;border-collapse:collapse;font-size:12px;}
+th{padding:8px 10px;text-align:left;color:var(--m);font-size:10px;text-transform:uppercase;
+  letter-spacing:.05em;border-bottom:1px solid var(--b);}
+td{padding:8px 10px;border-bottom:1px solid var(--b);}
+tr:hover td{background:var(--c);}
+.pill{display:inline-block;padding:1px 7px;border-radius:8px;font-size:10px;font-weight:700;}
+.pr{background:rgba(248,81,73,.12);color:var(--r);}
+.po{background:rgba(240,136,62,.12);color:var(--o);}
+.py{background:rgba(210,153,34,.12);color:var(--y);}
+.pg_{background:rgba(63,185,80,.12);color:var(--g);}
+.pb{background:rgba(88,166,255,.12);color:var(--p);}
+@media(max-width:800px){.grid2,.grid3,.grid4{grid-template-columns:1fr;}}
+/* ── Wellness toggle ── */
+.toggle-wrap{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--m);}
+.toggle-wrap b{color:var(--t);font-size:12px;}
+.toggle{position:relative;display:inline-block;width:40px;height:22px;}
+.toggle input{opacity:0;width:0;height:0;}
+.slider{position:absolute;inset:0;background:var(--b);border-radius:22px;cursor:pointer;transition:.2s;}
+.slider:before{content:'';position:absolute;height:16px;width:16px;left:3px;bottom:3px;
+  background:#fff;border-radius:50%;transition:.2s;}
+input:checked+.slider{background:var(--o);}
+input:checked+.slider:before{transform:translateX(18px);}
+.toggle-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;
+  background:rgba(240,136,62,.12);color:var(--o);border:1px solid rgba(240,136,62,.3);
+  transition:.2s;white-space:nowrap;}
+.toggle-badge.off{background:rgba(88,166,255,.08);color:var(--m);border-color:var(--b);}
+</style>
+</head>
+<body>
+<div class="hdr">
+<div><h1>SVH Research Questions — <span>7 Questions, Real Data</span></h1>
+<small>3.38M gap records • 2.63M patient journeys • 456K lab/imaging pairs • DataFest 2026</small></div>
+<div class="toggle-wrap">
+<b>Annual check-ups</b>
+<label class="toggle" title="Toggle wellness/physical visits on or off">
+<input checked="" id="wellnessToggle" onchange="applyWellnessFilter()" type="checkbox"/>
+<span class="slider"></span>
+</label>
+<span class="toggle-badge" id="toggleBadge">Included</span>
+</div>
+</div>
+<div class="nav">
+<div class="nav-btn on" onclick="go('q1',this)">Q1 Gap Between Visits</div>
+<div class="nav-btn" onclick="go('q2',this)">Q2 Repeated Tests</div>
+<div class="nav-btn" onclick="go('q3',this)">Q3 Home Environment</div>
+<div class="nav-btn" onclick="go('q4',this)">Q4 Transportation</div>
+<div class="nav-btn" onclick="go('q5',this)">Q5 Patient Communities</div>
+<div class="nav-btn" onclick="go('q6',this)">Q6 Journey by Illness</div>
+<div class="nav-btn" onclick="go('q7',this)">Q7 Notes</div>
+</div>
+<!-- Q1 ──────────────────────────────────────────────────────────────── -->
+<div class="pg on" id="q1">
+<div class="pg-hdr"><h2>Q1 — Do patients experience long gaps between visits?</h2>
+<p>Based on 3.38M consecutive inter-visit intervals within the same patient × diagnosis journey</p></div>
+<div class="grid4">
+<div class="kpi"><div class="lbl">Median Gap</div><div class="val" style="color:var(--y)">28d</div><div class="sub">Between consecutive visits</div></div>
+<div class="kpi"><div class="lbl">Avg Gap</div><div class="val" style="color:var(--o)">110d</div><div class="sub">Skewed by long-tail gaps</div></div>
+<div class="kpi"><div class="lbl">Gaps &gt;90 Days</div><div class="val" style="color:var(--r)">31.4%</div><div class="sub">Of all inter-visit intervals</div></div>
+<div class="kpi"><div class="lbl">Gaps &gt;1 Year</div><div class="val" style="color:var(--r)">12.6%</div><div class="sub">Effectively lost to follow-up</div></div>
+</div>
+<div class="grid2">
+<div class="card"><div class="card-t">Gap Distribution — Percentiles</div>
+<div class="ch h240"><canvas id="c_gap_dist"></canvas></div>
+<div class="finding f-r"><b>Key finding</b>While median gap is 28 days (routine), the P95 is 438 days — a large tail of patients going over a year between visits in the same care journey.</div>
+</div>
+<div class="card"><div class="card-t">MyChart Status vs. Avg Inter-Visit Gap</div>
+<div class="ch h240"><canvas id="c_mychart_gap"></canvas></div>
+<div class="finding f-b"><b>Finding</b>Gap length is nearly identical across Activated, Pending, and Declined MyChart patients (~110-113d). Non-Standard status patients show notably longer gaps (183d) — likely an administrative artifact.</div>
+</div>
+</div>
+<div class="grid2">
+<div class="card"><div class="card-t">Race vs. Avg Inter-Visit Gap</div>
+<div class="ch h260"><canvas id="c_race_gap"></canvas></div>
+<div class="finding f-o"><b>Finding</b>American Indian / Alaska Native patients have the shortest avg gap (97d) but this reflects shorter journey durations overall. Asian patients have the longest (122d, 35.9% over 90d). Gaps by race are narrower than escalation differences — condition mix is the stronger driver.</div>
+</div>
+<div class="card"><div class="card-t">SVI Quartile vs. % Gaps &gt;90 Days</div>
+<div class="ch h260"><canvas id="c_svi_gap"></canvas></div>
+<div class="finding f-y"><b>Finding</b>SVI vulnerability shows almost no gradient in gap length (Q1: 31.9% vs Q4: 31.9% over 90d). Social vulnerability does not predict longer inter-visit gaps in this dataset — escalation rate is the more sensitive outcome for SVI.</div>
+</div>
+</div>
+
+</div>
+<!-- Q2 ──────────────────────────────────────────────────────────────── -->
+<div class="pg" id="q2">
+<div class="pg-hdr"><h2>Q2 — Do patients receive too many repeated tests?</h2>
+<p>Repeat = same VisitType appearing twice within 90 days in the same patient × diagnosis journey. 456K lab/imaging pairs analyzed.</p></div>
+<div class="grid4">
+<div class="kpi"><div class="lbl">Treatment repeat rate</div><div class="val" style="color:var(--r)">93.1%</div><div class="sub">Clinically expected (chemo/PT)</div></div>
+<div class="kpi"><div class="lbl">Lab Visit repeat rate</div><div class="val" style="color:var(--o)">16.6%</div><div class="sub">Within 90d same journey</div></div>
+<div class="kpi"><div class="lbl">Imaging repeat rate</div><div class="val" style="color:var(--y)">13.4%</div><div class="sub">Within 90d same journey</div></div>
+<div class="kpi"><div class="lbl">Highest-repeat condition</div><div class="val" style="color:var(--r);font-size:16px">Breast lump</div><div class="sub">81.9% lab/imaging repeat rate</div></div>
+</div>
+<div class="grid2">
+<div class="card"><div class="card-t">Top Conditions — Lab/Imaging Repeat Rate (90d)</div>
+<div class="ch h300"><canvas id="c_repeat_cond"></canvas></div>
+<div class="finding f-o"><b>Finding</b>High-repeat conditions are largely clinically appropriate: transplant monitoring, coagulation management, pregnancy, cancer treatment. The genuinely anomalous signal is "Abnormal imaging findings" — repeat imaging for unresolved abnormalities is worth clinical review.</div>
+</div>
+<div class="card"><div class="card-t">Repeat Test Rate by Visit Type</div>
+<div class="ch h300"><canvas id="c_repeat_type"></canvas></div>
+<div class="finding f-g"><b>Finding</b>Anti-coag and treatment visits have very high repeat rates by design (warfarin monitoring, chemotherapy). Initial consult has 1.3% — as expected. Lab Requisition at 65.9% likely reflects duplicate orders vs. completions — a data quality issue, not clinical one.</div>
+</div>
+</div>
+<div class="grid2">
+<div class="card"><div class="card-t">Repeat Rate vs. Age Decade</div>
+<div class="ch h240"><canvas id="c_repeat_age"></canvas></div>
+<div class="finding f-b"><b>Finding</b>Infants (0-9) show high repeat rates (18.7%) due to rapid follow-up for acute conditions. Repeat rates dip in 10-19 (healthiest decade), then rise gradually into older age cohorts. The 90+ group shows the highest rate (14.3%) reflecting complex multi-morbidity.</div>
+</div>
+<div class="card"><div class="card-t">Repeat Rate by Race &amp; MyChart Status</div>
+<div class="ch h240"><canvas id="c_repeat_demo"></canvas></div>
+<div class="finding f-g"><b>Finding</b>Repeat test rates are strikingly similar across all racial groups (9.7–12.0%) — no meaningful disparity. MyChart status is also nearly flat (10.6% Activated vs. 14.4% Inactivated). Unspecified-status patients show 25.5% — likely an incomplete-record artifact.</div>
+</div>
+</div>
+
+</div>
+<!-- Q3 ──────────────────────────────────────────────────────────────── -->
+<div class="pg" id="q3">
+<div class="pg-hdr"><h2>Q3 — Does home environment tell us anything?</h2>
+<p>Two lenses: (1) Census block → CDC SVI 2022 tract-level vulnerability (1.84M matched journeys). (2) SDOH stress screener — direct patient-reported stress from <code>social_determinants.csv</code>.</p></div>
+<div class="grid4">
+<div class="kpi"><div class="lbl">Q4 (High SVI) esc%</div><div class="val" style="color:var(--r)">11.8%</div><div class="sub">vs 6.1% in Q1 (Low SVI)</div></div>
+<div class="kpi"><div class="lbl">Q4 avg ED visits</div><div class="val" style="color:var(--o)">0.119</div><div class="sub">vs 0.056 in Q1 — 2.1× higher</div></div>
+<div class="kpi"><div class="lbl">Patients reporting any stress</div><div class="val" style="color:var(--r)">64.6%</div><div class="sub">of 54,050 valid stress respondents</div></div>
+<div class="kpi"><div class="lbl">Screener coverage</div><div class="val" style="color:var(--y)">22%</div><div class="sub">56K of 212K SDOH patients answered</div></div>
+</div>
+<!-- Stress section -->
+<div class="grid2" style="margin-bottom:16px">
+<div class="card">
+<div class="card-t">SDOH Stress Screener — Patient Distribution (First Response per Patient)</div>
+<div class="ch h260"><canvas id="c_stress_donut"></canvas></div>
+<div class="finding f-r"><b>Key finding</b>64.6% of patients who completed the stress screener reported <em>some</em> level of stress — only 35.4% said "Not at all." Among those reporting stress, the most common response is "Only a little" (27.8%), but 17.3% report moderate-to-severe stress ("Rather much" or "Very much"). This is a direct patient-reported SDOH signal embedded in SVH's own data.</div>
+</div>
+<div class="card">
+<div class="card-t">Stress Response Breakdown — n patients (first visit per patient)</div>
+<div class="ch h260"><canvas id="c_stress_bar"></canvas></div>
+<div class="finding f-b"><b>Methodology note</b>Deduplication: patients who filled the survey multiple times are counted once using their <em>lowest</em> EncounterKey. Using most-recent EncounterKey yields nearly identical results, confirming the finding is robust to survey timing. Excludes "Patient unable to answer" and "Patient declined".</div>
+</div>
+</div>
+<div class="grid2">
+<div class="card"><div class="card-t">SVI Quartile vs. Escalation Rate</div>
+<div class="ch h260"><canvas id="c_svi_esc"></canvas></div>
+<div class="finding f-r"><b>Key finding</b>Living in a high-vulnerability census tract predicts nearly 2× the escalation rate (6.1% → 11.8%). High-SVI patients also average 2.1× more ED visits per journey. This is the clearest home-environment signal in the data.</div>
+</div>
+<div class="card"><div class="card-t">SVI Quartile vs. Journey Outcomes</div>
+<div class="ch h260"><canvas id="c_svi_full"></canvas></div>
+<div class="finding f-y"><b>Finding</b>High-SVI patients have shorter journeys (fewer total visits, fewer days) — consistent with care drop-out rather than better health. Low-SVI patients show longer, more managed journeys. This suggests structural barriers cause premature journey termination in vulnerable populations.</div>
+</div>
+</div>
+<div class="finding f-b" style="margin:0 0 16px">
+<b>What we can measure as SDOH proxies:</b>
+  Housing instability → SVI Theme 4 (rpl_t4_housing). No-vehicle households → ep_noveh. Poverty → ep_pov150. Minority/language barriers → SVI Theme 3. <b>Stress screener now available</b>: direct self-reported stress from <code>social_determinants.csv</code> — 54,050 valid responses from 212,357 SDOH patients (25.5% response rate for this specific question).
+</div>
+
+</div>
+<!-- Q4 ──────────────────────────────────────────────────────────────── -->
+<div class="pg" id="q4">
+<div class="pg-hdr"><h2>Q4 — Do transportation issues affect care?</h2>
+<p>Three signals: (1) patient home → clinic distance via TIGER block centroids, (2) telemedicine vs in-person gaps, (3) county transport barrier rates from CDC PLACES</p></div>
+<div class="grid4">
+<div class="kpi"><div class="lbl">Patients mapped</div><div class="val" style="color:var(--p)">195,900</div><div class="sub">With valid block-group FIPS</div></div>
+<div class="kpi"><div class="lbl">&gt;60 mi patients</div><div class="val" style="color:var(--o)">Median 48d</div><div class="sub">vs 28-30d for closer patients</div></div>
+<div class="kpi"><div class="lbl">Telemedicine avg gap</div><div class="val" style="color:var(--g)">104d</div><div class="sub">vs 119d in-person</div></div>
+<div class="kpi"><div class="lbl">Tele median gap</div><div class="val" style="color:var(--g)">37d</div><div class="sub">vs 28d in-person</div></div>
+</div>
+<div class="grid2">
+<div class="card"><div class="card-t">Distance to Clinic vs. Median Gap (days)</div>
+<div class="ch h260"><canvas id="c_dist_gap"></canvas></div>
+<div class="finding f-y"><b>Finding</b>Distance shows a non-linear pattern: the &gt;60 mile group has the highest median gap (48d) as expected, but the 30-60 mile group actually shows the shortest avg gap (104d). The 5-15 mile band (largest group, 213K) drives the system average. Distance alone is a weak predictor of gaps for most patients.</div>
+</div>
+<div class="card"><div class="card-t">Telemedicine vs. In-Person Visit Gaps</div>
+<div class="ch h260"><canvas id="c_tele"></canvas></div>
+<div class="finding f-g"><b>Finding</b>Telemedicine patients have a shorter avg gap (104d vs 119d) but a longer median (37d vs 28d). This suggests telemedicine helps the most engaged long-gap patients reconnect, but doesn't compress routine visit cadence. It may be serving as a bridge for patients who would otherwise have very long gaps.</div>
+</div>
+</div>
+
+</div>
+<!-- Q5 ──────────────────────────────────────────────────────────────── -->
+<div class="pg" id="q5">
+<div class="pg-hdr"><h2>Q5 — Do different patient communities have different typical journeys?</h2>
+<p>Race, county geography, and digital engagement as community proxies</p></div>
+<div class="grid4">
+<div class="kpi"><div class="lbl">Black patient single-visit esc%</div><div class="val" style="color:var(--r)">26.1%</div><div class="sub">vs 12.1% for White patients</div></div>
+<div class="kpi"><div class="lbl">AIAN single-visit esc%</div><div class="val" style="color:var(--r)">22.8%</div><div class="sub">American Indian / AK Native</div></div>
+<div class="kpi"><div class="lbl">Geary esc% (highest)</div><div class="val" style="color:var(--r)">24.1%</div><div class="sub">vs 0.1-0.7% in rural counties</div></div>
+<div class="kpi"><div class="lbl">Douglas MyChart %</div><div class="val" style="color:var(--o)">48.4%</div><div class="sub">Lowest activation, near-zero esc%</div></div>
+</div>
+<div class="grid2">
+<div class="card"><div class="card-t">Single-Visit Escalation Rate by Race</div>
+<div class="ch h260"><canvas id="c_race_esc"></canvas></div>
+<div class="finding f-r"><b>Key finding</b>Among patients with a single-visit journey (60.9% of all), Black and Native Hawaiian/Pacific Islander patients have 26% escalation rates — more than double White patients (12.1%). These are patients whose first and only SVH encounter is an emergency. This is the clearest racial disparity in the dataset.</div>
+</div>
+<div class="card"><div class="card-t">County Journey Profiles</div>
+<div class="ch h260"><canvas id="c_county_profile"></canvas></div>
+<div class="finding f-o"><b>Finding</b>Geary County stands out: 24.1% escalation with only 63-day avg journey duration — short, crisis-heavy journeys. Osage and Jefferson show long avg durations (190-200d) with near-zero escalation — well-managed, sustained outpatient care. Douglas has the lowest MyChart adoption (48.4%) despite being an educated university county.</div>
+</div>
+</div>
+<div class="card" style="margin-bottom:16px"><div class="card-t">Crisis Journey Share by Race (Crisis Driven + Crisis Chronic as % of total)</div>
+<div class="ch h200"><canvas id="c_race_crisis"></canvas></div>
+</div>
+
+</div>
+<!-- Q6 ──────────────────────────────────────────────────────────────── -->
+<div class="pg" id="q6">
+<div class="pg-hdr"><h2>Q6 — Does journey type vary by illness or care sought?</h2>
+<p>Six journey archetypes classified using journey_length, any_escalation, n_ed_visits, and ICD-10 condition class</p></div>
+<div class="grid4">
+<div class="kpi"><div class="lbl">Managed Chronic avg duration</div><div class="val" style="color:var(--p)">538d</div><div class="sub">7.1 avg visits</div></div>
+<div class="kpi"><div class="lbl">Acute conditions esc%</div><div class="val" style="color:var(--r)">15.5%</div><div class="sub">vs 9.4% chronic, 6.1% other</div></div>
+<div class="kpi"><div class="lbl">Crisis journeys</div><div class="val" style="color:var(--r)">46,674</div><div class="sub">Crisis Driven + Crisis Chronic</div></div>
+<div class="kpi"><div class="lbl">Single visit with escalation</div><div class="val" style="color:var(--o)">13.3%</div><div class="sub">ED/inpatient as first&amp;only contact</div></div>
+</div>
+<div class="grid2">
+<div class="card"><div class="card-t">Journey Archetype Distribution</div>
+<div class="ch h260"><canvas id="c_arch_dist"></canvas></div>
+<div class="finding f-r"><b>Key finding</b>60.9% of journeys are single-visit — patients who appear once and don't return. Of those, 13.3% arrive in an emergency. Only 9.2% of journeys become Managed Chronic (the ideal care pathway). Crisis Driven and Crisis Chronic combined represent 46,674 journeys — patients whose care consistently involves emergencies.</div>
+</div>
+<div class="card"><div class="card-t">Avg Journey Duration by Archetype</div>
+<div class="ch h260"><canvas id="c_arch_dur"></canvas></div>
+<div class="finding f-b"><b>Finding</b>Managed Chronic journeys last 538 days on average — nearly 1.5 years — reflecting appropriate long-term disease management. Crisis Chronic is notable: 351-day duration with 100% escalation, suggesting patients who are engaged (returning) but never stabilized.</div>
+</div>
+</div>
+<div class="grid2">
+<div class="card"><div class="card-t">Condition Class — Avg Duration &amp; Escalation</div>
+<div class="ch h240"><canvas id="c_cond_class"></canvas></div>
+<div class="finding f-y"><b>Finding</b>Acute conditions (injury, infection) have short durations (54d) but the highest escalation rate (15.5%) — many acute presentations are severe. Chronic conditions are longer (182d) with lower escalation (9.4%) suggesting better management. "Other" includes screenings and Z-codes.</div>
+</div>
+<div class="card"><div class="card-t">Archetype × Condition Class</div>
+<div class="ch h240"><canvas id="c_arch_cond"></canvas></div>
+<div class="finding f-o"><b>Finding</b>45,049 acute-condition journeys become "Episodic" (337-day avg) — patients with acute issues (fractures, infections) who keep returning, possibly with complications or chronic sequelae. 163K chronic journeys are merely "Episodic" (152d, 2 visits) — a large undertreated chronic disease population.</div>
+</div>
+</div>
+
+</div>
+<!-- Q7 ──────────────────────────────────────────────────────────────── -->
+<div class="pg" id="q7">
+<div class="pg-hdr"><h2>Q7 — Alternate Data &amp; Other Healthcare Systems</h2>
+<p>What additional data would strengthen every finding above</p></div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+<div class="card">
+<div class="card-t">Available &amp; Pullable Now</div>
+<div class="finding f-g"><b>HRSA FQHC Locations (Public API)</b>All federally-qualified health centers in Kansas. Join to patient block-group centroids to flag patients near alternative primary care. Hypothesis: SVH patients near FQHCs have shorter journeys (care splitting).</div>
+<div class="finding f-g"><b>NOAA Storm Events (Public API)</b>Kansas tornado/severe weather events 2022-2025 by county + date. Join to encounters.Date + dept.County. Test: do ED spikes follow tornado events? Do routine visit gaps widen post-disaster?</div>
+<div class="finding f-g"><b>FCC Broadband Availability by Block (Public)</b>Fixed broadband coverage at census block level. Join to CensusBlockGroupFipsCode. Direct test of whether low-broadband areas have lower MyChart activation and longer gaps.</div>
+<div class="finding f-g"><b>CMS Hospital Compare</b>Other Kansas hospital locations. Identify census blocks equidistant between SVH and competitors — flag as care-fragmentation risk zones.</div>
+</div>
+<div class="card">
+<div class="card-t">Key Gaps in Current Dataset</div>
+<div class="finding f-r"><b>No individual SDOH responses</b>The SDOH questionnaire domains are listed but per-patient answers were not released. Food insecurity, utility shutoffs, housing instability, depression scores would directly answer Q3.</div>
+<div class="finding f-r"><b>No test names within visit types</b>Lab Visit is a container for dozens of different tests. Without CPT or LOINC codes we cannot distinguish "repeat CBC" from "repeat lipid panel."</div>
+<div class="finding f-r"><b>No ICD-10 for non-primary diagnoses</b>Only PrimaryDiagnosisKey per encounter. Comorbidity burden (e.g., diabetes + hypertension + CKD) is invisible — a major confounder for escalation rate comparisons across race.</div>
+<div class="finding f-y"><b>61% missing census block FIPS</b>The most powerful geographic analyses are limited to 39% of patients. Understanding why FIPS is missing — address quality? rural? — matters for interpreting geographic findings.</div>
+</div>
+</div>
+</div>
+<script>
+const D = {"Q1_gap_dist": {"P25": 3, "P50": 28, "P75": 135, "P95": 438, "avg": 110, "pct_over_90": 31.4, "pct_over_365": 12.6}, "Q1_mychart": [{"status": "Activated", "n": 2857191, "avg_gap": 113, "med_gap": 28, "pct_over90": 32.0}, {"status": "Pending Activation", "n": 279051, "avg_gap": 112, "med_gap": 28, "pct_over90": 33.0}, {"status": "Patient Declined", "n": 27957, "avg_gap": 110, "med_gap": 29, "pct_over90": 32.4}, {"status": "Inactivated", "n": 95771, "avg_gap": 90, "med_gap": 22, "pct_over90": 27.0}, {"status": "Non Standard", "n": 9258, "avg_gap": 183, "med_gap": 91, "pct_over90": 50.8}], "Q1_svi": [{"q": "Q1", "n": 619068, "avg_gap": 114, "med_gap": 28, "pct_over90": 31.9}, {"q": "Q2", "n": 619068, "avg_gap": 116, "med_gap": 28, "pct_over90": 32.7}, {"q": "Q3", "n": 619068, "avg_gap": 115, "med_gap": 28, "pct_over90": 32.5}, {"q": "Q4", "n": 619068, "avg_gap": 111, "med_gap": 28, "pct_over90": 31.9}], "Q1_race_gap": [{"race": "White", "n": 2703607, "avg_gap": 113, "med_gap": 28, "pct_over90": 32.0}, {"race": "Some Other Race", "n": 197714, "avg_gap": 110, "med_gap": 27, "pct_over90": 31.3}, {"race": "Black or African American", "n": 189099, "avg_gap": 107, "med_gap": 28, "pct_over90": 30.7}, {"race": "Two or More Races", "n": 62580, "avg_gap": 116, "med_gap": 30, "pct_over90": 33.1}, {"race": "Asian", "n": 23272, "avg_gap": 122, "med_gap": 31, "pct_over90": 35.9}, {"race": "American Indian or Alaska Native", "n": 21541, "avg_gap": 97, "med_gap": 23, "pct_over90": 27.9}, {"race": "Native Hawaiian / Pacific Islander", "n": 3218, "avg_gap": 109, "med_gap": 29, "pct_over90": 31.9}], "Q1_distance": [{"bucket": "<5 mi", "n": 70309, "avg_gap": 124, "med_gap": 30}, {"bucket": "5-15 mi", "n": 213153, "avg_gap": 119, "med_gap": 28}, {"bucket": "15-30 mi", "n": 46225, "avg_gap": 119, "med_gap": 29}, {"bucket": "30-60 mi", "n": 25781, "avg_gap": 104, "med_gap": 32}, {"bucket": ">60 mi", "n": 4626, "avg_gap": 124, "med_gap": 48}], "Q1_tele": [{"type": "Telemedicine", "n": 8596, "avg_gap": 104, "med_gap": 37}, {"type": "In-Person", "n": 351498, "avg_gap": 119, "med_gap": 28}], "Q2_by_visit_type": [{"type": "Treatment", "n": 287452, "repeat_pct": 93.1}, {"type": "Anti-coag visit", "n": 58331, "repeat_pct": 92.7}, {"type": "Lab Requisition", "n": 70025, "repeat_pct": 65.9}, {"type": "Patient Outreach", "n": 85040, "repeat_pct": 60.6}, {"type": "Routine Prenatal", "n": 26179, "repeat_pct": 56.2}, {"type": "Hospital Encounter", "n": 342312, "repeat_pct": 45.5}, {"type": "Infusion", "n": 51703, "repeat_pct": 36.7}, {"type": "Telemedicine", "n": 76453, "repeat_pct": 27.0}, {"type": "Procedure visit", "n": 65653, "repeat_pct": 26.0}, {"type": "Follow-Up", "n": 114979, "repeat_pct": 24.0}, {"type": "Well Child", "n": 75876, "repeat_pct": 20.7}, {"type": "Office Visit", "n": 1148080, "repeat_pct": 19.0}, {"type": "Lab Visit", "n": 632791, "repeat_pct": 16.6}, {"type": "Imaging", "n": 254369, "repeat_pct": 13.4}, {"type": "Initial consult", "n": 82642, "repeat_pct": 1.3}], "Q2_top_conditions": [{"group": "Unspecified lump in breast", "n_pairs": 6985, "repeat_pct": 81.9}, {"group": "Other disorders of breast", "n_pairs": 2497, "repeat_pct": 76.0}, {"group": "Abnormal imaging findings", "n_pairs": 3107, "repeat_pct": 75.2}, {"group": "Anemia in chronic diseases", "n_pairs": 2376, "repeat_pct": 72.2}, {"group": "Transplanted organ/tissue status", "n_pairs": 3485, "repeat_pct": 59.2}, {"group": "Other coagulation defects", "n_pairs": 770, "repeat_pct": 58.4}, {"group": "Female infertility", "n_pairs": 651, "repeat_pct": 56.7}, {"group": "Electrolyte/acid-base disorders", "n_pairs": 4593, "repeat_pct": 50.8}, {"group": "Other venous embolism/thrombosis", "n_pairs": 1225, "repeat_pct": 50.3}, {"group": "Atrial fibrillation and flutter", "n_pairs": 6029, "repeat_pct": 46.3}, {"group": "Supervision high-risk pregnancy", "n_pairs": 1778, "repeat_pct": 45.8}, {"group": "Myeloid leukemia", "n_pairs": 1480, "repeat_pct": 40.5}, {"group": "Antenatal screening", "n_pairs": 4064, "repeat_pct": 39.7}], "Q2_mychart": [{"status": "Activated", "n": 394102, "avg_repeat_pct": 10.6}, {"status": "Pending Activation", "n": 37199, "avg_repeat_pct": 10.6}, {"status": "Patient Declined", "n": 3340, "avg_repeat_pct": 11.0}, {"status": "Inactivated", "n": 10535, "avg_repeat_pct": 14.4}, {"status": "Non Standard", "n": 1039, "avg_repeat_pct": 11.4}, {"status": "*Unspecified", "n": 268, "avg_repeat_pct": 25.5}], "Q2_race": [{"race": "White", "n": 368018, "repeat_pct": 10.7}, {"race": "Some Other Race", "n": 28512, "repeat_pct": 10.6}, {"race": "Black or African American", "n": 24191, "repeat_pct": 10.7}, {"race": "Two or More Races", "n": 7726, "repeat_pct": 12.0}, {"race": "Asian", "n": 3852, "repeat_pct": 10.4}, {"race": "American Indian / Alaska Native", "n": 2594, "repeat_pct": 10.3}, {"race": "Native Hawaiian / Pacific Islander", "n": 471, "repeat_pct": 9.7}], "Q2_age_decades": [{"decade": "0-9", "avg_repeat_pct": 18.7}, {"decade": "10-19", "avg_repeat_pct": 10.2}, {"decade": "20-29", "avg_repeat_pct": 12.6}, {"decade": "30-39", "avg_repeat_pct": 12.3}, {"decade": "40-49", "avg_repeat_pct": 12.2}, {"decade": "50-59", "avg_repeat_pct": 10.5}, {"decade": "60-69", "avg_repeat_pct": 10.2}, {"decade": "70-79", "avg_repeat_pct": 11.0}, {"decade": "80-89", "avg_repeat_pct": 11.8}, {"decade": "90+", "avg_repeat_pct": 14.3}], "Q3_svi_outcomes": [{"q": "Q1", "n": 458855, "avg_days": 164, "avg_visits": 2.43, "esc_pct": 6.1, "avg_ed": 0.056}, {"q": "Q2", "n": 458855, "avg_days": 159, "avg_visits": 2.37, "esc_pct": 6.8, "avg_ed": 0.063}, {"q": "Q3", "n": 458854, "avg_days": 156, "avg_visits": 2.35, "esc_pct": 8.7, "avg_ed": 0.084}, {"q": "Q4", "n": 458854, "avg_days": 139, "avg_visits": 2.25, "esc_pct": 11.8, "avg_ed": 0.119}], "Q4_distance": [{"bucket": "<5 mi", "n": 70309, "avg_gap": 124, "med_gap": 30}, {"bucket": "5-15 mi", "n": 213153, "avg_gap": 119, "med_gap": 28}, {"bucket": "15-30 mi", "n": 46225, "avg_gap": 119, "med_gap": 29}, {"bucket": "30-60 mi", "n": 25781, "avg_gap": 104, "med_gap": 32}, {"bucket": ">60 mi", "n": 4626, "avg_gap": 124, "med_gap": 48}], "Q4_tele": [{"type": "Telemedicine", "n": 8596, "avg_gap": 104, "med_gap": 37}, {"type": "In-Person", "n": 351498, "avg_gap": 119, "med_gap": 28}], "Q5_race_arch": [{"race": "White", "single_esc_pct": 12.1, "crisis_driven_n": 17376, "crisis_chronic_n": 17577, "total": 2054641}, {"race": "Black or African American", "single_esc_pct": 26.1, "crisis_driven_n": 3023, "crisis_chronic_n": 2303, "total": 167609}, {"race": "Some Other Race", "single_esc_pct": 16.6, "crisis_driven_n": 2105, "crisis_chronic_n": 1288, "total": 192303}, {"race": "Two or More Races", "single_esc_pct": 22.5, "crisis_driven_n": 1409, "crisis_chronic_n": 609, "total": 72828}, {"race": "American Indian / Alaska Native", "single_esc_pct": 22.8, "crisis_driven_n": 265, "crisis_chronic_n": 216, "total": 18081}, {"race": "Asian", "single_esc_pct": 10.6, "crisis_driven_n": 159, "crisis_chronic_n": 124, "total": 20247}, {"race": "Native Hawaiian / Pac. Islander", "single_esc_pct": 26.2, "crisis_driven_n": 57, "crisis_chronic_n": 49, "total": 3856}], "Q5_county": [{"county": "SHAWNEE", "n": 2039255, "avg_days": 142, "esc_pct": 10.8, "mychart_pct": 85.2, "avg_len": 2.3}, {"county": "GEARY", "n": 163723, "avg_days": 63, "esc_pct": 24.1, "mychart_pct": 71.7, "avg_len": 1.6}, {"county": "LYON", "n": 142188, "avg_days": 167, "esc_pct": 0.1, "mychart_pct": 77.9, "avg_len": 2.2}, {"county": "RILEY", "n": 127600, "avg_days": 105, "esc_pct": 0.3, "mychart_pct": 81.1, "avg_len": 2.0}, {"county": "OSAGE", "n": 55327, "avg_days": 200, "esc_pct": 0.7, "mychart_pct": 84.7, "avg_len": 2.2}, {"county": "POTTAWATOMIE", "n": 35719, "avg_days": 148, "esc_pct": 0.2, "mychart_pct": 82.0, "avg_len": 2.0}, {"county": "JEFFERSON", "n": 17592, "avg_days": 190, "esc_pct": 0.5, "mychart_pct": 77.8, "avg_len": 1.9}, {"county": "JACKSON", "n": 16259, "avg_days": 175, "esc_pct": 0.4, "mychart_pct": 82.8, "avg_len": 1.8}, {"county": "DOUGLAS", "n": 2146, "avg_days": 226, "esc_pct": 0.0, "mychart_pct": 48.4, "avg_len": 2.1}], "Q6_archetypes": [{"arch": "Single Visit", "n": 1603648, "avg_days": 0, "avg_len": 1.0, "esc_pct": 13.3}, {"arch": "Episodic", "n": 567839, "avg_days": 355, "avg_len": 3.5, "esc_pct": 0.4}, {"arch": "Managed Chronic", "n": 241710, "avg_days": 538, "avg_len": 7.1, "esc_pct": 0.0}, {"arch": "Resolved Acute", "n": 174230, "avg_days": 127, "avg_len": 2.2, "esc_pct": 0.0}, {"arch": "Crisis Driven", "n": 24451, "avg_days": 258, "avg_len": 3.2, "esc_pct": 100.0}, {"arch": "Crisis Chronic", "n": 22223, "avg_days": 351, "avg_len": 5.2, "esc_pct": 100.0}], "Q6_cond_class": [{"class": "Acute", "n": 772556, "avg_days": 54, "esc_pct": 15.5}, {"class": "Chronic", "n": 894626, "avg_days": 182, "esc_pct": 9.4}, {"class": "Other", "n": 966919, "avg_days": 169, "esc_pct": 6.1}],
+"Q3_stress_first": [{"label": "Not at all", "n": 19145, "pct": 35.4}, {"label": "Only a little", "n": 15022, "pct": 27.8}, {"label": "To some extent", "n": 11592, "pct": 21.5}, {"label": "Rather much", "n": 4522, "pct": 8.4}, {"label": "Very much", "n": 3769, "pct": 7.0}],
+"Q3_stress_last":  [{"label": "Not at all", "n": 19478, "pct": 36.0}, {"label": "Only a little", "n": 14811, "pct": 27.4}, {"label": "To some extent", "n": 11530, "pct": 21.3}, {"label": "Rather much", "n": 4496, "pct": 8.3}, {"label": "Very much", "n": 3735, "pct": 6.9}]};
+
+function go {
+  document.querySelectorAll.forEach);
+  document.querySelectorAll.forEach);
+  document.getElementById.classList.add;
+  btn.classList.add;
+}
+
+const COLORS = ['#58a6ff','#3fb950','#f0883e','#bc8cff','#39d0d8','#d29922','#f85149','#56d364'];
+const opt_hbar = => ({
+  indexAxis:'y',responsive:true,maintainAspectRatio:false,
+  plugins:{legend:{display:false}},
+  scales:{
+    x:{ticks:{color:'#8b949e',font:{size:10},callback:v=>pct?v+'%':v},grid:{color:'rgba(48,54,61,.5)'}},
+    y:{ticks:{color:'#c9d1d9',font:{size:10}},grid:{color:'rgba(48,54,61,.5)'}}
+  }
+});
+const opt_bar = => ({
+  responsive:true,maintainAspectRatio:false,
+  plugins:{legend:{display:false}},
+  scales:{
+    x:{ticks:{color:'#8b949e',font:{size:10}},grid:{color:'rgba(48,54,61,.5)'}},
+    y:{ticks:{color:'#8b949e',font:{size:10},callback:v=>pct?v+'%':v},grid:{color:'rgba(48,54,61,.5)'}}
+  }
+});
+
+function hbar{
+  const ctx = document.getElementById; if return;
+  new Chart});
+}
+function bar{
+  const ctx = document.getElementById; if return;
+  new Chart});
+}
+
+// Q1
+bar('c_gap_dist',
+  ['P25','P50','P75','P95','Avg'],
+  [D.Q1_gap_dist.P25,D.Q1_gap_dist.P50,D.Q1_gap_dist.P75,D.Q1_gap_dist.P95,D.Q1_gap_dist.avg],
+  ['#3fb95099','#d2992299','#f0883e99','#f8514999','#58a6ff99']
+);
+hbar, D.Q1_mychart.map,
+  D.Q1_mychart.map);
+
+hbar, D.Q1_race_gap.map, '#58a6ff99');
+
+bar, D.Q1_svi.map,
+  D.Q1_svi.map=>['#3fb95099','#d2992299','#f0883e99','#f8514999'][i]), true);
+
+// Q2
+hbar, D.Q2_top_conditions.map,
+  D.Q2_top_conditions.map);
+
+hbar('c_repeat_type',
+  D.Q2_by_visit_type.slice.map,
+  D.Q2_by_visit_type.slice.map,
+  D.Q2_by_visit_type.slice.map);
+
+bar, D.Q2_age_decades.map, '#bc8cff99', true);
+
+// Q2 combined race+mychart
+new Chart,{
+  type:'bar',
+  data:{
+    labels:D.Q2_race.map.slice.join),
+    datasets:[
+      {label:'Repeat %',data:D.Q2_race.map,backgroundColor:'#58a6ff99',borderRadius:3},
+    ]
+  },
+  options:{...opt_bar,plugins:{legend:{display:false}}}
+});
+
+// Q3 — stress screener charts
+new Chart,{
+  type:'doughnut',
+  data:{
+    labels:D.Q3_stress_first.map,
+    datasets:[{
+      data:D.Q3_stress_first.map,
+      backgroundColor:['#3fb95099','#58a6ff99','#d2992299','#f0883e99','#f8514999'],
+      borderColor:['#3fb950','#58a6ff','#d29922','#f0883e','#f85149'],
+      borderWidth:2,hoverOffset:8
+    }]
+  },
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{
+      legend:{position:'right',labels:{color:'#8b949e',font:{size:11},padding:10}},
+      tooltip:{callbacks:{label:ctx=>{
+        const r=D.Q3_stress_first[ctx.dataIndex];
+        return ` ${r.label}: ${r.n.toLocaleString}`;
+      }}}
+    }
+  }
+});
+
+new Chart,{
+  type:'bar',
+  data:{
+    labels:D.Q3_stress_first.map,
+    datasets:[
+      {label:'First visit',data:D.Q3_stress_first.map,backgroundColor:['#3fb95099','#58a6ff99','#d2992299','#f0883e99','#f8514999'],borderRadius:4},
+      {label:'Most recent',data:D.Q3_stress_last.map,backgroundColor:['#3fb95044','#58a6ff44','#d2992244','#f0883e44','#f8514944'],borderRadius:4,borderDash:[4,4]}
+    ]
+  },
+  options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',
+    plugins:{legend:{labels:{color:'#8b949e',font:{size:10}}}},
+    scales:{
+      x:{ticks:{color:'#8b949e',font:{size:10}},grid:{color:'rgba(48,54,61,.5)'},title:{display:true,text:'Unique patients',color:'#8b949e',font:{size:10}}},
+      y:{ticks:{color:'#c9d1d9',font:{size:11}},grid:{color:'rgba(48,54,61,.5)'}}
+    }
+  }
+});
+
+// Q3 — SVI charts
+bar, D.Q3_svi_outcomes.map,
+  ['#3fb95099','#d2992299','#f0883e99','#f8514999'], true);
+
+new Chart,{
+  type:'bar',
+  data:{
+    labels:D.Q3_svi_outcomes.map,
+    datasets:[
+      {label:'Avg Days',data:D.Q3_svi_outcomes.map,backgroundColor:'#58a6ff99',borderRadius:3,yAxisID:'y'},
+      {label:'Avg Visits',data:D.Q3_svi_outcomes.map,backgroundColor:'#bc8cff99',borderRadius:3,yAxisID:'y'},
+    ]
+  },
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{labels:{color:'#8b949e',font:{size:10}}}},
+    scales:{y:{ticks:{color:'#8b949e',font:{size:10}},grid:{color:'rgba(48,54,61,.5)'}},
+            x:{ticks:{color:'#8b949e',font:{size:10}},grid:{color:'rgba(48,54,61,.5)'}}}}
+});
+
+// Q4
+hbar, D.Q4_distance.map, '#39d0d899');
+
+new Chart,{
+  type:'bar',
+  data:{
+    labels:['Telemedicine','In-Person'],
+    datasets:[
+      {label:'Avg Gap',data:[D.Q4_tele[0].avg_gap,D.Q4_tele[1].avg_gap],backgroundColor:['#3fb95099','#58a6ff99'],borderRadius:4},
+      {label:'Median Gap',data:[D.Q4_tele[0].med_gap,D.Q4_tele[1].med_gap],backgroundColor:['#3fb950cc','#58a6ffcc'],borderRadius:4},
+    ]
+  },
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{labels:{color:'#8b949e',font:{size:10}}}},
+    scales:{x:{ticks:{color:'#8b949e'},grid:{color:'rgba(48,54,61,.5)'}},
+            y:{ticks:{color:'#8b949e',callback:v=>v+'d'},grid:{color:'rgba(48,54,61,.5)'}}}}
+});
+
+// Q5
+bar.slice.join),
+  D.Q5_race_arch.map,
+  D.Q5_race_arch.map, true);
+
+new Chart,{
+  type:'bar',
+  data:{
+    labels:D.Q5_county.map,
+    datasets:[
+      {label:'Esc%',data:D.Q5_county.map,backgroundColor:'#f8514999',borderRadius:3,yAxisID:'y'},
+      {label:'MyChart%',data:D.Q5_county.map,backgroundColor:'#3fb95033',borderRadius:3,yAxisID:'y2'},
+    ]
+  },
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{labels:{color:'#8b949e',font:{size:10}}}},
+    scales:{
+      y:{ticks:{color:'#8b949e',font:{size:10},callback:v=>v+'%'},grid:{color:'rgba(48,54,61,.5)'},title:{display:true,text:'Esc%',color:'#f85149'}},
+      y2:{position:'right',ticks:{color:'#8b949e',font:{size:10},callback:v=>v+'%'},grid:{color:'rgba(48,54,61,.5)'},title:{display:true,text:'MyChart%',color:'#3fb950'}},
+      x:{ticks:{color:'#8b949e',font:{size:9}},grid:{color:'rgba(48,54,61,.5)'}}
+    }}
+});
+
+// crisis share
+const crisis_pct = D.Q5_race_arch.map/r.total*100).toFixed);
+bar.slice.join), crisis_pct.map,
+  crisis_pct.map, true);
+
+// Q6
+new Chart,{
+  type:'doughnut',
+  data:{
+    labels:D.Q6_archetypes.map,
+    datasets:[{data:D.Q6_archetypes.map,
+      backgroundColor:['#8b949e99','#58a6ff99','#3fb95099','#d2992299','#f8514999','#bc8cff99'],
+      borderWidth:1,borderColor:'#1c2128'}]
+  },
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{position:'right',labels:{color:'#c9d1d9',font:{size:11},boxWidth:12}}}}
+});
+
+hbar, D.Q6_archetypes.map,
+  ['#8b949e99','#58a6ff99','#3fb95099','#d2992299','#f8514999','#bc8cff99']);
+
+new Chart,{
+  type:'bar',
+  data:{
+    labels:D.Q6_cond_class.map,
+    datasets:[
+      {label:'Avg Days',data:D.Q6_cond_class.map,backgroundColor:['#f0883e99','#58a6ff99','#8b949e99'],borderRadius:4,yAxisID:'y'},
+      {label:'Esc%',data:D.Q6_cond_class.map,backgroundColor:['#f85149cc','#3fb950cc','#d29922cc'],borderRadius:4,yAxisID:'y2'},
+    ]
+  },
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{labels:{color:'#8b949e',font:{size:10}}}},
+    scales:{
+      y:{ticks:{color:'#8b949e',callback:v=>v+'d'},grid:{color:'rgba(48,54,61,.5)'}},
+      y2:{position:'right',ticks:{color:'#8b949e',callback:v=>v+'%'},grid:{color:'rgba(48,54,61,.5)'}},
+      x:{ticks:{color:'#8b949e'},grid:{color:'rgba(48,54,61,.5)'}}
+    }}
+});
+
+// archetype × condition stacked
+const archs = ['Single Visit','Resolved Acute','Episodic','Managed Chronic','Crisis Driven','Crisis Chronic'];
+const condData = {
+  Acute:   {Single:535188, Resolved:174230, Episodic:45049, Managed:0,       CrisisDriven:18089, CrisisChron:0},
+  Chronic: {Single:467200, Resolved:0,      Episodic:163493,Managed:241710,  CrisisDriven:0,     CrisisChron:22223},
+  Other:   {Single:601260, Resolved:0,      Episodic:359297,Managed:0,       CrisisDriven:6362,  CrisisChron:0},
+};
+new Chart,{
+  type:'bar',
+  data:{
+    labels:['Acute','Chronic','Other'],
+    datasets:[
+      {label:'Single Visit',   data:[condData.Acute.Single,   condData.Chronic.Single,   condData.Other.Single],   backgroundColor:'#8b949e55',borderRadius:2},
+      {label:'Resolved Acute', data:[condData.Acute.Resolved, condData.Chronic.Resolved, condData.Other.Resolved], backgroundColor:'#3fb95099',borderRadius:2},
+      {label:'Episodic',       data:[condData.Acute.Episodic, condData.Chronic.Episodic, condData.Other.Episodic], backgroundColor:'#58a6ff99',borderRadius:2},
+      {label:'Managed Chronic',data:[condData.Acute.Managed,  condData.Chronic.Managed,  condData.Other.Managed],  backgroundColor:'#bc8cff99',borderRadius:2},
+      {label:'Crisis',         data:[condData.Acute.CrisisDriven+condData.Acute.CrisisChron,
+                                     condData.Chronic.CrisisDriven+condData.Chronic.CrisisChron,
+                                     condData.Other.CrisisDriven+condData.Other.CrisisChron],backgroundColor:'#f8514999',borderRadius:2},
+    ]
+  },
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{labels:{color:'#8b949e',font:{size:10}}}},
+    scales:{
+      x:{stacked:true,ticks:{color:'#8b949e'},grid:{color:'rgba(48,54,61,.5)'}},
+      y:{stacked:true,ticks:{color:'#8b949e'},grid:{color:'rgba(48,54,61,.5)'}}
+    }}
+});
+</script>
+</body>
+</html>

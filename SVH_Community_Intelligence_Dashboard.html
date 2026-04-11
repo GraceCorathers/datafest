@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SVH Community Health Intelligence | DataFest 2026</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --card: #1c2128;
+    --border: #30363d;
+    --text: #e6edf3;
+    --muted: #8b949e;
+    --primary: #58a6ff;
+    --green: #3fb950;
+    --yellow: #d29922;
+    --orange: #f0883e;
+    --red: #f85149;
+    --purple: #bc8cff;
+    --teal: #39d0d8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+  
+  .header {
+    background: linear-gradient(135deg, #0d1117 0%, #1a2332 50%, #0d1117 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 24px 32px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .header-left h1 { font-size: 22px; font-weight: 700; color: var(--text); }
+  .header-left h1 span { color: var(--primary); }
+  .header-left p { color: var(--muted); font-size: 13px; margin-top: 4px; }
+  .header-badge { 
+    background: rgba(88,166,255,0.1); border: 1px solid rgba(88,166,255,0.3);
+    border-radius: 20px; padding: 6px 14px; font-size: 12px; color: var(--primary);
+  }
+
+  .tabs {
+    display: flex; gap: 0; padding: 0 32px;
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+  }
+  .tab {
+    padding: 14px 18px; font-size: 13px; font-weight: 500; cursor: pointer;
+    color: var(--muted); border-bottom: 2px solid transparent;
+    white-space: nowrap; transition: all 0.2s;
+  }
+  .tab:hover { color: var(--text); }
+  .tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+
+  .content { display: none; padding: 24px 32px; }
+  .content.active { display: block; }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .col-span-2 { grid-column: span 2; }
+  .col-span-3 { grid-column: span 3; }
+
+  .card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 20px;
+  }
+  .card-title {
+    font-size: 13px; font-weight: 600; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 16px;
+  }
+  .card-title span { color: var(--text); font-size: 15px; text-transform: none; letter-spacing: 0; }
+
+  .kpi-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 18px;
+  }
+  .kpi-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+  .kpi-value { font-size: 28px; font-weight: 700; margin: 4px 0; }
+  .kpi-sub { font-size: 12px; color: var(--muted); }
+  .kpi-badge { 
+    display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 10px;
+    margin-top: 6px;
+  }
+  .badge-red { background: rgba(248,81,73,0.15); color: var(--red); }
+  .badge-green { background: rgba(63,185,80,0.15); color: var(--green); }
+  .badge-yellow { background: rgba(210,153,34,0.15); color: var(--yellow); }
+  .badge-blue { background: rgba(88,166,255,0.15); color: var(--primary); }
+
+  .chart-wrap { position: relative; width: 100%; }
+  .chart-wrap canvas { position: absolute; top: 0; left: 0; width: 100% !important; height: 100% !important; }
+  .ch-200 { height: 200px; }
+  .ch-240 { height: 240px; }
+  .ch-260 { height: 260px; }
+  .ch-280 { height: 280px; }
+  .ch-300 { height: 300px; }
+  .ch-320 { height: 320px; }
+  
+  .insight-box {
+    background: rgba(88,166,255,0.05); border: 1px solid rgba(88,166,255,0.2);
+    border-left: 3px solid var(--primary);
+    border-radius: 8px; padding: 14px 16px; margin-top: 16px;
+    font-size: 13px; line-height: 1.6; color: var(--text);
+  }
+  .insight-box .insight-title { font-weight: 700; color: var(--primary); margin-bottom: 6px; }
+  
+  .alert-box {
+    background: rgba(248,81,73,0.05); border: 1px solid rgba(248,81,73,0.2);
+    border-left: 3px solid var(--red);
+    border-radius: 8px; padding: 14px 16px; margin-top: 16px;
+    font-size: 13px; line-height: 1.6;
+  }
+  .alert-box .alert-title { font-weight: 700; color: var(--red); margin-bottom: 6px; }
+
+  .table-wrapper { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { 
+    padding: 10px 12px; text-align: left; font-weight: 600; font-size: 11px;
+    color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--border);
+  }
+  td { padding: 10px 12px; border-bottom: 1px solid rgba(48,54,61,0.5); }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+  
+  .pill {
+    display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600;
+  }
+  .pill-red { background: rgba(248,81,73,0.15); color: var(--red); }
+  .pill-orange { background: rgba(240,136,62,0.15); color: var(--orange); }
+  .pill-yellow { background: rgba(210,153,34,0.15); color: var(--yellow); }
+  .pill-green { background: rgba(63,185,80,0.15); color: var(--green); }
+  .pill-blue { background: rgba(88,166,255,0.15); color: var(--primary); }
+
+  .risk-bar { 
+    height: 6px; background: var(--border); border-radius: 3px; overflow: hidden;
+    margin-top: 4px;
+  }
+  .risk-fill { height: 100%; border-radius: 3px; }
+  
+  .section-header {
+    font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 20px;
+    padding-bottom: 10px; border-bottom: 1px solid var(--border);
+  }
+  .section-sub { font-size: 13px; color: var(--muted); margin-top: 4px; font-weight: 400; }
+
+  .source-tag {
+    display: inline-block; font-size: 10px; color: var(--muted); 
+    background: rgba(255,255,255,0.05); padding: 2px 7px; border-radius: 4px;
+    margin-left: 6px;
+  }
+
+  @media (max-width: 900px) {
+    .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+    .col-span-2, .col-span-3 { grid-column: span 1; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <h1>Stormont Vail Health &mdash; <span>Community Health Intelligence</span></h1>
+    <p>Cross-referenced patient journey data with CDC PLACES, Social Vulnerability Index, Census ACS &bull; DataFest 2026</p>
+  </div>
+  <div class="header-badge">19 Counties &bull; 4 Data Sources &bull; 2.6M Patient Journeys</div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="showTab('overview')">Executive Overview</div>
+  <div class="tab" onclick="showTab('vulnerability')">Social Vulnerability</div>
+  <div class="tab" onclick="showTab('health-burden')">Health Burden</div>
+  <div class="tab" onclick="showTab('access')">Access & Barriers</div>
+  <div class="tab" onclick="showTab('correlation')">SVH Outcomes vs. Risk</div>
+  <div class="tab" onclick="showTab('table')">County Data Table</div>
+</div>
+
+<!-- TAB 1: EXECUTIVE OVERVIEW -->
+<div id="tab-overview" class="content active">
+  <div style="margin-bottom:20px">
+    <div class="section-header">
+      Executive Overview
+      <div class="section-sub">Key findings from external data enrichment across SVH's 19-county service area</div>
+    </div>
+  </div>
+
+  <div class="grid-4" style="margin-bottom:20px">
+    <div class="kpi-card">
+      <div class="kpi-label">Highest Vulnerability County</div>
+      <div class="kpi-value" style="color:var(--red); font-size:22px">Wyandotte</div>
+      <div class="kpi-sub">SVI: 0.755 &bull; 17.3% Uninsured</div>
+      <div class="kpi-badge badge-red">Highest overall risk</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Highest Escalation Rate</div>
+      <div class="kpi-value" style="color:var(--orange); font-size:22px">Geary Co.</div>
+      <div class="kpi-sub">24.1% of journeys escalate to ED/Inpatient</div>
+      <div class="kpi-badge badge-red">vs. 10.8% in Shawnee</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Largest Patient Population</div>
+      <div class="kpi-value" style="color:var(--primary); font-size:22px">Shawnee</div>
+      <div class="kpi-sub">2.04M journeys &bull; 85.2% MyChart active</div>
+      <div class="kpi-badge badge-blue">Core service area</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Highest Food Insecurity</div>
+      <div class="kpi-value" style="color:var(--yellow); font-size:22px">22.7%</div>
+      <div class="kpi-sub">Wyandotte County residents</div>
+      <div class="kpi-badge badge-yellow">SDOH risk factor</div>
+    </div>
+  </div>
+
+  <div class="grid-2" style="margin-bottom:20px">
+    <div class="card">
+      <div class="card-title">Overall Vulnerability Profile &mdash; <span>SVH Service Area</span> <span class="source-tag">CDC SVI 2022</span></div>
+      <div class="chart-wrap ch-240"><canvas id="sviOverviewChart"></canvas></div>
+      <div class="insight-box">
+        <div class="insight-title">&#9888; High-Priority Counties</div>
+        Wyandotte (0.755), Montgomery (0.737), and Geary (0.626) face the greatest combined socioeconomic burden. Geary is especially actionable: it sends significant patient volume to SVH but has the highest escalation rate in the system — suggesting unmet preventive care needs.
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Health Burden Comparison &mdash; <span>Top 5 Counties</span> <span class="source-tag">CDC PLACES 2024</span></div>
+      <div class="chart-wrap ch-240"><canvas id="radarChart"></canvas></div>
+      <div class="insight-box">
+        <div class="insight-title">&#128200; Geary & Shawnee Lead in Chronic Disease</div>
+        Shawnee has the highest diabetes (12.5%) and high blood pressure (39%) rates. Osage has the highest obesity rate (41.8%). These chronic conditions directly drive ED escalation and longer patient journeys.
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Key Findings for the Board</div>
+      <div style="display:flex; flex-direction:column; gap:12px; font-size:13px; line-height:1.6">
+        <div style="padding:12px; background:rgba(248,81,73,0.05); border-radius:8px; border-left:3px solid var(--red)">
+          <strong style="color:var(--red)">Finding 1: Geary County is an intervention priority.</strong><br>
+          24.1% escalation rate + SVI 0.626 + 13.1% uninsured = structural barriers to preventive care driving emergency utilization.
+        </div>
+        <div style="padding:12px; background:rgba(240,136,62,0.05); border-radius:8px; border-left:3px solid var(--orange)">
+          <strong style="color:var(--orange)">Finding 2: Digital engagement gap in Wyandotte &amp; Douglas.</strong><br>
+          Despite high vulnerability, Wyandotte and Douglas have the lowest MyChart activation rates — cutting off preventive communication pathways.
+        </div>
+        <div style="padding:12px; background:rgba(210,153,34,0.05); border-radius:8px; border-left:3px solid var(--yellow)">
+          <strong style="color:var(--yellow)">Finding 3: Transport + food insecurity cluster.</strong><br>
+          Wyandotte, Geary, and Lyon show high co-occurrence of food insecurity (17–23%) and transportation barriers (9–11%) — classic SDOH risk factors for missed appointments and delayed care.
+        </div>
+        <div style="padding:12px; background:rgba(63,185,80,0.05); border-radius:8px; border-left:3px solid var(--green)">
+          <strong style="color:var(--green)">Opportunity: Pottawatomie is low-risk, high-engagement.</strong><br>
+          SVI 0.286, 82% MyChart active, 0.2% escalation — a model for what effective preventive care looks like. Lessons should be exported system-wide.
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Data Sources Used in This Analysis</div>
+      <div style="display:flex; flex-direction:column; gap:10px; font-size:13px">
+        <div style="padding:12px; background:var(--surface); border-radius:8px; display:flex; align-items:flex-start; gap:12px">
+          <div style="background:rgba(88,166,255,0.1); border-radius:6px; padding:8px; font-size:18px">&#x1F4CA;</div>
+          <div><strong>SVH Patient Journeys</strong><br><span style="color:var(--muted)">2.6M journeys, 7.7M encounters &bull; Internal EHR data 2022–2025</span></div>
+        </div>
+        <div style="padding:12px; background:var(--surface); border-radius:8px; display:flex; align-items:flex-start; gap:12px">
+          <div style="background:rgba(63,185,80,0.1); border-radius:6px; padding:8px; font-size:18px">&#x1F3E5;</div>
+          <div><strong>CDC PLACES 2024</strong><br><span style="color:var(--muted)">County &amp; census-tract health measures: diabetes, obesity, BPHIGH, depression, insurance, food insecurity &bull; <em>19 SVH counties</em></span></div>
+        </div>
+        <div style="padding:12px; background:var(--surface); border-radius:8px; display:flex; align-items:flex-start; gap:12px">
+          <div style="background:rgba(210,153,34,0.1); border-radius:6px; padding:8px; font-size:18px">&#x26A0;</div>
+          <div><strong>CDC Social Vulnerability Index 2022</strong><br><span style="color:var(--muted)">245 census tracts &bull; 4 vulnerability themes: poverty, disability, minority, housing/transport</span></div>
+        </div>
+        <div style="padding:12px; background:var(--surface); border-radius:8px; display:flex; align-items:flex-start; gap:12px">
+          <div style="background:rgba(188,140,255,0.1); border-radius:6px; padding:8px; font-size:18px">&#x1F4CB;</div>
+          <div><strong>U.S. Census ACS 2023</strong><br><span style="color:var(--muted)">County-level: poverty rate, commute barriers, elderly population &bull; American Community Survey 5-year estimates</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB 2: SOCIAL VULNERABILITY -->
+<div id="tab-vulnerability" class="content">
+  <div style="margin-bottom:20px">
+    <div class="section-header">Social Vulnerability Index
+      <div class="section-sub">CDC SVI 2022 &bull; 245 census tracts across 19 counties &bull; Higher = more vulnerable (0–1 scale)</div>
+    </div>
+  </div>
+  
+  <div class="grid-2" style="margin-bottom:20px">
+    <div class="card">
+      <div class="card-title">Overall SVI Score by County <span class="source-tag">CDC SVI</span></div>
+      <div class="chart-wrap ch-300"><canvas id="sviBarChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">SVI Theme Breakdown — Top 8 Counties <span class="source-tag">CDC SVI</span></div>
+      <div class="chart-wrap ch-300"><canvas id="sviStackedChart"></canvas></div>
+      <div style="font-size:11px; color:var(--muted); margin-top:8px">
+        Theme 1: Poverty/Unemployment &bull; Theme 2: Age/Disability &bull; Theme 3: Minority/Language &bull; Theme 4: Housing/Transport
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-3">
+    <div class="card">
+      <div class="card-title">Poverty Rate (150% FPL) <span class="source-tag">ACS 2023</span></div>
+      <div class="chart-wrap ch-260"><canvas id="povertyChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Elderly Population (65–74) <span class="source-tag">ACS 2023</span></div>
+      <div class="chart-wrap ch-260"><canvas id="elderlyChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Long Commute Rate <span class="source-tag">ACS 2023</span></div>
+      <div class="chart-wrap ch-260"><canvas id="commuteChart"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB 3: HEALTH BURDEN -->
+<div id="tab-health-burden" class="content">
+  <div style="margin-bottom:20px">
+    <div class="section-header">Community Health Burden
+      <div class="section-sub">CDC PLACES 2024 &bull; Model-based estimates for county-level health measures &bull; Crude prevalence</div>
+    </div>
+  </div>
+
+  <div class="grid-2" style="margin-bottom:20px">
+    <div class="card">
+      <div class="card-title">Diabetes Prevalence by County <span class="source-tag">CDC PLACES</span></div>
+      <div class="chart-wrap ch-280"><canvas id="diabetesChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">High Blood Pressure by County <span class="source-tag">CDC PLACES</span></div>
+      <div class="chart-wrap ch-280"><canvas id="bpChart"></canvas></div>
+    </div>
+  </div>
+
+  <div class="grid-2" style="margin-bottom:20px">
+    <div class="card">
+      <div class="card-title">Obesity Rate by County <span class="source-tag">CDC PLACES</span></div>
+      <div class="chart-wrap ch-280"><canvas id="obesityChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Depression Prevalence by County <span class="source-tag">CDC PLACES</span></div>
+      <div class="chart-wrap ch-280"><canvas id="depressionChart"></canvas></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Multi-Metric Health Burden Heatmap — All 19 Counties</div>
+    <div class="table-wrapper">
+      <table id="healthHeatmapTable">
+        <thead>
+          <tr>
+            <th>County</th>
+            <th>Diabetes</th>
+            <th>High BP</th>
+            <th>Obesity</th>
+            <th>Depression</th>
+            <th>Smoking</th>
+            <th>Physical Inactivity</th>
+            <th>Mental Health Days</th>
+            <th>COPD</th>
+          </tr>
+        </thead>
+        <tbody id="healthHeatmapBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- TAB 4: ACCESS & BARRIERS -->
+<div id="tab-access" class="content">
+  <div style="margin-bottom:20px">
+    <div class="section-header">Healthcare Access &amp; Social Barriers
+      <div class="section-sub">CDC PLACES + SVI &bull; Structural barriers to care across the SVH service area</div>
+    </div>
+  </div>
+
+  <div class="grid-4" style="margin-bottom:20px">
+    <div class="kpi-card">
+      <div class="kpi-label">Highest Uninsured Rate</div>
+      <div class="kpi-value" style="color:var(--red)">17.3%</div>
+      <div class="kpi-sub">Wyandotte County</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Highest Food Insecurity</div>
+      <div class="kpi-value" style="color:var(--orange)">22.7%</div>
+      <div class="kpi-sub">Wyandotte County</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Highest Transport Barrier</div>
+      <div class="kpi-value" style="color:var(--yellow)">11.7%</div>
+      <div class="kpi-sub">Wyandotte County</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Most Vulnerable Tract SVI</div>
+      <div class="kpi-value" style="color:var(--red)">0.755</div>
+      <div class="kpi-sub">Wyandotte avg. (county)</div>
+    </div>
+  </div>
+
+  <div class="grid-2" style="margin-bottom:20px">
+    <div class="card">
+      <div class="card-title">No Insurance (ACCESS2) by County <span class="source-tag">CDC PLACES</span></div>
+      <div class="chart-wrap ch-300"><canvas id="insuredChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Food Insecurity &amp; Transport Barriers <span class="source-tag">CDC PLACES</span></div>
+      <div class="chart-wrap ch-300"><canvas id="sdohChart"></canvas></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Access Barriers Risk Matrix — SVH Counties</div>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>County</th>
+            <th>Uninsured %</th>
+            <th>Food Insecure %</th>
+            <th>Transport Barrier %</th>
+            <th>Avg SVI</th>
+            <th>Poverty % (ACS)</th>
+            <th>Overall Risk</th>
+          </tr>
+        </thead>
+        <tbody id="accessTableBody"></tbody>
+      </table>
+    </div>
+    <div class="alert-box">
+      <div class="alert-title">&#9888; Structural Barrier Cluster</div>
+      Wyandotte and Geary counties show simultaneous high rates across ALL barrier categories. These communities are most likely to delay care, miss follow-up appointments, and present to the ED in crisis rather than through preventive channels.
+    </div>
+  </div>
+</div>
+
+<!-- TAB 5: CORRELATION -->
+<div id="tab-correlation" class="content">
+  <div style="margin-bottom:20px">
+    <div class="section-header">SVH Patient Outcomes vs. Community Risk
+      <div class="section-sub">Cross-referencing internal journey metrics with external socioeconomic data</div>
+    </div>
+  </div>
+
+  <div class="grid-2" style="margin-bottom:20px">
+    <div class="card">
+      <div class="card-title">SVI vs. Escalation Rate <span class="source-tag">SVH + CDC SVI</span></div>
+      <div class="chart-wrap ch-300"><canvas id="scatterChart"></canvas></div>
+      <div class="insight-box">
+        <div class="insight-title">Key Signal: Higher Vulnerability = More Escalations</div>
+        Geary County (SVI 0.626) has a 24.1% escalation rate — more than double Shawnee's 10.8% despite lower overall volume. Communities with higher vulnerability indices are more likely to use emergency care rather than preventive outpatient services.
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">MyChart Engagement vs. Vulnerability <span class="source-tag">SVH + CDC SVI</span></div>
+      <div class="chart-wrap ch-300"><canvas id="mychartScatterChart"></canvas></div>
+      <div class="alert-box">
+        <div class="alert-title">Digital Divide Warning</div>
+        Douglas County (lowest escalation but only 48.4% MyChart activation) and Wyandotte (highest SVI, likely low activation) suggest a digital engagement gap in the most vulnerable communities — undermining preventive outreach.
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Journey Length vs. Diabetes Prevalence <span class="source-tag">SVH + CDC PLACES</span></div>
+      <div class="chart-wrap ch-280"><canvas id="diabJourneyChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">ED Visits vs. Uninsured Rate <span class="source-tag">SVH + CDC PLACES</span></div>
+      <div class="chart-wrap ch-280"><canvas id="edInsuredChart"></canvas></div>
+      <div class="insight-box">
+        <div class="insight-title">Uninsurance Drives Emergency Utilization</div>
+        Counties with higher uninsured rates correlate with higher average ED visits per patient journey — consistent with the well-established pattern of using emergency departments as primary care substitutes.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB 6: DATA TABLE -->
+<div id="tab-table" class="content">
+  <div style="margin-bottom:20px">
+    <div class="section-header">Complete County Data Table
+      <div class="section-sub">All 19 SVH counties with merged external and internal metrics</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>County</th>
+            <th>Population</th>
+            <th>SVI Score</th>
+            <th>Poverty %</th>
+            <th>Uninsured %</th>
+            <th>Food Insecure %</th>
+            <th>Diabetes %</th>
+            <th>Obesity %</th>
+            <th>SVH Journeys</th>
+            <th>Escalation %</th>
+            <th>MyChart %</th>
+            <th>Avg Journey Len</th>
+          </tr>
+        </thead>
+        <tbody id="fullTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+const MERGED = [{"county": "Shawnee", "fips": "20177", "pop": 177746, "diabetes": 12.5, "bp_high": 39.0, "obesity": 38.3, "depression": 23.0, "smoking": 15.2, "no_insurance": 9.6, "food_insecure": 13.8, "no_transport": 7.2, "lpa": 25.7, "mhlth": 15.6, "copd": 7.4, "avg_svi": 0.54, "svi_poverty": 0.53, "svi_disability": 0.505, "svi_minority": 0.586, "svi_housing": 0.53, "svi_uninsur_pct": 9.6, "acs_poverty_pct": 12.4, "acs_long_commute_pct": 0.9, "acs_elderly_pct": 11.3, "n_journeys": 2039255, "escalation_pct": 10.8, "avg_journey_length": 2.3, "mychart_pct": 85.2, "avg_ed": 0.1}, {"county": "Geary", "fips": "20061", "pop": 35047, "diabetes": 9.3, "bp_high": 29.5, "obesity": 34.5, "depression": 21.8, "smoking": 16.4, "no_insurance": 13.1, "food_insecure": 19.5, "no_transport": 10.8, "lpa": 29.7, "mhlth": 19.6, "copd": 5.9, "avg_svi": 0.626, "svi_poverty": 0.627, "svi_disability": 0.684, "svi_minority": 0.816, "svi_housing": 0.368, "svi_uninsur_pct": 8.4, "acs_poverty_pct": 19.3, "acs_long_commute_pct": 1.6, "acs_elderly_pct": 5.1, "n_journeys": 163723, "escalation_pct": 24.1, "avg_journey_length": 1.6, "mychart_pct": 71.7, "avg_ed": 0.25}, {"county": "Lyon", "fips": "20111", "pop": 32172, "diabetes": 11.5, "bp_high": 34.0, "obesity": 37.8, "depression": 21.5, "smoking": 14.8, "no_insurance": 13.1, "food_insecure": 16.2, "no_transport": 8.8, "lpa": 29.2, "mhlth": 17.6, "copd": 7.2, "avg_svi": 0.529, "svi_poverty": 0.47, "svi_disability": 0.459, "svi_minority": 0.497, "svi_housing": 0.638, "svi_uninsur_pct": 9.2, "acs_poverty_pct": 15.2, "acs_long_commute_pct": 1.0, "acs_elderly_pct": 9.4, "n_journeys": 142188, "escalation_pct": 0.1, "avg_journey_length": 2.2, "mychart_pct": 77.9, "avg_ed": 0.0}, {"county": "Riley", "fips": "20161", "pop": 71402, "diabetes": 7.2, "bp_high": 23.2, "obesity": 26.4, "depression": 23.2, "smoking": 11.8, "no_insurance": 9.3, "food_insecure": 13.4, "no_transport": 8.7, "lpa": 21.9, "mhlth": 18.8, "copd": 4.9, "avg_svi": 0.567, "svi_poverty": 0.603, "svi_disability": 0.243, "svi_minority": 0.545, "svi_housing": 0.74, "svi_uninsur_pct": 6.1, "acs_poverty_pct": 22.0, "acs_long_commute_pct": 1.7, "acs_elderly_pct": 6.0, "n_journeys": 127600, "escalation_pct": 0.3, "avg_journey_length": 2.0, "mychart_pct": 81.1, "avg_ed": 0.0}, {"county": "Osage", "fips": "20139", "pop": 15824, "diabetes": 12.5, "bp_high": 39.0, "obesity": 41.8, "depression": 21.1, "smoking": 16.4, "no_insurance": 8.6, "food_insecure": 11.9, "no_transport": 6.4, "lpa": 28.2, "mhlth": 16.3, "copd": 8.4, "avg_svi": 0.453, "svi_poverty": 0.493, "svi_disability": 0.454, "svi_minority": 0.11, "svi_housing": 0.553, "svi_uninsur_pct": 8.7, "acs_poverty_pct": 11.0, "acs_long_commute_pct": 2.7, "acs_elderly_pct": 12.7, "n_journeys": 55327, "escalation_pct": 0.7, "avg_journey_length": 2.2, "mychart_pct": 84.7, "avg_ed": 0.01}, {"county": "Pottawatomie", "fips": "20149", "pop": 26382, "diabetes": 9.7, "bp_high": 33.2, "obesity": 35.8, "depression": 19.9, "smoking": 13.6, "no_insurance": 7.7, "food_insecure": 9.6, "no_transport": 5.7, "lpa": 23.8, "mhlth": 15.7, "copd": 6.1, "avg_svi": 0.286, "svi_poverty": 0.192, "svi_disability": 0.29, "svi_minority": 0.242, "svi_housing": 0.589, "svi_uninsur_pct": 5.1, "acs_poverty_pct": 7.1, "acs_long_commute_pct": 2.5, "acs_elderly_pct": 9.2, "n_journeys": 35719, "escalation_pct": 0.2, "avg_journey_length": 2.0, "mychart_pct": 82.0, "avg_ed": 0.0}, {"county": "Jefferson", "fips": "20087", "pop": 18327, "diabetes": 11.3, "bp_high": 35.6, "obesity": 34.7, "depression": 20.7, "smoking": 14.6, "no_insurance": 7.5, "food_insecure": 9.6, "no_transport": 5.6, "lpa": 25.3, "mhlth": 15.4, "copd": 7.3, "avg_svi": 0.284, "svi_poverty": 0.355, "svi_disability": 0.249, "svi_minority": 0.115, "svi_housing": 0.485, "svi_uninsur_pct": 5.8, "acs_poverty_pct": 6.3, "acs_long_commute_pct": 1.9, "acs_elderly_pct": 11.7, "n_journeys": 17592, "escalation_pct": 0.5, "avg_journey_length": 1.9, "mychart_pct": 77.8, "avg_ed": 0.01}, {"county": "Jackson", "fips": "20085", "pop": 13368, "diabetes": 12.3, "bp_high": 36.5, "obesity": 37.8, "depression": 20.8, "smoking": 15.8, "no_insurance": 8.8, "food_insecure": 12.0, "no_transport": 6.8, "lpa": 27.2, "mhlth": 16.3, "copd": 7.9, "avg_svi": 0.482, "svi_poverty": 0.384, "svi_disability": 0.685, "svi_minority": 0.432, "svi_housing": 0.504, "svi_uninsur_pct": 8.9, "acs_poverty_pct": 9.1, "acs_long_commute_pct": 6.4, "acs_elderly_pct": 11.2, "n_journeys": 16259, "escalation_pct": 0.4, "avg_journey_length": 1.8, "mychart_pct": 82.8, "avg_ed": 0.0}, {"county": "Douglas", "fips": "20045", "pop": 120553, "diabetes": 8.4, "bp_high": 26.6, "obesity": 30.5, "depression": 24.5, "smoking": 11.6, "no_insurance": 7.5, "food_insecure": 11.0, "no_transport": 7.0, "lpa": 18.8, "mhlth": 17.1, "copd": 5.3, "avg_svi": 0.447, "svi_poverty": 0.534, "svi_disability": 0.188, "svi_minority": 0.521, "svi_housing": 0.6, "svi_uninsur_pct": 8.0, "acs_poverty_pct": 15.2, "acs_long_commute_pct": 0.8, "acs_elderly_pct": 8.4, "n_journeys": 2146, "escalation_pct": 0.0, "avg_journey_length": 2.1, "mychart_pct": 48.4, "avg_ed": 0.0}, {"county": "Cherokee", "fips": "20021", "pop": 19054, "diabetes": 13.4, "bp_high": 38.8, "obesity": 43.8, "depression": 22.5, "smoking": 18.9, "no_insurance": 9.5, "food_insecure": 15.3, "no_transport": 8.4, "lpa": 30.6, "mhlth": 17.6, "copd": 9.7, "avg_svi": 0.551, "svi_poverty": 0.552, "svi_disability": 0.474, "svi_minority": 0.317, "svi_housing": 0.628, "svi_uninsur_pct": 9.8, "acs_poverty_pct": 13.1, "acs_long_commute_pct": 1.1, "acs_elderly_pct": 11.6, "n_journeys": null, "escalation_pct": null, "avg_journey_length": null, "mychart_pct": null, "avg_ed": null}, {"county": "Coffey", "fips": "20031", "pop": 8251, "diabetes": 12.7, "bp_high": 38.5, "obesity": 36.9, "depression": 20.8, "smoking": 16.2, "no_insurance": 8.7, "food_insecure": 11.7, "no_transport": 6.5, "lpa": 27.6, "mhlth": 16.1, "copd": 8.5, "avg_svi": 0.478, "svi_poverty": 0.502, "svi_disability": 0.482, "svi_minority": 0.128, "svi_housing": 0.616, "svi_uninsur_pct": 9.0, "acs_poverty_pct": 9.6, "acs_long_commute_pct": 2.9, "acs_elderly_pct": 12.7, "n_journeys": null, "escalation_pct": null, "avg_journey_length": null, "mychart_pct": null, "avg_ed": null}, {"county": "Franklin", "fips": "20059", "pop": 26125, "diabetes": 11.5, "bp_high": 36.2, "obesity": 40.3, "depression": 21.3, "smoking": 16.1, "no_insurance": 8.8, "food_insecure": 11.9, "no_transport": 6.7, "lpa": 27.3, "mhlth": 16.8, "copd": 7.7, "avg_svi": 0.479, "svi_poverty": 0.479, "svi_disability": 0.508, "svi_minority": 0.227, "svi_housing": 0.554, "svi_uninsur_pct": 7.0, "acs_poverty_pct": 9.6, "acs_long_commute_pct": 1.8, "acs_elderly_pct": 10.7, "n_journeys": null, "escalation_pct": null, "avg_journey_length": null, "mychart_pct": null, "avg_ed": null}, {"county": "Crawford", "fips": "20037", "pop": 38764, "diabetes": 11.2, "bp_high": 35.1, "obesity": 36.8, "depression": 22.6, "smoking": 16.4, "no_insurance": 9.7, "food_insecure": 15.0, "no_transport": 8.6, "lpa": 27.5, "mhlth": 18.3, "copd": 7.9, "avg_svi": 0.61, "svi_poverty": 0.649, "svi_disability": 0.439, "svi_minority": 0.358, "svi_housing": 0.672, "svi_uninsur_pct": 11.1, "acs_poverty_pct": 20.8, "acs_long_commute_pct": 1.6, "acs_elderly_pct": 9.1, "n_journeys": null, "escalation_pct": null, "avg_journey_length": null, "mychart_pct": null, "avg_ed": null}, {"county": "Bourbon", "fips": "20011", "pop": 14408, "diabetes": 12.7, "bp_high": 38.2, "obesity": 36.7, "depression": 21.7, "smoking": 16.9, "no_insurance": 9.0, "food_insecure": 13.8, "no_transport": 7.6, "lpa": 30.9, "mhlth": 17.1, "copd": 8.9, "avg_svi": 0.549, "svi_poverty": 0.555, "svi_disability": 0.574, "svi_minority": 0.243, "svi_housing": 0.602, "svi_uninsur_pct": 8.9, "acs_poverty_pct": 11.8, "acs_long_commute_pct": 3.4, "acs_elderly_pct": 11.5, "n_journeys": null, "escalation_pct": null, "avg_journey_length": null, "mychart_pct": null, "avg_ed": null}, {"county": "Greenwood", "fips": "20073", "pop": 5870, "diabetes": 14.4, "bp_high": 42.0, "obesity": 40.7, "depression": 21.0, "smoking": 17.4, "no_insurance": 9.0, "food_insecure": 13.1, "no_transport": 7.0, "lpa": 29.9, "mhlth": 16.2, "copd": 9.9, "avg_svi": 0.493, "svi_poverty": 0.477, "svi_disability": 0.728, "svi_minority": 0.16, "svi_housing": 0.463, "svi_uninsur_pct": 9.7, "acs_poverty_pct": 14.9, "acs_long_commute_pct": 1.7, "acs_elderly_pct": 15.1, "n_journeys": null, "escalation_pct": null, "avg_journey_length": null, "mychart_pct": null, "avg_ed": null}, {"county": "Montgomery", "fips": "20125", "pop": 30568, "diabetes": 13.8, "bp_high": 40.0, "obesity": 38.9, "depression": 21.6, "smoking": 17.9, "no_insurance": 10.5, "food_insecure": 16.0, "no_transport": 8.6, "lpa": 29.4, "mhlth": 17.5, "copd": 9.4, "avg_svi": 0.737, "svi_poverty": 0.707, "svi_disability": 0.667, "svi_minority": 0.51, "svi_housing": 0.714, "svi_uninsur_pct": 12.9, "acs_poverty_pct": 16.3, "acs_long_commute_pct": 2.1, "acs_elderly_pct": 11.8, "n_journeys": null, "escalation_pct": null, "avg_journey_length": null, "mychart_pct": null, "avg_ed": null}, {"county": "Wyandotte", "fips": "20209", "pop": 165281, "diabetes": 14.5, "bp_high": 37.0, "obesity": 40.7, "depression": 17.7, "smoking": 17.6, "no_insurance": 17.3, "food_insecure": 22.7, "no_transport": 11.7, "lpa": 34.7, "mhlth": 17.2, "copd": 7.4, "avg_svi": 0.755, "svi_poverty": 0.774, "svi_disability": 0.702, "svi_minority": 0.88, "svi_housing": 0.512, "svi_uninsur_pct": 19.1, "acs_poverty_pct": 17.5, "acs_long_commute_pct": 1.3, "acs_elderly_pct": 8.2, "n_journeys": null, "escalation_pct": null, "avg_journey_length": null, "mychart_pct": null, "avg_ed": null}, {"county": "Lane", "fips": "20101", "pop": 1529, "diabetes": 13.1, "bp_high": 39.1, "obesity": 36.6, "depression": 20.4, "smoking": 14.4, "no_insurance": 9.3, "food_insecure": 11.4, "no_transport": 6.4, "lpa": 28.4, "mhlth": 15.4, "copd": 8.3, "avg_svi": 0.378, "svi_poverty": 0.338, "svi_disability": 0.647, "svi_minority": 0.408, "svi_housing": 0.327, "svi_uninsur_pct": 15.8, "acs_poverty_pct": 8.1, "acs_long_commute_pct": 2.6, "acs_elderly_pct": 14.3, "n_journeys": null, "escalation_pct": null, "avg_journey_length": null, "mychart_pct": null, "avg_ed": null}, {"county": "Nemaha", "fips": "20131", "pop": 10114, "diabetes": 11.4, "bp_high": 36.9, "obesity": 38.7, "depression": 20.6, "smoking": 14.7, "no_insurance": 8.0, "food_insecure": 10.6, "no_transport": 6.1, "lpa": 26.2, "mhlth": 15.7, "copd": 7.6, "avg_svi": 0.328, "svi_poverty": 0.275, "svi_disability": 0.437, "svi_minority": 0.071, "svi_housing": 0.57, "svi_uninsur_pct": 5.8, "acs_poverty_pct": 7.7, "acs_long_commute_pct": 0.9, "acs_elderly_pct": 9.9, "n_journeys": null, "escalation_pct": null, "avg_journey_length": null, "mychart_pct": null, "avg_ed": null}];
+
+// Color helpers
+const COLORS = ['#58a6ff','#3fb950','#f0883e','#bc8cff','#39d0d8','#d29922','#f85149','#56d364','#ffa657','#a5d6ff'];
+const riskColor = (v, low, high) => {
+  if (v == null) return '#8b949e';
+  const pct = (v - low) / (high - low);
+  if (pct < 0.33) return '#3fb950';
+  if (pct < 0.66) return '#d29922';
+  return '#f85149';
+};
+
+function showTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
+  const tab = [...document.querySelectorAll('.tab')].find(t => t.onclick.toString().includes(name));
+  if (tab) tab.classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+}
+
+const chartDefaults = {
+  plugins: { legend: { labels: { color: '#8b949e', font: { size: 11 } } } },
+  scales: {
+    x: { ticks: { color: '#8b949e', font: { size: 11 } }, grid: { color: 'rgba(48,54,61,0.5)' } },
+    y: { ticks: { color: '#8b949e', font: { size: 11 } }, grid: { color: 'rgba(48,54,61,0.5)' } }
+  }
+};
+
+// Helper to create horizontal bar chart
+function hBarChart(canvasId, labels, values, color, labelSuffix='%') {
+  const ctx = document.getElementById(canvasId);
+  if (!ctx) return;
+  return new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{ data: values, backgroundColor: color, borderRadius: 4, barThickness: 14 }]
+    },
+    options: {
+      indexAxis: 'y',
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { ticks: { color: '#8b949e', font: { size: 10 }, callback: v => v + labelSuffix }, grid: { color: 'rgba(48,54,61,0.5)' } },
+        y: { ticks: { color: '#c9d1d9', font: { size: 11 } }, grid: { display: false } }
+      },
+      responsive: true, maintainAspectRatio: false
+    }
+  });
+}
+
+// === OVERVIEW TAB ===
+// SVI overview chart
+const sviSorted = MERGED.filter(r => r.avg_svi).sort((a,b) => a.avg_svi - b.avg_svi);
+new Chart(document.getElementById('sviOverviewChart'), {
+  type: 'bar',
+  data: {
+    labels: sviSorted.map(r => r.county),
+    datasets: [{
+      data: sviSorted.map(r => r.avg_svi),
+      backgroundColor: sviSorted.map(r => riskColor(r.avg_svi, 0.2, 0.8)),
+      borderRadius: 4, barThickness: 14
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { min: 0, max: 1, ticks: { color: '#8b949e', font: { size: 10 } }, grid: { color: 'rgba(48,54,61,0.5)' } },
+      y: { ticks: { color: '#c9d1d9', font: { size: 11 } }, grid: { display: false } }
+    },
+    responsive: true, maintainAspectRatio: false
+  }
+});
+
+// Radar chart for top counties
+const top5 = MERGED.filter(r => r.n_journeys && r.n_journeys > 1000).slice(0, 5);
+new Chart(document.getElementById('radarChart'), {
+  type: 'radar',
+  data: {
+    labels: ['Diabetes', 'High BP', 'Obesity', 'Depression', 'Smoking', 'Physical Inactivity'],
+    datasets: top5.map((r, i) => ({
+      label: r.county,
+      data: [r.diabetes, r.bp_high, r.obesity, r.depression, r.smoking, r.lpa],
+      backgroundColor: COLORS[i] + '20',
+      borderColor: COLORS[i],
+      pointBackgroundColor: COLORS[i],
+      borderWidth: 2
+    }))
+  },
+  options: {
+    plugins: { legend: { labels: { color: '#8b949e', font: { size: 10 } } } },
+    scales: {
+      r: {
+        ticks: { color: '#8b949e', font: { size: 9 }, backdropColor: 'transparent' },
+        grid: { color: 'rgba(48,54,61,0.7)' },
+        pointLabels: { color: '#c9d1d9', font: { size: 10 } }
+      }
+    },
+    responsive: true, maintainAspectRatio: false
+  }
+});
+
+// === VULNERABILITY TAB ===
+const sviAll = MERGED.filter(r => r.avg_svi).sort((a,b) => a.avg_svi - b.avg_svi);
+hBarChart('sviBarChart', sviAll.map(r => r.county), sviAll.map(r => r.avg_svi),
+  sviAll.map(r => riskColor(r.avg_svi, 0.2, 0.8)), '');
+
+// Stacked SVI themes
+const sviTop8 = MERGED.filter(r => r.avg_svi).sort((a,b) => b.avg_svi - a.avg_svi).slice(0, 8);
+new Chart(document.getElementById('sviStackedChart'), {
+  type: 'bar',
+  data: {
+    labels: sviTop8.map(r => r.county),
+    datasets: [
+      { label: 'T1: Poverty', data: sviTop8.map(r => r.svi_poverty), backgroundColor: '#f85149cc', borderRadius: 2 },
+      { label: 'T2: Disability', data: sviTop8.map(r => r.svi_disability), backgroundColor: '#f0883ecc', borderRadius: 2 },
+      { label: 'T3: Minority', data: sviTop8.map(r => r.svi_minority), backgroundColor: '#d29922cc', borderRadius: 2 },
+      { label: 'T4: Housing', data: sviTop8.map(r => r.svi_housing), backgroundColor: '#bc8cffcc', borderRadius: 2 },
+    ]
+  },
+  options: {
+    scales: {
+      x: { stacked: true, ticks: { color: '#8b949e', font: { size: 10 } }, grid: { color: 'rgba(48,54,61,0.5)' } },
+      y: { stacked: true, ticks: { color: '#8b949e', font: { size: 10 } }, grid: { color: 'rgba(48,54,61,0.5)' } }
+    },
+    plugins: { legend: { labels: { color: '#8b949e', font: { size: 10 } } } },
+    responsive: true, maintainAspectRatio: false
+  }
+});
+
+// Poverty, Elderly, Commute charts
+const acsSorted = MERGED.filter(r => r.acs_poverty_pct).sort((a,b) => a.acs_poverty_pct - b.acs_poverty_pct);
+hBarChart('povertyChart', acsSorted.map(r => r.county), acsSorted.map(r => r.acs_poverty_pct),
+  acsSorted.map(r => riskColor(r.acs_poverty_pct, 5, 25)));
+
+const eldSorted = MERGED.filter(r => r.acs_elderly_pct).sort((a,b) => a.acs_elderly_pct - b.acs_elderly_pct);
+hBarChart('elderlyChart', eldSorted.map(r => r.county), eldSorted.map(r => r.acs_elderly_pct),
+  '#58a6ff');
+
+const commSorted = MERGED.filter(r => r.acs_long_commute_pct != null).sort((a,b) => a.acs_long_commute_pct - b.acs_long_commute_pct);
+hBarChart('commuteChart', commSorted.map(r => r.county), commSorted.map(r => r.acs_long_commute_pct),
+  '#39d0d8');
+
+// === HEALTH BURDEN TAB ===
+const diabSorted = MERGED.filter(r => r.diabetes).sort((a,b) => a.diabetes - b.diabetes);
+hBarChart('diabetesChart', diabSorted.map(r => r.county), diabSorted.map(r => r.diabetes),
+  diabSorted.map(r => riskColor(r.diabetes, 5, 15)));
+
+const bpSorted = MERGED.filter(r => r.bp_high).sort((a,b) => a.bp_high - b.bp_high);
+hBarChart('bpChart', bpSorted.map(r => r.county), bpSorted.map(r => r.bp_high),
+  bpSorted.map(r => riskColor(r.bp_high, 20, 42)));
+
+const obSorted = MERGED.filter(r => r.obesity).sort((a,b) => a.obesity - b.obesity);
+hBarChart('obesityChart', obSorted.map(r => r.county), obSorted.map(r => r.obesity),
+  obSorted.map(r => riskColor(r.obesity, 25, 45)));
+
+const depSorted = MERGED.filter(r => r.depression).sort((a,b) => a.depression - b.depression);
+hBarChart('depressionChart', depSorted.map(r => r.county), depSorted.map(r => r.depression),
+  depSorted.map(r => riskColor(r.depression, 15, 28)));
+
+// Health heatmap table
+const heatBody = document.getElementById('healthHeatmapBody');
+MERGED.sort((a,b) => (b.n_journeys||0) - (a.n_journeys||0)).forEach(r => {
+  const pill = (v, lo, hi) => {
+    if (v == null) return '<span style="color:#8b949e">—</span>';
+    const pct = (v - lo) / (hi - lo);
+    const cls = pct < 0.33 ? 'pill-green' : pct < 0.66 ? 'pill-yellow' : 'pill-red';
+    return '<span class="pill ' + cls + '">' + v + '%</span>';
+  };
+  const row = document.createElement('tr');
+  row.innerHTML = '<td><strong>' + r.county + '</strong></td>' +
+    '<td>' + pill(r.diabetes,5,15) + '</td>' +
+    '<td>' + pill(r.bp_high,22,42) + '</td>' +
+    '<td>' + pill(r.obesity,25,45) + '</td>' +
+    '<td>' + pill(r.depression,15,27) + '</td>' +
+    '<td>' + pill(r.smoking,9,20) + '</td>' +
+    '<td>' + pill(r.lpa,15,38) + '</td>' +
+    '<td>' + pill(r.mhlth,12,22) + '</td>' +
+    '<td>' + pill(r.copd,4,11) + '</td>';
+  heatBody.appendChild(row);
+});
+
+// === ACCESS TAB ===
+const insSorted = MERGED.filter(r => r.no_insurance != null).sort((a,b) => a.no_insurance - b.no_insurance);
+hBarChart('insuredChart', insSorted.map(r => r.county), insSorted.map(r => r.no_insurance),
+  insSorted.map(r => riskColor(r.no_insurance, 4, 18)));
+
+const foodSorted = MERGED.filter(r => r.food_insecure != null).sort((a,b) => a.food_insecure - b.food_insecure);
+new Chart(document.getElementById('sdohChart'), {
+  type: 'bar',
+  data: {
+    labels: foodSorted.map(r => r.county),
+    datasets: [
+      { label: 'Food Insecure %', data: foodSorted.map(r => r.food_insecure), backgroundColor: '#f0883e99', borderRadius: 3 },
+      { label: 'No Transport %', data: foodSorted.map(r => r.no_transport), backgroundColor: '#bc8cff99', borderRadius: 3 }
+    ]
+  },
+  options: {
+    indexAxis: 'y',
+    plugins: { legend: { labels: { color: '#8b949e', font: { size: 11 } } } },
+    scales: {
+      x: { ticks: { color: '#8b949e', font: { size: 10 }, callback: v => v + '%' }, grid: { color: 'rgba(48,54,61,0.5)' } },
+      y: { ticks: { color: '#c9d1d9', font: { size: 11 } }, grid: { display: false } }
+    },
+    responsive: true, maintainAspectRatio: false
+  }
+});
+
+// Access table
+const accBody = document.getElementById('accessTableBody');
+MERGED.filter(r => r.no_insurance != null).sort((a,b) => (b.no_insurance||0) - (a.no_insurance||0)).forEach(r => {
+  const riskScore = ((r.no_insurance||0)/18 + (r.food_insecure||0)/23 + (r.avg_svi||0)) / 3;
+  const riskPill = riskScore > 0.55 ? 'pill-red' : riskScore > 0.35 ? 'pill-yellow' : 'pill-green';
+  const riskLabel = riskScore > 0.55 ? 'High' : riskScore > 0.35 ? 'Medium' : 'Low';
+  const row = document.createElement('tr');
+  row.innerHTML = '<td><strong>' + r.county + '</strong></td>' +
+    '<td>' + (r.no_insurance != null ? r.no_insurance + '%' : '—') + '</td>' +
+    '<td>' + (r.food_insecure != null ? r.food_insecure + '%' : '—') + '</td>' +
+    '<td>' + (r.no_transport != null ? r.no_transport + '%' : '—') + '</td>' +
+    '<td>' + (r.avg_svi != null ? r.avg_svi : '—') + '</td>' +
+    '<td>' + (r.acs_poverty_pct != null ? r.acs_poverty_pct + '%' : '—') + '</td>' +
+    '<td><span class="pill ' + riskPill + '">' + riskLabel + '</span></td>';
+  accBody.appendChild(row);
+});
+
+// === CORRELATION TAB ===
+const scatterData = MERGED.filter(r => r.avg_svi && r.escalation_pct != null && r.n_journeys > 500);
+new Chart(document.getElementById('scatterChart'), {
+  type: 'scatter',
+  data: {
+    datasets: [{
+      label: 'County',
+      data: scatterData.map(r => ({ x: r.avg_svi, y: r.escalation_pct, county: r.county, n: r.n_journeys })),
+      backgroundColor: scatterData.map(r => riskColor(r.escalation_pct, 0, 25) + 'cc'),
+      borderColor: scatterData.map(r => riskColor(r.escalation_pct, 0, 25)),
+      pointRadius: scatterData.map(r => 6 + Math.log10(r.n_journeys || 1) * 2),
+      pointHoverRadius: 10
+    }]
+  },
+  options: {
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: ctx => ctx.raw.county + ': SVI=' + ctx.raw.x + ', Esc=' + ctx.raw.y + '%, n=' + (ctx.raw.n||0).toLocaleString() } }
+    },
+    scales: {
+      x: { title: { display: true, text: 'Social Vulnerability Index (avg)', color: '#8b949e' }, ticks: { color: '#8b949e' }, grid: { color: 'rgba(48,54,61,0.5)' } },
+      y: { title: { display: true, text: 'Escalation Rate (%)', color: '#8b949e' }, ticks: { color: '#8b949e', callback: v => v + '%' }, grid: { color: 'rgba(48,54,61,0.5)' } }
+    },
+    responsive: true, maintainAspectRatio: false
+  }
+});
+
+// MyChart vs SVI scatter
+const mySorted = MERGED.filter(r => r.avg_svi && r.mychart_pct != null);
+new Chart(document.getElementById('mychartScatterChart'), {
+  type: 'scatter',
+  data: {
+    datasets: [{
+      label: 'County',
+      data: mySorted.map(r => ({ x: r.avg_svi, y: r.mychart_pct, county: r.county })),
+      backgroundColor: mySorted.map(r => COLORS[mySorted.indexOf(r) % COLORS.length] + 'cc'),
+      borderColor: mySorted.map(r => COLORS[mySorted.indexOf(r) % COLORS.length]),
+      pointRadius: 8, pointHoverRadius: 11
+    }]
+  },
+  options: {
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: ctx => ctx.raw.county + ': SVI=' + ctx.raw.x + ', MyChart=' + ctx.raw.y + '%' } }
+    },
+    scales: {
+      x: { title: { display: true, text: 'Social Vulnerability Index', color: '#8b949e' }, ticks: { color: '#8b949e' }, grid: { color: 'rgba(48,54,61,0.5)' } },
+      y: { title: { display: true, text: 'MyChart Active (%)', color: '#8b949e' }, ticks: { color: '#8b949e', callback: v => v + '%' }, grid: { color: 'rgba(48,54,61,0.5)' } }
+    },
+    responsive: true, maintainAspectRatio: false
+  }
+});
+
+// Diabetes vs journey length
+const diabJ = MERGED.filter(r => r.diabetes && r.avg_journey_length && r.n_journeys > 500);
+new Chart(document.getElementById('diabJourneyChart'), {
+  type: 'scatter',
+  data: {
+    datasets: [{
+      label: 'County',
+      data: diabJ.map(r => ({ x: r.diabetes, y: r.avg_journey_length, county: r.county })),
+      backgroundColor: '#58a6ffcc', borderColor: '#58a6ff', pointRadius: 8, pointHoverRadius: 11
+    }]
+  },
+  options: {
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: ctx => ctx.raw.county + ': Diabetes=' + ctx.raw.x + '%, Avg Journey=' + ctx.raw.y } }
+    },
+    scales: {
+      x: { title: { display: true, text: 'Diabetes Prevalence (%)', color: '#8b949e' }, ticks: { color: '#8b949e' }, grid: { color: 'rgba(48,54,61,0.5)' } },
+      y: { title: { display: true, text: 'Avg Journey Length (visits)', color: '#8b949e' }, ticks: { color: '#8b949e' }, grid: { color: 'rgba(48,54,61,0.5)' } }
+    },
+    responsive: true, maintainAspectRatio: false
+  }
+});
+
+// ED visits vs uninsured
+const edIns = MERGED.filter(r => r.no_insurance && r.avg_ed != null && r.n_journeys > 500);
+new Chart(document.getElementById('edInsuredChart'), {
+  type: 'scatter',
+  data: {
+    datasets: [{
+      label: 'County',
+      data: edIns.map(r => ({ x: r.no_insurance, y: r.avg_ed, county: r.county })),
+      backgroundColor: '#f85149cc', borderColor: '#f85149', pointRadius: 8, pointHoverRadius: 11
+    }]
+  },
+  options: {
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: ctx => ctx.raw.county + ': Uninsured=' + ctx.raw.x + '%, Avg ED=' + ctx.raw.y } }
+    },
+    scales: {
+      x: { title: { display: true, text: 'Uninsured Rate (%)', color: '#8b949e' }, ticks: { color: '#8b949e' }, grid: { color: 'rgba(48,54,61,0.5)' } },
+      y: { title: { display: true, text: 'Avg ED Visits per Journey', color: '#8b949e' }, ticks: { color: '#8b949e' }, grid: { color: 'rgba(48,54,61,0.5)' } }
+    },
+    responsive: true, maintainAspectRatio: false
+  }
+});
+
+// === FULL TABLE TAB ===
+const ftBody = document.getElementById('fullTableBody');
+MERGED.sort((a,b) => (b.n_journeys||0) - (a.n_journeys||0)).forEach(r => {
+  const row = document.createElement('tr');
+  const sviColor = r.avg_svi ? riskColor(r.avg_svi, 0.2, 0.8) : '#8b949e';
+  const escColor = r.escalation_pct != null ? riskColor(r.escalation_pct, 0, 25) : '#8b949e';
+  row.innerHTML = '<td><strong>' + r.county + '</strong></td>' +
+    '<td>' + (r.pop ? Number(r.pop).toLocaleString() : '—') + '</td>' +
+    '<td style="color:' + sviColor + '">' + (r.avg_svi != null ? r.avg_svi : '—') + '</td>' +
+    '<td>' + (r.acs_poverty_pct != null ? r.acs_poverty_pct + '%' : '—') + '</td>' +
+    '<td>' + (r.no_insurance != null ? r.no_insurance + '%' : '—') + '</td>' +
+    '<td>' + (r.food_insecure != null ? r.food_insecure + '%' : '—') + '</td>' +
+    '<td>' + (r.diabetes != null ? r.diabetes + '%' : '—') + '</td>' +
+    '<td>' + (r.obesity != null ? r.obesity + '%' : '—') + '</td>' +
+    '<td>' + (r.n_journeys != null ? Number(r.n_journeys).toLocaleString() : '—') + '</td>' +
+    '<td style="color:' + escColor + '">' + (r.escalation_pct != null ? r.escalation_pct + '%' : '—') + '</td>' +
+    '<td>' + (r.mychart_pct != null ? r.mychart_pct + '%' : '—') + '</td>' +
+    '<td>' + (r.avg_journey_length != null ? r.avg_journey_length : '—') + '</td>';
+  ftBody.appendChild(row);
+});
+
+</script>
+</body>
+</html>
