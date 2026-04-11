@@ -256,6 +256,58 @@ html, body {
 }
 .noise b { color:var(--c1);font-weight: 700; }
 
+/* ── TRANSITION SECTION ── */
+.transition-section {
+  min-height: 100vh; width: 100%; display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(135deg, #0f3460 0%, #1a4a7a 100%);
+  position: relative; overflow: hidden; padding: 60px 40px; box-sizing: border-box;
+  border-bottom: 2px solid var(--c1);
+}
+.transition-section::before {
+  content: ''; position: absolute; top: 0; right: -200px; width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(57, 208, 216, 0.15) 0%, transparent 70%);
+  border-radius: 50%; pointer-events: none; animation: pulse-geo 8s ease-in-out infinite;
+}
+.transition-section::after {
+  content: ''; position: absolute; bottom: -150px; left: -150px; width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(242, 101, 34, 0.1) 0%, transparent 70%);
+  border-radius: 50%; pointer-events: none; animation: pulse-geo 10s ease-in-out infinite 1s;
+}
+@keyframes pulse-geo {
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.1); }
+}
+.transition-content {
+  position: relative; z-index: 10; text-align: center; max-width: 800px;
+}
+.transition-content::before {
+  content: ''; display: block; width: 60px; height: 3px; background: var(--c1);
+  margin: 0 auto 30px; animation: slide-in 0.8s ease-out;
+}
+@keyframes slide-in {
+  from { width: 0; }
+  to { width: 60px; }
+}
+.transition-section h2 {
+  font-size: 3.5rem; font-weight: 800; color: #ffffff; line-height: 1.2;
+  margin-bottom: 20px; letter-spacing: -1px; animation: fade-up 0.8s ease-out 0.2s both;
+}
+.transition-section p {
+  font-size: 1.3rem; color: rgba(255, 255, 255, 0.9); line-height: 1.7;
+  margin-bottom: 40px; animation: fade-up 0.8s ease-out 0.4s both;
+}
+.transition-accent {
+  color: var(--c1); font-weight: 800;
+}
+.transition-subtext {
+  font-size: 1rem; color: var(--c2); text-transform: uppercase; letter-spacing: 2px;
+  font-weight: 700; margin-top: 30px; animation: fade-up 0.8s ease-out 0.6s both;
+}
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 @media(max-width:760px){
   .cg2,.cg3{grid-template-columns:1fr;}
   .arch-grid{grid-template-columns:repeat(2,1fr);}
@@ -285,13 +337,13 @@ html, body {
 
 <!-- Samantha Prologue -->
 <div class="intro-slide">
-    <div class="intro-img" style="background-image: url('samantha.jpeg');">
+    <div class="intro-img" style="background-image: url('samantha.png');">
         <!-- Image goes here via CSS background -->
     </div>
     <div class="intro-content">
         <h1>Meet Samantha.</h1>
         <h2>She is fighting to stay healthy.</h2>
-        <p>Samantha is a real representation of the data. Like 64.6% of patients surveyed across our healthcare system, she is currently battling severe socio-economic stress on top of her physical health conditions.</p>
+        <p>Samantha is a real representation of the data. Like 64.6% of patients surveyed across our healthcare system, she is a single mother, currently battling severe socio-economic stress on top of her physical health conditions.</p>
         <p>But her challenge isn't a medical mystery. It's a structural failure in how the health system reaches out to our most vulnerable neighbors.</p>
     </div>
 </div>
@@ -319,11 +371,23 @@ html, body {
         <h1>It's Bigger Than The Hospital.</h1>
         <div class="term-box">
             <strong>SDOH (Social Determinants of Health)</strong>
-            <p>The non-medical factors—such as housing insecurity, lack of transportation, and neighborhood vulnerability—that influence 80% of clinical health outcomes.</p>
+            <p>The non-medical factors, such as housing insecurity, lack of transportation, and neighborhood vulnerability, influence 80% of clinical health outcomes.</p>
         </div>
-        <p>If we want to fix Samantha's care journey, we cannot just look at hospital waiting times. We must look at the community level. We have to intervene where she lives, providing mobile care, transportation networks, and active neighborhood engagement.</p>
+        <p>If we want to fix Samantha's care journey, we cannot just look at hospital waiting times. We must look at the community where she lives, providing mobile care, transportation methods, and active neighborhood engagement.</p>
         <p>To understand exactly where we must deploy these community resources, we have plotted the <strong>3-year clinical dataset across the geography of Kansas</strong>.</p>
     </div>
+</div>
+
+<!-- ────────────────────────────────────────────────────────────────────────────────────────
+     TRANSITION SECTION: BRIDGE FROM NARRATIVE TO DATA
+     ──────────────────────────────────────────────────────────────────────────────────────── -->
+
+<div class="transition-section">
+  <div class="transition-content">
+    <h2>Now, Let's Explore <span class="transition-accent">The Data</span></h2>
+    <p>We've followed Samantha's journey. We've understood the problem. Now it's time to look at the numbers across our entire healthcare system and discover the patterns that emerge when we examine patient pathways through the lens of social determinants of health.</p>
+    <div class="transition-subtext">→ Six Questions That Changed How We Think About Care ←</div>
+  </div>
 </div>
 
 <!-- ────────────────────────────────────────────────────────────────────────────────────────
@@ -389,7 +453,7 @@ html, body {
       <div class="find"><strong>SVI doesn't predict gap timing</strong>All four quartiles: 31–33%. Vulnerability affects <em>what happens</em> at visits, not visit frequency.</div>
     </div>
   </div>
-  <div class="noise"><b>⚠</b> Single-visit journeys (60.9%) excluded — no gap to compute. Annual checkup visits inflate the &gt;90d count for appropriately low-acuity patients.</div>
+  <div class="noise">By: Chloe Mai, Grace Corathers, Neha Jupalli, Aman Vyas, Ananda Chatterjee</div>
 </div>
 
 <!-- ═════ Q2 ═════ -->

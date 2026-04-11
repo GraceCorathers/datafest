@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask
 import webbrowser
 
 app = Flask(__name__, static_folder='.', static_url_path='')
