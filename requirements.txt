@@ -1,5 +1,2 @@
 pandas
 plotly
-geopandas
-folium
-requests
