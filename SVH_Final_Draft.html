@@ -1,0 +1,2945 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>SVH Patient Journey — Storymap & Analytics Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/scrollama@3.2.0/build/scrollama.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+
+<style>
+/* ── STORYMAP STYLES ── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+    --bg:#f8f9fa;--surface:#ffffff;--border:rgba(0,0,0,0.08);
+    --text:#111111;--muted:rgba(17,17,17,.65);
+    --coral:#E74C3C;--coral-lo:rgba(231,76,60,.18);
+    --teal:#00B4D8;--gold:#F5A623;
+    --font-h:'Space Grotesk',system-ui,sans-serif;
+    --font-b:'Inter',system-ui,sans-serif;
+}
+body { background: var(--bg); color: var(--text); font-family: var(--font-b); overflow-x: hidden; }
+
+#storymap-wrapper { display: flex; align-items: flex-start; height: 100vh; overflow: hidden; }
+#map-panel { position: sticky; top: 0; width: 55%; height: 100vh; background: var(--bg); flex-shrink: 0; border-right: 1px solid var(--border); }
+#map_div { width: 100%; height: 100%; }
+
+.leaflet-control-layers { background: rgba(255,255,255,0.95) !important; color: #111 !important; border: 1px solid var(--border) !important; box-shadow: 0 4px 15px rgba(0,0,0,0.1) !important; }
+.leaflet-popup-content-wrapper, .leaflet-popup-tip { background: rgba(255,255,255,0.95) !important; color: #111 !important; box-shadow: 0 4px 15px rgba(0,0,0,0.1) !important; }
+
+#story-scroll { width: 45%; position: relative; z-index: 10; height: 100vh; overflow-y: scroll; scroll-behavior: smooth; }
+.story-step { display: flex; align-items: center; padding: 4rem 2.2rem; min-height: 100vh; opacity: 0.3; transition: opacity 0.5s; }
+.story-step.is-active { opacity: 1; }
+
+:root {
+    --bg: #ffffff; --surface: #ffffff; --border: #0f3460;
+    --text: #0f3460; --text-mut: #0f3460;
+    --coral: #f26522; --teal: #39d0d8; --gold: #f26522;
+}
+
+html, body {
+    margin: 0; padding: 0; width: 100%; font-family: Calibri, 'Segoe UI', sans-serif;
+    background-color: var(--bg); color: var(--text); scroll-behavior: smooth;
+}
+
+/* Executive Summary Hero */
+.hero-section {
+    min-height: 100vh; width: 100vw; display: flex; flex-direction: column; justify-content: center;
+    padding: 8% 10%; box-sizing: border-box; background: var(--bg); border-bottom: 2px solid var(--border);
+    position: relative;
+}
+.hero-content {
+    max-width: 900px;
+}
+.hero-team {
+    color: var(--teal); font-weight: 800; text-transform: uppercase; letter-spacing: 2px; font-size: 1rem; margin-bottom: 20px; display: block;
+}
+.hero-title {
+    font-size: 4.5rem; font-weight: 800; letter-spacing: -2px; line-height: 1.1; margin-bottom: 30px; color: var(--text);
+}
+.hero-summary {
+    font-size: 1.4rem; line-height: 1.7; color: var(--text); margin-bottom: 50px;
+}
+.hero-stats {
+    display: flex; gap: 40px; border-top: 2px solid var(--border); padding-top: 30px; margin-bottom: 40px;
+}
+.h-stat { display: flex; flex-direction: column; }
+.h-val { font-size: 2.8rem; font-weight: 800; color: var(--coral); letter-spacing: -1px; line-height: 1; margin-bottom: 8px;}
+.h-lbl { font-size: 0.85rem; color: var(--text-mut); text-transform: uppercase; font-weight: 700; letter-spacing: 1px; }
+
+/* Cinematic Prologue */
+.intro-slide {
+    height: 100vh; width: 100vw; display: flex; position: relative; border-bottom: 2px solid var(--border);
+}
+.intro-img {
+    flex: 1; height: 100%; background: var(--border); display: flex; align-items: center; justify-content: center;
+    border-right: 2px solid var(--border); text-align: center; background-size: cover; background-position: center;
+}
+.intro-img span { color: var(--text); font-weight: 700; font-size: 1.2rem; }
+.intro-content {
+    flex: 1; padding: 8% 8%; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center;
+}
+.intro-content h1 { font-size: 3.5rem; margin-bottom: 20px; font-weight: 800; letter-spacing: -1px; line-height: 1.1; }
+.intro-content h2 { font-size: 2rem; color: var(--coral); margin-bottom: 20px; font-weight: 700; }
+.intro-content p { font-size: 1.25rem; line-height: 1.8; color: var(--text); margin-bottom: 20px; }
+.term-box {
+    background: var(--surface); border-left: 4px solid var(--teal); border-bottom: 2px solid var(--border); border-top: 2px solid var(--border); border-right: 2px solid var(--border); padding: 25px; margin: 30px 0;
+}
+.term-box strong { color: var(--teal); font-size: 1.1rem; display: block; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
+.term-box p { font-size: 1rem; margin-bottom: 0; color: var(--text-mut); }
+.scroll-down { font-weight: 800; color: var(--coral); animation: bounce 2s infinite; font-size: 1.2rem; text-transform: uppercase; letter-spacing: 2px; display: block; margin-left: auto; margin-right: 0; margin-top: 30px; }
+@keyframes bounce { 0%, 20%, 50%, 80%, 100% {transform: translateY(0) translateX(-50%);} 40% {transform: translateY(-20px) translateX(-50%);} 60% {transform: translateY(-10px) translateX(-50%);} }
+
+/* Storymap Layout */
+#storymap-wrapper {
+    display: flex; width: 100%; align-items: flex-start;
+}
+#map-panel {
+    width: 55%; height: 100vh; position: sticky; top: 0; border-right: 2px solid var(--border);
+}
+#story-scroll {
+    width: 45%; padding: 60px 40px; box-sizing: border-box;
+}
+
+/* Internal Cards */
+.story-step {
+    min-height: 80vh; margin-bottom: 30vh; display: flex; flex-direction: column; justify-content: center;
+    opacity: 0.2; transition: opacity 0.5s ease-in-out;
+}
+.story-step.is-active { opacity: 1; }
+.story-card {
+    background: var(--surface); padding: 40px; border-radius: 0;
+    border: 2px solid var(--border); border-top: 6px solid var(--coral);
+}
+.card-eye { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 2px; color: var(--text-mut); margin-bottom: 15px; font-weight: 800; }
+.card-hl { font-size: 2rem; font-weight: 800; margin: 0 0 20px 0; letter-spacing: -0.5px; }
+.card-body { font-size: 1.1rem; line-height: 1.7; color: var(--text); margin-bottom: 20px; }
+.stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 30px; padding-top: 30px; border-top: 2px solid var(--border); }
+.stat-cell { display: flex; flex-direction: column; }
+.stat-val { font-size: 2.5rem; font-weight: 800; color: var(--coral); letter-spacing: -1px; }
+.stat-label { font-size: 0.9rem; color: var(--text-mut); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; margin-top: 5px; }
+
+/* Leaflet Overrides */
+.leaflet-container { background: var(--bg); font-family: Calibri, 'Segoe UI', sans-serif;}
+.leaflet-control-layers { background: var(--surface) !important; border: 2px solid var(--border) !important; color: var(--text) !important; border-radius: 0 !important; box-shadow: none !important; }
+.map-legend { background: var(--surface); padding: 15px; border: 2px solid var(--border); border-radius: 0; box-shadow: none; color: var(--text); }
+.legend-color { width: 14px; height: 14px; display: inline-block; margin-right: 8px; border-radius: 0; }
+
+/* ── DASHBOARD STYLES ── */
+/* Storymap color palette applied */
+:root {
+  --bg-dash:    #ffffff;
+  --white: #ffffff;
+  --s:     #0f3460;
+  --b:     #0f3460;
+  --t:     #0f3460;
+  --m:     #0f3460;
+  --dim:   #39d0d8;
+  --grid:  #0f3460;
+  --c1: #f26522; --c2: #39d0d8; --c3: #f26522;
+  --c4: #39d0d8; --c5: #f26522; --c6: #f26522;
+  --q1: #f26522; --q2: #39d0d8; --q3: #f26522;
+  --q4: #39d0d8; --q5: #f26522; --q6: #f26522;
+}
+
+#dashboard-container { background: var(--bg-dash); color: var(--t); font-family: 'Calibri', 'Segoe UI', sans-serif; font-size: 16px; min-height: 100vh; }
+#dashboard-container {
+  display: flex; flex-direction: column; overflow: visible;
+}
+
+/* ── HEADER ── */
+.hdr {
+  background: var(--white); border-bottom: 2px solid var(--s);
+  padding: 20px 40px; display: flex; align-items: center;
+  justify-content: space-between; flex-shrink: 0;
+  box-shadow: none;
+}
+.hdr-left h1 { font-size: 32px; font-weight: 800; color: var(--t); }
+.hdr-left p  { font-size: 15px; color: var(--t); margin-top: 8px; font-weight: 500; }
+.hdr-stats   { display: flex; gap: 40px; }
+.hdr-stat .n { font-size: 32px; font-weight: 800; color: var(--c1); line-height: 1; text-align:center; }
+.hdr-stat .l { font-size: 12px; color: var(--t); text-transform: uppercase; letter-spacing: .1em; text-align:center; font-weight: 800;}
+
+/* ── TABS ── */
+.tabs {
+  display: flex; background: var(--white);
+  border-bottom: 2px solid var(--s); flex-shrink: 0;
+  overflow-x: auto; padding: 0 20px;
+}
+.tab {
+  padding: 16px 28px; font-size: 16px; font-weight: 700;
+  color: var(--t); cursor: pointer; white-space: nowrap;
+  border-bottom: 3px solid transparent; margin-bottom: -2px;
+  transition: color .15s, border-color .15s; user-select: none;
+}
+.tab:hover { color: var(--c1); font-weight: 700; }
+.tab.on { color: var(--qc); border-bottom-color: var(--qc); font-weight: 700; }
+
+/* ── PAGES ── */
+.pages { flex: 1; overflow: hidden; }
+.page  { display: none; height: 100%; padding: 30px 40px; overflow-y: auto; }
+.page.on { display: block; }
+
+/* ── KPI ROW ── */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 15px; margin-bottom: 25px;
+}
+.kpi {
+  background: var(--white); border: 2px solid var(--s);
+  border-top: 6px solid var(--qc); border-radius: 0; padding: 24px 20px;
+}
+.kpi .lbl { font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: .1em; color: var(--t); margin-bottom: 10px; }
+.kpi .val { font-size: 36px; font-weight: 800; color: var(--qc); line-height: 1; }
+.kpi .sub { font-size: 14px; color: var(--t); margin-top: 8px; font-weight: 500; }
+
+/* ── GRIDS ── */
+.cg2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 18px; }
+.cg3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; margin-bottom: 18px; }
+.cg1 { display: grid; grid-template-columns: 1fr; gap: 18px; margin-bottom: 18px; }
+
+.card {
+  background: var(--white); border: 2px solid var(--s);
+  border-radius: 0; padding: 28px; border-top: 6px solid var(--qc);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+.card-t {
+  font-size: 14px; font-weight: 800; text-transform: uppercase;
+  letter-spacing: .1em; color: var(--t); margin-bottom: 18px;
+}
+.ch { position: relative; width: 100%; }
+.ch canvas { position: absolute; top:0;left:0;width:100%!important;height:100%!important; }
+.h150{height:220px;}.h180{height:280px;}.h200{height:320px;}
+.h220{height:360px;}.h250{height:400px;}.h280{height:440px;}
+
+/* ── FINDINGS ── */
+.find {
+  margin-top:18px; padding:20px 24px; border-radius: 0;
+  font-size:18px; line-height: 1.8; color: var(--t);
+  background: rgba(0,0,0,.025); border-left: 4px solid var(--qc);font-weight:500;
+}
+.find strong { color: var(--t); display: block; margin-bottom: 6px; font-weight: 800; font-size: 20px; }
+.hl { font-weight: 800; color: var(--qc); }
+
+/* ── RACE TABLE ── */
+.rtable { width:100%; border-collapse:collapse; font-size:15px; }
+.rtable th { padding:14px 16px; color:var(--t); font-size:13px; text-transform:uppercase; letter-spacing:.1em; border-bottom:2px solid var(--s); text-align:left; font-weight: 800; }
+.rtable td { padding:14px 16px; border-bottom:1px solid var(--s); color: var(--t); font-weight:500; }
+.rtable tr:hover td { background:var(--bg-dash); }
+.bcell { position:relative;height:15px;background:var(--bg-dash);border-radius:0;overflow:hidden;min-width:60px; }
+.bfill { position:absolute;inset-block:0;left:0;border-radius:0;transition:width 1s; }
+.blbl  { position:absolute;right:3px;top:50%;transform:translateY(-50%);font-size:9px;font-weight:700;color:var(--t); }
+
+/* ── ARCHETYPE GRID ── */
+.arch-grid { display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:18px; }
+.arch-card { background:var(--white);border:2px solid var(--s);border-radius:0;padding:18px 14px;text-align:center;border-top:6px solid var(--qc);box-shadow:0 2px 8px rgba(0,0,0,0.04); }
+.arch-n   { font-size:30px;font-weight:800;color:var(--qc); }
+.arch-lbl { font-size:13px;color:var(--t);margin:8px 0 10px;line-height:1.4;font-weight: 700; }
+.tag { display:inline-block;font-size:11px;font-weight:700;padding:3px 8px;border-radius:0;margin:2px;border:1px solid var(--s); }
+
+/* ── DONUT LEGEND ── */
+.dl  { display:flex;align-items:center;gap:12px;margin-bottom:10px;font-size:15px; }
+.dld { width:16px;height:16px;border-radius:50%;flex-shrink:0; }
+.dll { flex:1;color:var(--t);font-weight: 600; }
+.dln { font-weight:800;color:var(--t);width:50px; }
+.dlp { color:var(--t);width:45px;text-align:right;font-weight:700; }
+
+/* ── NOISE ── */
+.noise {
+  margin-top:18px;padding:18px 20px;border-radius:0;
+  font-size:14px;color:var(--t);line-height:1.7;
+  background:#f5f7fb;border:2px solid var(--s);border-top:4px solid var(--qc);font-weight:500;
+}
+.noise b { color:var(--c1);font-weight: 800; }
+
+/* ── TRANSITION SECTION ── */
+.transition-section {
+  min-height: 100vh; width: 100%; display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(135deg, #0f3460 0%, #1a4a7a 100%);
+  position: relative; overflow: hidden; padding: 60px 40px; box-sizing: border-box;
+  border-bottom: 2px solid var(--c1);
+}
+.transition-section::before {
+  content: ''; position: absolute; top: 0; right: -200px; width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(57, 208, 216, 0.15) 0%, transparent 70%);
+  border-radius: 50%; pointer-events: none; animation: pulse-geo 8s ease-in-out infinite;
+}
+.transition-section::after {
+  content: ''; position: absolute; bottom: -150px; left: -150px; width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(242, 101, 34, 0.1) 0%, transparent 70%);
+  border-radius: 50%; pointer-events: none; animation: pulse-geo 10s ease-in-out infinite 1s;
+}
+@keyframes pulse-geo {
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.1); }
+}
+.transition-content {
+  position: relative; z-index: 10; text-align: center; max-width: 800px;
+}
+.transition-content::before {
+  content: ''; display: block; width: 60px; height: 3px; background: var(--c1);
+  margin: 0 auto 30px; animation: slide-in 0.8s ease-out;
+}
+@keyframes slide-in {
+  from { width: 0; }
+  to { width: 60px; }
+}
+.transition-section h2 {
+  font-size: 3.5rem; font-weight: 800; color: #ffffff; line-height: 1.2;
+  margin-bottom: 20px; letter-spacing: -1px; animation: fade-up 0.8s ease-out 0.2s both;
+}
+.transition-section p {
+  font-size: 1.3rem; color: rgba(255, 255, 255, 0.9); line-height: 1.7;
+  margin-bottom: 40px; animation: fade-up 0.8s ease-out 0.4s both;
+}
+.transition-accent {
+  color: var(--c1); font-weight: 800;
+}
+.transition-subtext {
+  font-size: 1rem; color: var(--c2); text-transform: uppercase; letter-spacing: 2px;
+  font-weight: 700; margin-top: 30px; animation: fade-up 0.8s ease-out 0.6s both;
+}
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media(max-width:760px){
+  .cg2,.cg3{grid-template-columns:1fr;}
+  .arch-grid{grid-template-columns:repeat(2,1fr);}
+  .hdr-stats{display:none;}
+}
+</style>
+</head>
+<body>
+
+<!-- ────────────────────────────────────────────────────────────────────────────────────────
+     PART 1: STORYMAP SECTION
+     ──────────────────────────────────────────────────────────────────────────────────────── -->
+
+<!-- Hero / Executive Summary -->
+<div class="hero-section">
+    <div class="hero-content">
+        <span class="hero-team">Markov Unchained Team</span>
+        <h1 class="hero-title">Bridging the Gap<br>of Patient Crises</h1>
+        <p class="hero-summary">Our approach to the DataFest 2026 Challenge was mapping Stormont Vail Health clinical encounters in comparison to their locations and other social determinants of health in different areas of the state. We address the core research questions of identifying systemic gaps in patient care, measuring the impact of social vulnerability on patient outcomes, and evaluating how geographic and demographic factors impact visit gaps.</p>
+        <div class="hero-stats">
+            <div class="h-stat"><div class="h-val">339K</div><div class="h-lbl">Unique Patients Surveyed</div></div>
+            <div class="h-stat"><div class="h-val">19</div><div class="h-lbl">Kansas Counties Assessed</div></div>
+        </div>
+    </div>
+    <div class="h-stat" style="font-weight: 800; color: var(--coral); font-size: 1.2rem; text-transform: uppercase; letter-spacing: 2px; display: block; margin-left: auto; margin-right: -20;">Follow The Journey &darr;</div>
+</div>
+
+<!-- Samantha Prologue -->
+<div class="intro-slide">
+    <div class="intro-img" style="background-image: url('samantha.png');">
+        <!-- Image goes here via CSS background -->
+    </div>
+    <div class="intro-content">
+        <h1>Meet Samantha.</h1>
+        <h2>She is a real representation of the data.</h2>
+        <p>Like 64.6% of patients surveyed in the Stormont Vail healthcare system, she is currently battling severe socio-economic stress on top of her physical health conditions.</p>
+        <p>She is a single mother in a rural area, trying to keep her family healthy but lack of transportation has her expierencing visit gaps.</p>
+    </div>
+</div>
+
+<div class="intro-slide">
+    <div class="intro-img" style="background-image: url('waiting room.webp');">
+        <!-- Image goes here via CSS background -->
+    </div>
+    <div class="intro-content">
+        <h1>Caught in the Loop.</h1>
+        <div class="term-box">
+            <strong>Crisis-Driven Care</strong>
+            <p>A statistical archetype identifying patients whose journey entirely lacks continuous outpatient management. Rather than routine check-ups, their only healthcare interaction is severe, repeated Emergency Department visits.</p>
+        </div>
+        <p>When patients go months without seeing a primary care provider, they become trapped in a dangerous cycle. The healthcare system waits until their condition escalates into a full-blown emergency, stabilizes them in the hospital, and then discharges them right back into the exact same environment and circumstances that triggered the crisis in the first place.</p>
+    </div>
+</div>
+
+<div class="intro-slide">
+    <div class="intro-img" style="background-image: url('scene3.jpg');">
+        <!-- Image goes here via CSS background -->
+    </div>
+    <div class="intro-content">
+        <h1>It's Bigger Than The Hospital.</h1>
+        <div class="term-box">
+            <strong>SDOH (Social Determinants of Health)</strong>
+            <p>The non-medical factors, such as housing insecurity, lack of transportation, and neighborhood vulnerability, influence 80% of clinical health outcomes.</p>
+        </div>
+        <p>If we want to fix Samantha's care journey, we cannot just look at hospital waiting times. We must look at the community where she lives, providing mobile care, transportation methods, and active neighborhood engagement.</p>
+        <p>To understand exactly where we must deploy these community resources, we have plotted the <strong>3-year clinical dataset across the geography of Kansas</strong>.</p>
+    </div>
+</div>
+
+
+<!-- ────────────────────────────────────────────────────────────────────────────────────────
+     TRANSITION SECTION: BRIDGE FROM NARRATIVE TO DATA
+     ──────────────────────────────────────────────────────────────────────────────────────── -->
+
+<div class="transition-section">
+  <div class="transition-content">
+    <h2>Now, Let's Explore <span class="transition-accent">The Data</span></h2>
+    <p>We've followed Samantha's journey. We've understood the problem. Now it's time to look at the numbers across our entire healthcare system and discover the patterns that emerge when we examine the social determinants of health.</p>
+  </div>
+</div>
+
+<!-- ────────────────────────────────────────────────────────────────────────────────────────
+     PART 2: ANALYTICS DASHBOARD SECTION
+     ──────────────────────────────────────────────────────────────────────────────────────── -->
+
+
+<!-- ────────────────────────────────────────────────────────────────────────────────────────
+     PART 1.5: LEAFLET GEOSPATIAL DASHBOARD
+     ──────────────────────────────────────────────────────────────────────────────────────── -->
+<style>
+/* ── Header ── */
+.header {
+  background: linear-gradient(90deg, #2C5F8A 0%, #3A7BBF 60%, #4878D0 100%);
+  border-bottom: 2px solid #4878D0;
+  padding: 0.7rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  flex-shrink: 0;
+  z-index: 1000;
+}
+.header-logo {
+  width: 36px; height: 36px;
+  background: rgba(255,255,255,0.2);
+  border: 2px solid rgba(255,255,255,0.5);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; font-weight: 700; color: #fff; flex-shrink: 0;
+}
+.header h1 { font-size: 1.05rem; font-weight: 700; color: #fff; line-height: 1.2; }
+.header p  { font-size: 0.72rem; color: rgba(255,255,255,0.75); margin-top: 1px; }
+.header-spacer { flex: 1; }
+.header-badge {
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.4);
+  color: #fff;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* ── Layout ── */
+.dashboard {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+
+/* ── Sidebar ── */
+.sidebar {
+  width: 300px;
+  background: #FFFFFF;
+  backdrop-filter: none;
+  border-right: 1px solid var(--svh-border);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  z-index: 500;
+  overflow: hidden;
+  box-shadow: 2px 0 8px rgba(0,0,0,0.06);
+}
+.sidebar-inner {
+  overflow-y: auto;
+  flex: 1;
+  padding: 1rem;
+  background: #FAFAFA;
+}
+.sidebar-inner::-webkit-scrollbar { width: 4px; }
+.sidebar-inner::-webkit-scrollbar-thumb { background: #CCC; border-radius: 4px; }
+
+.sidebar-title {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--svh-muted);
+  margin-bottom: 0.6rem;
+  padding: 0 0.2rem;
+}
+
+/* ── Category Buttons ── */
+.cat-btn {
+  width: 100%;
+  background: #FFFFFF;
+  border: 1px solid #E0E0E0;
+  border-radius: var(--radius);
+  color: var(--svh-text);
+  padding: 0.7rem 0.9rem;
+  margin-bottom: 0.45rem;
+  cursor: pointer;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  transition: all 0.22s ease;
+  font-family: inherit;
+  font-size: 0.83rem;
+  position: relative;
+  overflow: hidden;
+}
+.cat-btn::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: transparent;
+  border-radius: 3px 0 0 3px;
+  transition: background 0.22s;
+}
+.cat-btn:hover {
+  background: #EEF3FB;
+  border-color: #4878D0;
+  color: #2C5F8A;
+  transform: translateX(3px);
+}
+.cat-btn.active {
+  background: linear-gradient(90deg, #EEF3FB 0%, #F6F9FF 100%);
+  border-color: #4878D0;
+  color: #2C5F8A;
+  box-shadow: 0 1px 6px rgba(72,120,208,0.15);
+}
+.cat-btn.active::before { background: #4878D0; }
+.cat-label { font-weight: 600; font-size: 0.82rem; line-height: 1.3; color: #2D2D2D; }
+.cat-sub   { font-size: 0.68rem; color: var(--svh-muted); margin-top: 1px; }
+.cat-pill  {
+  margin-left: auto;
+  background: #EEF3FB;
+  border: 1px solid #C5D5EE;
+  color: #4878D0;
+  border-radius: 20px;
+  padding: 2px 7px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.cat-btn.active .cat-pill {
+  background: #4878D0;
+  color: #fff;
+}
+
+/* ── Facilities overlay toggle ── */
+.overlay-toggle-row {
+  padding: 0.55rem 1rem;
+  border-top: 1px solid var(--svh-border);
+}
+.overlay-toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--svh-text);
+  cursor: pointer;
+  user-select: none;
+}
+.overlay-toggle-label input[type="checkbox"] {
+  width: 14px;
+  height: 14px;
+  accent-color: #4878D0;
+  cursor: pointer;
+}
+
+/* ── Info Panel (bottom of sidebar) ── */
+.info-panel {
+  border-top: 1px solid #E0E0E0;
+  padding: 0.9rem 1rem;
+  background: #F2F6FC;
+  flex-shrink: 0;
+}
+.info-panel h4 {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #2C5F8A;
+  margin-bottom: 0.4rem;
+}
+.info-panel p {
+  font-size: 0.7rem;
+  color: var(--svh-muted);
+  line-height: 1.55;
+}
+.info-panel .stat {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.5rem;
+  font-size: 0.72rem;
+  color: #555;
+}
+.info-panel .stat-val {
+  color: #EE854A;
+  font-weight: 700;
+}
+.findings-title {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #2C5F8A;
+  margin-top: 0.65rem;
+  margin-bottom: 0.3rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.findings-list {
+  margin: 0;
+  padding-left: 1rem;
+  list-style: disc;
+}
+.findings-list li {
+  font-size: 0.69rem;
+  color: var(--svh-text);
+  line-height: 1.55;
+  margin-bottom: 0.25rem;
+}
+
+/* ── Map Container ── */
+.map-area {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+#map {
+  width: 100%;
+  height: 100%;
+}
+
+/* ── Overlay Cards (floating over map) ── */
+.map-overlay {
+  position: absolute;
+  z-index: 400;
+  pointer-events: none;
+}
+.map-overlay.top-right {
+  top: 14px; right: 14px;
+  max-width: 240px;
+}
+.map-overlay.bottom-right {
+  bottom: 30px; right: 14px;
+  max-width: 200px;
+}
+.map-overlay.top-left {
+  top: 14px; left: 14px;
+}
+.overlay-card {
+  background: rgba(255,255,255,0.96);
+  backdrop-filter: blur(8px);
+  border: 1px solid #DCDCDC;
+  border-radius: var(--radius);
+  padding: 0.85rem 1rem;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.10);
+  pointer-events: auto;
+}
+.overlay-card h3 {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #2C5F8A;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.layer-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  margin-top: 0.3rem;
+}
+.badge-polygon { background: #EEF3FB; color: #4878D0; border: 1px solid #C5D5EE; }
+.badge-point   { background: #FEF0E6; color: #EE854A; border: 1px solid #F5C9A8; }
+
+/* ── Legend ── */
+.legend {
+  margin-top: 0.5rem;
+}
+.legend-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.3rem;
+  font-size: 0.68rem;
+  color: #444;
+}
+.legend-swatch {
+  width: 14px; height: 10px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+.legend-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── KPI Strip ── */
+.kpi-strip {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  margin-top: 0.5rem;
+}
+.kpi-mini {
+  background: #F2F6FC;
+  border: 1px solid #C5D5EE;
+  border-radius: 6px;
+  padding: 0.4rem 0.6rem;
+  text-align: center;
+  min-width: 70px;
+}
+.kpi-mini .val { font-size: 0.95rem; font-weight: 700; color: #EE854A; }
+.kpi-mini .lbl { font-size: 0.6rem; color: #767676; margin-top: 1px; }
+
+/* ── Popup Styles ── */
+.leaflet-popup-content-wrapper {
+  background: #FFFFFF !important;
+  border: 1px solid #DCDCDC !important;
+  border-radius: var(--radius) !important;
+  box-shadow: 0 2px 14px rgba(0,0,0,0.12) !important;
+  color: #3A3A3A !important;
+  font-family: 'Inter', sans-serif !important;
+}
+.leaflet-popup-tip { background: #FFFFFF !important; }
+.leaflet-popup-content { margin: 10px 14px !important; }
+.popup-title { font-size: 0.82rem; font-weight: 700; color: #2C5F8A; margin-bottom: 6px; }
+.popup-row   { font-size: 0.72rem; color: #767676; display: flex; justify-content: space-between; margin: 3px 0; }
+.popup-val   { color: #3A3A3A; font-weight: 600; }
+.popup-accent{ color: #4878D0; font-weight: 700; }
+
+/* ── Tooltip ── */
+.leaflet-tooltip {
+  background: #FFFFFF !important;
+  border: 1px solid #DCDCDC !important;
+  color: #2D2D2D !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 0.72rem !important;
+  border-radius: 6px !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.10) !important;
+  padding: 4px 8px !important;
+}
+.leaflet-tooltip-left::before,
+.leaflet-tooltip-right::before { border-color: transparent !important; }
+
+/* ── Loading Spinner ── */
+.loading-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(247,247,247,0.88);
+  z-index: 999;
+  gap: 1rem;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s;
+}
+.loading-overlay.active { opacity: 1; pointer-events: all; }
+.spinner {
+  width: 36px; height: 36px;
+  border: 3px solid #DCDCDC;
+  border-top-color: #4878D0;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-text { font-size: 0.8rem; color: #4878D0; font-weight: 600; }
+
+/* ── Responsive ── */
+@media (max-width: 700px) {
+  .sidebar { width: 240px; }
+  .map-overlay.top-right { max-width: 180px; top: 8px; right: 8px; }
+}
+
+/* ── Slide-in animation for panel ── */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.overlay-card { animation: fadeInUp 0.35s ease; }
+
+/* ── Attribution ── */
+.leaflet-control-attribution {
+  background: rgba(255,255,255,0.85) !important;
+  color: #767676 !important;
+  font-size: 0.6rem !important;
+  border-top: 1px solid #E0E0E0 !important;
+}
+.leaflet-control-attribution a { color: #4878D0 !important; }
+
+#svh-leaflet-section {
+  --svh-navy: #0f3460;
+  --svh-teal: #39d0d8;
+  --svh-orange: #f26522;
+  --svh-white: #ffffff;
+  --svh-light: #f6f7f2;
+  --svh-dark: #0f3460;
+  --svh-mid: #ffffff;
+  --svh-border: #0f3460;
+  --svh-text: #0f3460;
+  --svh-muted: #375879;
+  background: var(--svh-light);
+  border-top: 2px solid var(--svh-border);
+  border-bottom: 2px solid var(--svh-border);
+  height: 100vh;
+}
+#svh-leaflet-section .dashboard { height: 100%; }
+#svh-leaflet-section .sidebar { border-right: 2px solid var(--svh-border); box-shadow: none; }
+#svh-leaflet-section .sidebar-inner { background: #ffffff; flex: 1; }
+#svh-leaflet-section .cat-btn,
+#svh-leaflet-section .overlay-card,
+#svh-leaflet-section .kpi-mini,
+#svh-leaflet-section .info-panel {
+  border-radius: 0;
+  border-color: var(--svh-border);
+}
+#svh-leaflet-section .cat-btn.active,
+#svh-leaflet-section .cat-btn:hover {
+  background: #eef9fa;
+  border-color: var(--svh-teal);
+  color: var(--svh-text);
+}
+#svh-leaflet-section .cat-btn.active .cat-pill {
+  background: var(--svh-teal);
+  color: #ffffff;
+}
+#svh-leaflet-section .kpi-mini .val,
+#svh-leaflet-section .stat-val {
+  color: var(--svh-orange);
+}
+#svh-leaflet-section .leaflet-control-attribution a { color: var(--svh-teal) !important; }
+</style>
+
+<section id="svh-leaflet-section">
+<div class="dashboard">
+
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+      <div class="sidebar-title">Map Layers — Select One</div>
+
+      <button class="cat-btn active" id="btn-overview"   onclick="selectLayer('overview')">
+        <div>
+          <div class="cat-label">Patient Concentration</div>
+          <div class="cat-sub">All patients by block group</div>
+        </div>
+        <span class="cat-pill">Polygon</span>
+      </button>
+
+      <button class="cat-btn" id="btn-food"      onclick="selectLayer('food')">
+        <div>
+          <div class="cat-label">Food Insecurity</div>
+          <div class="cat-sub">% households at risk</div>
+        </div>
+        <span class="cat-pill">Polygon</span>
+      </button>
+
+      <button class="cat-btn" id="btn-housing"   onclick="selectLayer('housing')">
+        <div>
+          <div class="cat-label">Housing Stability</div>
+          <div class="cat-sub">Unstable housing risk</div>
+        </div>
+        <span class="cat-pill">Polygon</span>
+      </button>
+
+      <button class="cat-btn" id="btn-transport" onclick="selectLayer('transport')">
+        <div>
+          <div class="cat-label">Transportation Needs</div>
+          <div class="cat-sub">Barriers to care access</div>
+        </div>
+        <span class="cat-pill">Polygon</span>
+      </button>
+
+      <button class="cat-btn" id="btn-mental"    onclick="selectLayer('mental')">
+        <div>
+          <div class="cat-label">Mental Health Risk</div>
+          <div class="cat-sub">Depression &amp; stress signals</div>
+        </div>
+        <span class="cat-pill">Polygon</span>
+      </button>
+
+      <button class="cat-btn" id="btn-financial" onclick="selectLayer('financial')">
+        <div>
+          <div class="cat-label">Financial Strain</div>
+          <div class="cat-sub">Utility &amp; resource stress</div>
+        </div>
+        <span class="cat-pill">Polygon</span>
+      </button>
+
+      <button class="cat-btn" id="btn-facilities" onclick="selectLayer('facilities')">
+        <div>
+          <div class="cat-label">SVH Facility Locations</div>
+          <div class="cat-sub">Clinics, hospitals &amp; care sites</div>
+        </div>
+        <span class="cat-pill">Points</span>
+      </button>
+
+      <div class="overlay-toggle-row">
+        <label class="overlay-toggle-label">
+          <input type="checkbox" id="facilities-toggle" onchange="toggleFacilitiesOverlay(this.checked)">
+          <span>Show SVH Facilities</span>
+        </label>
+      </div>
+
+    </div><!-- /sidebar-inner -->
+
+  </aside>
+
+  <!-- ── Map ── -->
+  <div class="map-area">
+    <div id="map"></div>
+
+    <!-- Loading overlay -->
+    <div class="loading-overlay" id="loading-overlay">
+      <div class="spinner"></div>
+      <div class="loading-text">Loading layer data…</div>
+    </div>
+
+    <!-- Active layer info (top-right) -->
+    <div class="map-overlay top-right">
+      <div class="overlay-card" id="layer-info-card">
+        <h3>
+          <span id="layer-name">Patient Concentration</span>
+        </h3>
+        <span class="layer-badge badge-polygon" id="layer-type-badge">Polygon Layer</span>
+        <div class="legend" id="legend-container">
+          <!-- injected by JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- KPI strip (bottom-right) -->
+    <div class="map-overlay bottom-right">
+      <div class="overlay-card">
+        <div class="kpi-strip">
+          <div class="kpi-mini"><div class="val" id="kpi-val1">2,463</div><div class="lbl">Block Groups</div></div>
+          <div class="kpi-mini"><div class="val" id="kpi-val2">339K</div><div class="lbl">Patients</div></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /map-area -->
+</div><!-- /dashboard -->
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
+<script>
+// ═══════════════════════════════════════════════════════
+// CONFIGURATION
+// ═══════════════════════════════════════════════════════
+const KANSAS_CENTER  = [38.5, -98.35];
+const KANSAS_ZOOM    = 7;
+const TILE_URL       = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
+const TILE_ATTR      = '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>';
+
+// Topeka / SVH center for tighter views
+const SVH_CENTER     = [39.045, -95.680];
+
+// FIPS prefix for Kansas state block groups in census data
+// All Kansas GEOID11s start with '20' (state FIPS = 20)
+
+// ═══════════════════════════════════════════════════════
+// PATIENT DATA (from census_patient_percent.csv, inline)
+// Columns: CensusCode, PatientNumber, PopulationValue, PatientPercent, CENTLAT, CENTLON
+// PatientNumber groupings map to social determinant questions
+// ═══════════════════════════════════════════════════════
+
+// We'll embed the data directly. For performance, we represent each row
+// as [CensusCode, PatientNumber, PopulationValue, PatientPercent, lat, lon]
+// ─── PASTE RAW CSV DATA (built-in, no file fetch needed) ───
+</script>
+<script>
+// ═══════════════════════════════════════════════════════
+// DATA: geocoded facility addresses (health facilities)
+// ═══════════════════════════════════════════════════════
+const FACILITIES = [
+  {name:"Stormont Vail Hospital (Main Campus)",addr:"1500 SW 10th Ave",city:"Topeka",county:"SHAWNEE",lat:39.0525284,lon:-95.6963518,type:"hospital"},
+  {name:"SVH Emergency Department",addr:"1500 SW 10th Ave",city:"Topeka",county:"SHAWNEE",lat:39.0529,lon:-95.6975,type:"ED"},
+  {name:"SVH Cancer Center",addr:"901 SW Garfield Ave",city:"Topeka",county:"SHAWNEE",lat:39.0529074,lon:-95.698273,type:"clinic"},
+  {name:"SVH Heart & Vascular",addr:"830 SW Mulvane St",city:"Topeka",county:"SHAWNEE",lat:39.0537939,lon:-95.6981197,type:"specialty"},
+  {name:"SVH Orthopedics",addr:"823 SW Mulvane St",city:"Topeka",county:"SHAWNEE",lat:39.0541393,lon:-95.6987844,type:"clinic"},
+  {name:"SVH Primary Care – Wanamaker",addr:"1100 SW Wanamaker",city:"Topeka",county:"SHAWNEE",lat:39.0468859,lon:-95.7609849,type:"clinic"},
+  {name:"SVH Primary Care – 29th St",addr:"1001 SW 29th St",city:"Topeka",county:"SHAWNEE",lat:39.0150685,lon:-95.6905261,type:"clinic"},
+  {name:"SVH Behavioral Health",addr:"5820 SW Drury Lane",city:"Topeka",county:"SHAWNEE",lat:39.0404131,lon:-95.7535975,type:"behavioral"},
+  {name:"SVH Clinic – Garfield",addr:"1001 SW Garfield",city:"Topeka",county:"SHAWNEE",lat:39.045624,lon:-95.6979882,type:"clinic"},
+  {name:"SVH Rehabilitation",addr:"2111 SW Randolph",city:"Topeka",county:"SHAWNEE",lat:39.028958,lon:-95.7114895,type:"rehab"},
+  {name:"SVH Urgent Care – Fairlawn",addr:"2515 SW Wanamaker Rd",city:"Topeka",county:"SHAWNEE",lat:39.0205438,lon:-95.7631452,type:"urgent"},
+  {name:"SVH Clinic – 10th Ave",addr:"4019 SW 10th Ave",city:"Topeka",county:"SHAWNEE",lat:39.0500678,lon:-95.7271992,type:"clinic"},
+  {name:"SVH Lab – Mulvane",addr:"909 SW Mulvane St",city:"Topeka",county:"SHAWNEE",lat:39.0533028,lon:-95.6991317,type:"lab"},
+  {name:"SVH Clinic – 6th Ave",addr:"2200 SW 6th AVE",city:"Topeka",county:"SHAWNEE",lat:39.0590389,lon:-95.7023145,type:"clinic"},
+  {name:"Manhattan Clinic",addr:"1014 Poyntz Avenue",city:"Manhattan",county:"RILEY",lat:39.179734,lon:-96.5726103,type:"clinic"},
+  {name:"Manhattan Medical Arts",addr:"2101 Claflin Rd",city:"Manhattan",county:"RILEY",lat:39.192902,lon:-96.591305,type:"clinic"},
+  {name:"Manhattan Orthopedics",addr:"4201 Anderson Ave",city:"Manhattan",county:"RILEY",lat:39.1900755,lon:-96.641546,type:"specialty"},
+  {name:"Junction City Clinic",addr:"1022 Caroline Ave",city:"Junction City",county:"GEARY",lat:39.0135889,lon:-96.8599269,type:"clinic"},
+  {name:"Junction City – St Marys",addr:"1102 St Marys Rd",city:"Junction City",county:"GEARY",lat:39.0142303,lon:-96.8510296,type:"clinic"},
+  {name:"Emporia Regional Clinic",addr:"104 E 8th Ave",city:"Emporia",county:"LYON",lat:38.40746,lon:-96.178354,type:"clinic"},
+  {name:"Emporia Medical Arts",addr:"1201 W 12th Ave",city:"Emporia",county:"LYON",lat:38.4112851,lon:-96.1957421,type:"clinic"},
+  {name:"Osage City Clinic",addr:"1017 Main St",city:"Osage City",county:"OSAGE",lat:38.6330021,lon:-95.8177467,type:"clinic"},
+  {name:"Wamego Clinic",addr:"1704 Commercial Circle",city:"Wamego",county:"POTTAWATOMIE",lat:39.2119537,lon:-96.3187301,type:"clinic"},
+  {name:"Oskaloosa Clinic",addr:"209 W Jefferson St",city:"Oskaloosa",county:"JEFFERSON",lat:39.2160072,lon:-95.3093894,type:"clinic"},
+  {name:"Holton Clinic",addr:"1603 W 4th St",city:"Holton",county:"JACKSON",lat:39.4630592,lon:-95.7561742,type:"clinic"},
+  {name:"Seneca Community Health",addr:"1600 Community Drive",city:"Seneca",county:"NEMAHA",lat:39.8370704,lon:-96.0781203,type:"clinic"},
+  {name:"Overland Park Specialty",addr:"10777 Nall Ave",city:"Overland Park",county:"JOHNSON",lat:38.9331169,lon:-94.6481587,type:"specialty"},
+  {name:"Lawrence Medical Arts",addr:"2200 Harvard Road",city:"Lawrence",county:"DOUGLAS",lat:38.9647448,lon:-95.2622375,type:"clinic"},
+  {name:"SVH SportsMed – Topeka",addr:"6300 SW 6th Ave",city:"Topeka",county:"SHAWNEE",lat:39.0590135,lon:-95.7698782,type:"specialty"},
+  {name:"SVH – SW Corporate View",addr:"601 SW Corporate View",city:"Topeka",county:"SHAWNEE",lat:39.0571577,lon:-95.7669435,type:"clinic"},
+  {name:"Hiawatha Clinic",addr:"300 Utah",city:"Hiawatha",county:"BROWN",lat:39.8518191,lon:-95.5309138,type:"clinic"},
+  {name:"Council Grove Clinic",addr:"600 N Washington St",city:"Council Grove",county:"MORRIS",lat:38.6655383,lon:-96.4997078,type:"clinic"},
+  {name:"Wichita Clinic (SE)",addr:"9300 E 29th St",city:"Wichita",county:"SEDGWICK",lat:37.7384073,lon:-97.2302056,type:"clinic"},
+  {name:"Wichita – N Ridge",addr:"530 N Ridge Rd",city:"Wichita",county:"SEDGWICK",lat:37.6907274,lon:-97.4257123,type:"clinic"},
+];
+
+// ═══════════════════════════════════════════════════════
+// PATIENT CENSUS DATA (subset — centroids for choropleth)
+// We load from CSV text embedded here via fetch of local file,
+// but since this is a static HTML we embed a representative sample.
+// Full data injected below after the map is initialized.
+// ═══════════════════════════════════════════════════════
+
+// Category definitions — maps each layer to a social determinant question group
+// PatientNumber column in census_patient_percent.csv is used as a proxy for
+// different social determinant questions (each number = a different question/patient subgroup).
+// We'll create 6 choropleth layers from subsets of this data + 1 point layer.
+
+const LAYER_CONFIG = {
+  overview: {
+    label: "Patient Concentration",
+    desc:  "Proportion of census block group population that are SVH patients. Deeper blue = higher patient density.",
+    type:  "polygon",
+    kv1: "Block Groups",
+    kv2: "339K Pts",
+    legend: [
+      {color:"#DDEAF6",label:"< 1%"},
+      {color:"#9EC8E8",label:"1–3%"},
+      {color:"#4878D0",label:"3–6%"},
+      {color:"#1A3F7A",label:"> 6%"},
+    ],
+    filter: n => n >= 11 && n <= 20,
+    findings: [
+      "476 block groups recorded statewide; patient density peaks in the Shawnee County (Topeka) metro core near SVH's main campus.",
+      "Average patient rate of 1–1.8% per block group, reaching 3.7% in the densest tracts — 3× the statewide mean.",
+      "Patient presence drops sharply west of Salina, marking the practical western boundary of SVH's catchment area.",
+    ],
+  },
+  food: {
+    label: "Food Insecurity",
+    desc:  "Block groups where patients with food insecurity screening responses are concentrated.",
+    type:  "polygon",
+    kv1: "Block Groups",
+    kv2: "2 Questions",
+    legend: [
+      {color:"#FDEECE",label:"Low risk"},
+      {color:"#F8C978",label:"Moderate"},
+      {color:"#EE854A",label:"Elevated"},
+      {color:"#B5391A",label:"High risk"},
+    ],
+    filter: n => n >= 21 && n <= 30,
+    findings: [
+      "134 block groups flagged; average patient rate of 1.7–3.0% — roughly 2× the general patient baseline.",
+      "One block group reaches 6.3% for a specific food insecurity screen, indicating acute, localized food access failure.",
+      "Screen coverage thins in rural western Kansas, suggesting potential underidentification in outlying communities.",
+    ],
+  },
+  housing: {
+    label: "Housing Stability",
+    desc:  "Block groups with elevated housing instability signals from SVH patient screens.",
+    type:  "polygon",
+    kv1: "Block Groups",
+    kv2: "4 Questions",
+    legend: [
+      {color:"#E4F3E4",label:"Stable"},
+      {color:"#92C592",label:"At risk"},
+      {color:"#6ACC64",label:"Unstable"},
+      {color:"#2E7D32",label:"Crisis"},
+    ],
+    filter: n => n >= 31 && n <= 45,
+    findings: [
+      "94 block groups flagged; select tracts reach up to 14.8% patient rate — the highest single-tract concentration of any SDOH layer.",
+      "Housing instability patients cluster tightly in a small number of high-risk tracts, pointing to acute, geographically specific need.",
+      "Average rates of 3–6% across screen types are 3–4× the general patient baseline, confirming housing as a primary driver of need.",
+    ],
+  },
+  transport: {
+    label: "Transportation Needs",
+    desc:  "Patients who reported transportation as a barrier to care access or daily living.",
+    type:  "polygon",
+    kv1: "Block Groups",
+    kv2: "2 Questions",
+    legend: [
+      {color:"#F0EBF8",label:"Low barrier"},
+      {color:"#C9ABDF",label:"Moderate"},
+      {color:"#956CB4",label:"Significant"},
+      {color:"#5B2D8E",label:"Severe"},
+    ],
+    filter: n => n >= 46 && n <= 60,
+    findings: [
+      "45 block groups flagged; two specific tracts show 10.4–12.6% patient rates — the most extreme geographic concentration in this dataset.",
+      "One transportation screen type averages 11.5% across its flagged tracts, indicating patients without transit access cluster in identifiable neighborhoods.",
+      "Relatively few block groups recorded suggests transportation barriers are either screened less consistently or affect a narrower, highly concentrated population.",
+    ],
+  },
+  mental: {
+    label: "Mental Health Risk",
+    desc:  "Depression (PHQ-2) and stress screening signals from block-group patient populations.",
+    type:  "polygon",
+    kv1: "Block Groups",
+    kv2: "Depr + Stress",
+    legend: [
+      {color:"#FDEAEA",label:"Low signal"},
+      {color:"#F2A2A2",label:"Moderate"},
+      {color:"#D65F5F",label:"Elevated"},
+      {color:"#8B1A1A",label:"High"},
+    ],
+    filter: n => n >= 61 && n <= 80,
+    findings: [
+      "32 block groups flagged statewide; average patient rates of 4.5–9.3% — 4–6× the general patient baseline.",
+      "Multiple screen types (PHQ-2 depression, stress) show overlapping geographic hotspots, indicating co-occurring mental health burden in the same tracts.",
+      "High rates relative to other SDOH layers suggest patients with mental health risk are disproportionately concentrated in fewer, denser urban tracts.",
+    ],
+  },
+  financial: {
+    label: "Financial Strain",
+    desc:  "Utility shutoffs, rent difficulty and resource strain signals across Kansas block groups.",
+    type:  "polygon",
+    kv1: "Block Groups",
+    kv2: "Resource Stress",
+    legend: [
+      {color:"#F5EDE3",label:"Low strain"},
+      {color:"#D8B48A",label:"Moderate"},
+      {color:"#8C613C",label:"Strained"},
+      {color:"#4A2E10",label:"Severe"},
+    ],
+    filter: n => n >= 81 && n <= 100,
+    findings: [
+      "Two block groups show a 19.5% patient rate for a specific financial strain screen — nearly 1 in 5 residents are SVH patients flagged for economic hardship.",
+      "Financial strain has the highest average patient % of any SDOH category, making it the most geographically concentrated risk in the entire dataset.",
+      "Fewer block groups (30) but dramatically elevated rates suggest financial hardship is acutely localized rather than broadly distributed.",
+    ],
+  },
+  facilities: {
+    label: "SVH Facility Locations",
+    desc:  "Stormont Vail Health hospitals, clinics, specialty centers, and urgent care locations across Kansas.",
+    type:  "point",
+    kv1: `${FACILITIES.length} Sites`,
+    kv2: "14 Counties",
+    legend: [
+      {color:"#D65F5F",dot:true,label:"Hospital / ED"},
+      {color:"#4878D0",dot:true,label:"Clinic / Primary Care"},
+      {color:"#956CB4",dot:true,label:"Specialty / Rehab"},
+      {color:"#6ACC64",dot:true,label:"Urgent / Lab"},
+    ],
+    filter: null,
+    findings: [
+      "35 sites across 14 counties; the majority of hospital, specialty, and urgent care capacity is concentrated in Shawnee County (Topeka).",
+      "Western Kansas has measurable patient presence but no mapped SVH facilities, representing the largest geographic access gap in the network.",
+      "Outlying county sites are almost exclusively primary care clinics — patients needing specialty or emergency care must travel to Topeka.",
+    ],
+  },
+};
+
+// ═══════════════════════════════════════════════════════
+// MAP INIT
+// ═══════════════════════════════════════════════════════
+const map = L.map('map', {
+  center: KANSAS_CENTER,
+  zoom:   KANSAS_ZOOM,
+  zoomSnap: 0.5,
+  attributionControl: true,
+  zoomControl: true,
+});
+
+L.tileLayer(TILE_URL, {
+  attribution: TILE_ATTR,
+  subdomains: 'abcd',
+  maxZoom: 19,
+}).addTo(map);
+
+// Disable pan/zoom? No — we just center & fix, allowing natural explore only within Kansas.
+// We lock the view softly: no additional panning needed.
+map.setMaxBounds([[ 36.5, -102.5], [40.5, -93.5]]);
+map.setMinZoom(6.5);
+
+// ═══════════════════════════════════════════════════════
+// LAYER STATE
+// ═══════════════════════════════════════════════════════
+let layers           = {};    // keyed by layer id
+let activeLayer      = null;
+let COUNTY_GEOJSON   = null;  // Kansas county boundaries (loaded once)
+let facilitiesOverlay = null; // persistent overlay, independent of layer switcher
+
+function toggleFacilitiesOverlay(on) {
+  if (on) {
+    if (!facilitiesOverlay) facilitiesOverlay = buildFacilitiesLayer();
+    facilitiesOverlay.addTo(map);
+  } else {
+    if (facilitiesOverlay && map.hasLayer(facilitiesOverlay)) {
+      map.removeLayer(facilitiesOverlay);
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// LOAD KANSAS COUNTY BOUNDARIES (TopoJSON → GeoJSON)
+// ═══════════════════════════════════════════════════════
+async function loadCountyBoundaries() {
+  try {
+    const topo = await fetch('https://cdn.jsdelivr.net/npm/us-atlas@3/counties-10m.json').then(r => r.json());
+    const all  = topojson.feature(topo, topo.objects.counties);
+    COUNTY_GEOJSON = {
+      type: 'FeatureCollection',
+      features: all.features.filter(f => {
+        const id = String(f.id).padStart(5, '0');
+        return id.startsWith('20');   // Kansas FIPS = 20
+      })
+    };
+    return true;
+  } catch(e) {
+    console.warn('County boundary load failed:', e);
+    return false;
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// COLOR SCALES
+// ═══════════════════════════════════════════════════════
+function pctColor(pct, layerId) {
+  // pct: PatientPercent value (0–1) — seaborn light-mode palettes
+  const v = parseFloat(pct);
+  switch(layerId) {
+    case 'overview':   // Blues sequential
+      return v > 0.06 ? '#1A3F7A' : v > 0.03 ? '#4878D0' : v > 0.01 ? '#9EC8E8' : '#DDEAF6';
+    case 'food':       // Oranges sequential (seaborn muted orange)
+      return v > 0.06 ? '#B5391A' : v > 0.03 ? '#EE854A' : v > 0.01 ? '#F8C978' : '#FDEECE';
+    case 'housing':    // Greens sequential (seaborn muted green)
+      return v > 0.06 ? '#2E7D32' : v > 0.03 ? '#6ACC64' : v > 0.01 ? '#92C592' : '#E4F3E4';
+    case 'transport':  // Purples sequential (seaborn muted purple)
+      return v > 0.06 ? '#5B2D8E' : v > 0.03 ? '#956CB4' : v > 0.01 ? '#C9ABDF' : '#F0EBF8';
+    case 'mental':     // Reds sequential (seaborn muted red)
+      return v > 0.06 ? '#8B1A1A' : v > 0.03 ? '#D65F5F' : v > 0.01 ? '#F2A2A2' : '#FDEAEA';
+    case 'financial':  // Browns sequential (seaborn muted brown)
+      return v > 0.06 ? '#4A2E10' : v > 0.03 ? '#8C613C' : v > 0.01 ? '#D8B48A' : '#F5EDE3';
+    default:
+      return '#4878D0';
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// FETCH & PARSE CSV INLINE
+// ═══════════════════════════════════════════════════════
+// Since data is local, we embed it as a string. In production
+// you'd use fetch('./census_patient_percent.csv').
+// We use fetch to avoid a 134 KB inline string here.
+
+const ALL_CENSUS_DATA = [
+["200019527002",11,957,0.011494,37.907415,-95.344626],
+["200019530002",11,675,0.016296,37.823198,-95.433196],
+["200099718012",11,791,0.013906,38.299811,-98.767592],
+["200119557001",11,1240,0.008871,37.81142,-94.937455],
+["200150202072",11,1666,0.006603,37.715835,-97.139385],
+["200150205002",11,1276,0.008621,37.817643,-96.888133],
+["200150209011",11,1192,0.009228,37.60611,-96.861567],
+["200354932001",11,1332,0.008258,37.377919,-96.949113],
+["200354936002",11,1009,0.010902,37.236877,-96.96361],
+["200354936004",11,770,0.014286,37.232802,-96.986548],
+["200379570002",11,1830,0.006011,37.426873,-94.683524],
+["200559604041",11,1996,0.005511,37.99369,-100.860292],
+["200559605031",11,1148,0.009582,37.907397,-100.823573],
+["200579617002",11,1077,0.010214,37.592815,-99.945552],
+["200679637001",11,1155,0.009524,37.596386,-101.355151],
+["200719581002",11,634,0.01735,38.480409,-101.805993],
+["200779618002",11,1471,0.007478,37.158385,-97.99647],
+["200790301003",11,944,0.011653,38.056229,-97.341516],
+["200790304004",11,874,0.012586,38.039146,-97.335193],
+["200790306022",11,1111,0.009901,37.992264,-97.518649],
+["200910502003",11,1193,0.00922,39.033152,-94.653713],
+["200910516003",11,1976,0.005567,38.962406,-94.622651],
+["200910519092",11,1254,0.008772,38.945647,-94.700108],
+["200910523071",11,1136,0.009683,39.004185,-94.772721],
+["200910524104",11,1499,0.007338,38.974576,-94.76623],
+["200910524193",11,1525,0.007213,38.989082,-94.726487],
+["200910526112",11,1063,0.010348,38.993989,-94.847747],
+["200910527021",11,776,0.014175,38.922093,-94.928822],
+["200910529042",11,1437,0.007655,38.901632,-94.80176],
+["200910529103",11,752,0.014628,38.934463,-94.806859],
+["200910530074",11,1267,0.008682,38.909475,-94.746735],
+["200910531082",11,2060,0.00534,38.901356,-94.695853],
+["200910534153",11,1731,0.006355,38.872807,-94.672093],
+["200910534212",11,1680,0.006548,38.875263,-94.730319],
+["200910535093",11,1482,0.007422,38.851375,-94.784675],
+["200910535582",11,1853,0.005936,38.832657,-94.80061],
+["200910536044",11,2010,0.005473,38.873237,-94.839251],
+["200999501001",11,1572,0.006997,37.349514,-95.224412],
+["201030701002",11,788,0.013959,39.320904,-94.9171],
+["201030711052",11,747,0.014726,39.263243,-94.909285],
+["201030712053",11,925,0.011892,39.17344,-94.999579],
+["201079551011",11,991,0.0111,38.225421,-94.835029],
+["201079552001",11,776,0.014175,38.109752,-94.948349],
+["201099546002",11,826,0.013317,39.125324,-100.860499],
+["201137885001",11,903,0.012182,38.369737,-97.665298],
+["201137886002",11,1604,0.006858,38.372341,-97.649421],
+["201137887003",11,1933,0.005691,38.236996,-97.455935],
+["201154898001",11,877,0.012543,38.232023,-97.160726],
+["201211007004",11,604,0.018212,38.497509,-94.954477],
+["201259508002",11,802,0.013716,37.042026,-95.64823],
+["201259508004",11,1276,0.008621,37.087278,-95.647845],
+["201259511002",11,745,0.014765,37.03829,-95.635049],
+["201339516002",11,697,0.015782,37.667895,-95.187163],
+["201379517001",11,1426,0.007714,39.855494,-99.744794],
+["201474752001",11,707,0.015559,39.868144,-99.483198],
+["201474752002",11,655,0.016794,39.646656,-99.497333],
+["201539506002",11,1179,0.00933,39.785039,-101.078209],
+["201550013001",11,1438,0.00765,38.012618,-97.923326],
+["201599672001",11,812,0.013547,38.34696,-98.20237],
+["201599672004",11,1227,0.008965,38.325893,-98.174395],
+["201690012004",11,601,0.018303,38.697327,-97.799988],
+["201730055011",11,1995,0.005514,37.568946,-97.339162],
+["201730072082",11,2414,0.004557,37.672988,-97.213965],
+["201730076003",11,1182,0.009306,37.697354,-97.26269],
+["201730080003",11,1268,0.008675,37.793132,-97.328689],
+["201730093031",11,1523,0.007223,37.690674,-97.435225],
+["201730095041",11,1466,0.007503,37.71702,-97.458862],
+["201730095072",11,3287,0.003347,37.714509,-97.544032],
+["201730095101",11,2315,0.004752,37.664422,-97.489643],
+["201730098042",11,2613,0.00421,37.539819,-97.251879],
+["201730100021",11,2963,0.003712,37.664749,-97.1804],
+["201730100022",11,2169,0.005071,37.693948,-97.180408],
+["201730100072",11,891,0.012346,37.570296,-97.257812],
+["201730103024",11,2023,0.005437,37.784262,-97.392106],
+["201814536002",11,814,0.013514,39.353611,-101.885334],
+["201814537002",11,877,0.012543,39.346102,-101.711407],
+["201939534002",11,882,0.012472,39.34823,-101.232644],
+["202090437002",11,1239,0.008878,39.065771,-94.687675],
+["202090439032",11,1465,0.007509,39.123266,-94.682379],
+["202090440011",11,1049,0.010486,39.096222,-94.779162],
+["202090440013",11,1184,0.009291,39.095948,-94.736895],
+["202090441011",11,1125,0.009778,39.111059,-94.750987],
+["202090446011",11,1034,0.010638,39.156298,-94.74661],
+["202090448033",11,1100,0.01,39.179597,-94.854758],
+["200019530004",12,683,0.01757,37.79665,-95.432188],
+["200079681002",12,1046,0.011472,37.268091,-98.585352],
+["200099715002",12,1045,0.011483,38.370194,-98.801166],
+["200099716002",12,814,0.014742,38.373457,-98.788229],
+["200119558001",12,1793,0.006693,37.831467,-94.746949],
+["200119560003",12,986,0.01217,37.828622,-94.706491],
+["200150202081",12,1459,0.008225,37.701086,-97.125675],
+["200150207001",12,1358,0.008837,37.695027,-96.961224],
+["200150209013",12,1551,0.007737,37.621263,-97.134989],
+["200150209023",12,1544,0.007772,37.577664,-97.126025],
+["200354935003",12,2111,0.005685,37.265628,-96.945107],
+["200379576011",12,1835,0.00654,37.389131,-94.652136],
+["200559604042",12,2201,0.005452,38.029278,-100.830995],
+["200579618021",12,1802,0.006659,37.787359,-100.019476],
+["200639553001",12,699,0.017167,38.901927,-100.309845],
+["200679637002",12,1144,0.01049,37.599297,-101.372862],
+["200679637004",12,2416,0.004967,37.56216,-101.334546],
+["200790304005",12,1088,0.011029,38.030547,-97.315768],
+["200790305003",12,2453,0.004892,38.127562,-97.33778],
+["200910503014",12,1602,0.007491,39.039737,-94.661512],
+["200910504002",12,1075,0.011163,39.018601,-94.672338],
+["200910516001",12,1076,0.011152,38.981283,-94.61635],
+["200910518065",12,1227,0.00978,38.937058,-94.644358],
+["200910523051",12,1724,0.006961,39.040391,-94.738636],
+["200910523081",12,1071,0.011204,39.018373,-94.751821],
+["200910524173",12,746,0.016086,38.967773,-94.731778],
+["200910524224",12,1626,0.00738,38.938286,-94.73172],
+["200910526092",12,1564,0.007673,38.963908,-94.862353],
+["200910528053",12,1687,0.007113,38.889339,-94.865658],
+["200910529074",12,1507,0.007963,38.907221,-94.76862],
+["200910529084",12,1107,0.01084,38.890253,-94.784408],
+["200910530083",12,1430,0.008392,38.903466,-94.732456],
+["200910530091",12,2007,0.005979,38.905548,-94.714426],
+["200910531022",12,615,0.019512,38.930547,-94.677672],
+["200910531101",12,2007,0.005979,38.888467,-94.694205],
+["200910533011",12,2494,0.004812,38.909023,-94.623861],
+["200910534232",12,1993,0.006021,38.864751,-94.695684],
+["200910534281",12,2134,0.005623,38.832767,-94.695764],
+["200910534311",12,1519,0.0079,38.847941,-94.620536],
+["200910535083",12,1304,0.009202,38.859999,-94.792644],
+["200910535102",12,1824,0.006579,38.850617,-94.766854],
+["200910535104",12,1466,0.008186,38.850216,-94.775641],
+["200910536041",12,854,0.014052,38.880538,-94.839253],
+["200910537051",12,1706,0.007034,38.802369,-94.904679],
+["200999501002",12,1289,0.00931,37.335687,-95.25393],
+["200999502002",12,1240,0.009677,37.340172,-95.261572],
+["201030702003",12,645,0.018605,39.323994,-94.921777],
+["201030703004",12,681,0.017621,39.316025,-94.928216],
+["201030707002",12,920,0.013043,39.298339,-94.930283],
+["201030712052",12,721,0.016644,39.130567,-94.98783],
+["201039819001",12,1291,0.009295,39.349833,-94.942492],
+["201137883001",12,769,0.015605,38.255824,-97.844126],
+["201154896002",12,955,0.012565,38.360515,-97.182477],
+["201211007001",12,724,0.016575,38.520347,-94.927962],
+["201211007007",12,914,0.013129,38.482349,-95.016105],
+["201519687002",12,1391,0.008627,37.656993,-98.762801],
+["201539506001",12,1382,0.008683,39.788378,-101.017965],
+["201550003003",12,1414,0.008487,38.083103,-97.932011],
+["201550004004",12,1217,0.00986,38.065058,-97.950791],
+["201550005002",12,1028,0.011673,38.075174,-97.936343],
+["201550005005",12,958,0.012526,38.063482,-97.936236],
+["201599671001",12,1231,0.009748,38.438358,-98.057151],
+["201599673001",12,1392,0.008621,38.195375,-98.19687],
+["201679738005",12,688,0.017442,38.892181,-98.850545],
+["201730095061",12,2312,0.00519,37.715555,-97.467835],
+["201730095132",12,2114,0.005676,37.719702,-97.435436],
+["201730095151",12,1957,0.006132,37.728858,-97.455476],
+["201730096052",12,3460,0.003468,37.597055,-97.437234],
+["201730100074",12,2183,0.005497,37.569293,-97.249398],
+["201730101112",12,1367,0.008778,37.774485,-97.271545],
+["201730101113",12,2528,0.004747,37.759771,-97.274415],
+["201730101153",12,2052,0.005848,37.725306,-97.218039],
+["201854706001",12,781,0.015365,38.054516,-98.617875],
+["202090442014",12,1280,0.009375,39.132201,-94.780085],
+["202090443032",12,1504,0.007979,39.132415,-94.724621],
+["200019530001",13,743,0.017497,37.833559,-95.453119],
+["200099716003",13,1231,0.010561,38.368009,-98.78356],
+["200354938004",13,1722,0.007549,37.097137,-97.074388],
+["200499651002",13,644,0.020186,37.487544,-96.282958],
+["200530867002",13,771,0.016861,38.721906,-98.232725],
+["200530867004",13,1505,0.008638,38.747312,-98.233874],
+["200910512003",13,1670,0.007784,38.981377,-94.680774],
+["200910519021",13,956,0.013598,38.967126,-94.690057],
+["200910523043",13,1578,0.008238,39.003763,-94.733116],
+["200910524111",13,1794,0.007246,38.996189,-94.751327],
+["200910524152",13,1533,0.00848,38.964063,-94.772671],
+["200910524161",13,1995,0.006516,38.963811,-94.756624],
+["200910528042",13,1257,0.010342,38.935484,-94.871953],
+["200910530062",13,1491,0.008719,38.916508,-94.755879],
+["200910530071",13,1319,0.009856,38.909218,-94.755966],
+["200910530104",13,836,0.01555,38.894827,-94.735894],
+["200910531102",13,1838,0.007073,38.895535,-94.694825],
+["200910534302",13,2570,0.005058,38.847443,-94.639812],
+["200910535071",13,1632,0.007966,38.865243,-94.774229],
+["200910535081",13,1066,0.012195,38.860316,-94.803295],
+["200910537121",13,1204,0.010797,38.791505,-94.920683],
+["200910537122",13,1552,0.008376,38.802007,-94.934452],
+["200910538014",13,1114,0.01167,38.759657,-94.822785],
+["200910538042",13,2018,0.006442,38.814484,-94.704981],
+["201030707004",13,814,0.015971,39.286101,-94.932297],
+["201211002003",13,1175,0.011064,38.70456,-94.755182],
+["201211003001",13,1297,0.010023,38.680083,-94.644987],
+["201211004002",13,947,0.013728,38.612557,-94.686814],
+["201211006011",13,748,0.01738,38.566243,-94.864047],
+["201259503004",13,1088,0.011949,37.250754,-95.740079],
+["201259508001",13,1555,0.00836,37.044231,-95.681535],
+["201259510001",13,916,0.014192,37.036136,-95.6239],
+["201474753003",13,704,0.018466,39.733871,-99.308692],
+["201550003004",13,1969,0.006602,38.081582,-97.950763],
+["201550015001",13,916,0.014192,38.147666,-97.864956],
+["201730093013",13,1905,0.006824,37.704716,-97.415463],
+["201730095042",13,1572,0.00827,37.711978,-97.4516],
+["201730095153",13,2901,0.004481,37.72979,-97.471857],
+["201730101082",13,1057,0.012299,37.730285,-97.231496],
+["201730101162",13,2589,0.005021,37.84415,-97.207797],
+["201814537003",13,758,0.01715,39.345453,-101.721304],
+["202090441022",13,1676,0.007757,39.113121,-94.769563],
+["202090442021",13,1600,0.008125,39.137248,-94.752195],
+["202090447033",13,964,0.013485,39.118977,-94.84306],
+["200099711002",14,1001,0.013986,38.355984,-98.557105],
+["200099711003",14,1082,0.012939,38.363229,-98.592205],
+["200099712002",14,757,0.018494,38.352357,-98.954928],
+["200099714002",14,1276,0.010972,38.372486,-98.765066],
+["200099716004",14,992,0.014113,38.359118,-98.78403],
+["200119559002",14,1182,0.011844,37.819004,-94.685417],
+["200150202042",14,1408,0.009943,37.722004,-96.961628],
+["200150204001",14,1074,0.013035,37.818138,-96.849837],
+["200150206011",14,1627,0.008605,37.767541,-97.107507],
+["200150207002",14,1363,0.010271,37.70776,-96.980911],
+["200150208002",14,1717,0.008154,37.677772,-96.976712],
+["200354934001",14,1353,0.010347,37.225874,-97.000963],
+["200450004001",14,1583,0.008844,38.958036,-95.247223],
+["200790302001",14,1085,0.012903,38.061854,-97.350634],
+["200790302003",14,1610,0.008696,38.06245,-97.36212],
+["200790302004",14,618,0.022654,38.051631,-97.348602],
+["200910518053",14,1540,0.009091,38.93662,-94.65808],
+["200910519111",14,1982,0.007064,38.98938,-94.695756],
+["200910522021",14,1912,0.007322,39.036685,-94.709911],
+["200910523073",14,1792,0.007812,39.006467,-94.753337],
+["200910524151",14,2009,0.006969,38.963744,-94.765311],
+["200910524183",14,1541,0.009085,38.988841,-94.718496],
+["200910526121",14,1300,0.010769,39.040509,-94.847358],
+["200910526122",14,1815,0.007713,39.033345,-94.846857],
+["200910527015",14,1256,0.011146,38.979293,-94.944674],
+["200910528052",14,1320,0.010606,38.903642,-94.891059],
+["200910529081",14,1955,0.007161,38.887982,-94.769643],
+["200910530073",14,1094,0.012797,38.901058,-94.750334],
+["200910530105",14,1329,0.010534,38.888181,-94.727854],
+["200910533021",14,2103,0.006657,38.894021,-94.635306],
+["200910534263",14,1941,0.007213,38.862779,-94.746937],
+["200910535085",14,1358,0.010309,38.857794,-94.78382],
+["200910535095",14,1319,0.010614,38.847464,-94.806623],
+["200910535591",14,1931,0.00725,38.823984,-94.787828],
+["200910535602",14,1206,0.011609,38.833135,-94.766277],
+["200910536032",14,1344,0.010417,38.839969,-94.843906],
+["200910537032",14,1509,0.009278,38.803736,-94.911306],
+["200910538012",14,1246,0.011236,38.803832,-94.848028],
+["201030711022",14,2257,0.006203,39.245,-94.855668],
+["201050861003",14,654,0.021407,38.954072,-98.323178],
+["201137886001",14,1699,0.00824,38.354656,-97.642602],
+["201211004004",14,1416,0.009887,38.613568,-94.666855],
+["201211006012",14,1302,0.010753,38.554652,-94.881169],
+["201211007005",14,650,0.021538,38.496521,-94.961027],
+["201211007006",14,1110,0.012613,38.494677,-94.989451],
+["201339516003",14,748,0.018717,37.566685,-95.162872],
+["201339516005",14,672,0.020833,37.576294,-95.27351],
+["201359563001",14,672,0.020833,38.46316,-99.884513],
+["201550001003",14,1672,0.008373,38.080762,-97.896563],
+["201550012002",14,2153,0.006503,38.076113,-97.976318],
+["201599671002",14,939,0.014909,38.438257,-98.346837],
+["201730010004",14,679,0.020619,37.698322,-97.278612],
+["201730081003",14,1713,0.008173,37.778219,-97.364816],
+["201730096031",14,2765,0.005063,37.622664,-97.412801],
+["201730102011",14,2151,0.006509,37.830494,-97.369437],
+["201730102013",14,2224,0.006295,37.845124,-97.377977],
+["201730103025",14,3482,0.004021,37.759676,-97.467431],
+["201939531004",14,852,0.016432,39.392019,-101.048818],
+["201939534001",14,970,0.014433,39.347668,-100.878706],
+["202090449002",14,891,0.015713,39.054056,-94.890365],
+["200150201011",15,1164,0.012887,38.015657,-96.879434],
+["200399513001",15,728,0.020604,39.819016,-100.563467],
+["200579618022",15,1465,0.010239,37.803083,-99.967926],
+["200639553002",15,973,0.015416,39.059918,-100.250552],
+["200910503021",15,1103,0.013599,39.021251,-94.649575],
+["200910517002",15,2201,0.006815,38.94855,-94.617476],
+["200910520043",15,1686,0.008897,39.004025,-94.702312],
+["200910524112",15,1293,0.011601,38.989146,-94.751634],
+["200910524222",15,1353,0.011086,38.945686,-94.728219],
+["200910525021",15,1641,0.009141,39.018427,-94.802342],
+["200910526101",15,1979,0.00758,39.036748,-94.837022],
+["200910528041",15,1896,0.007911,38.920304,-94.871583],
+["200910529043",15,1305,0.011494,38.908852,-94.802352],
+["200910530061",15,1539,0.009747,38.923794,-94.746869],
+["200910531092",15,1989,0.007541,38.889537,-94.680728],
+["200910534093",15,1984,0.00756,38.876694,-94.620872],
+["200910534171",15,2164,0.006932,38.861944,-94.681834],
+["200910534211",15,2493,0.006017,38.878391,-94.737877],
+["200910534273",15,3162,0.004744,38.832841,-94.714477],
+["200910535091",15,942,0.015924,38.842564,-94.792418],
+["200910535592",15,1674,0.008961,38.836489,-94.792704],
+["200999503001",15,1073,0.013979,37.362463,-95.309852],
+["201030704001",15,663,0.022624,39.312936,-94.91967],
+["201030711051",15,1388,0.010807,39.244985,-94.909664],
+["201039819004",15,1594,0.00941,39.349627,-94.931295],
+["201079551023",15,919,0.016322,38.365883,-94.764287],
+["201211003003",15,995,0.015075,38.628113,-94.685204],
+["201211005004",15,714,0.021008,38.515217,-94.836201],
+["201259501001",15,993,0.015106,37.309128,-95.84253],
+["201259503002",15,1120,0.013393,37.234294,-95.713408],
+["201339516004",15,826,0.01816,37.675989,-95.348896],
+["201379517002",15,786,0.019084,39.852135,-99.901538],
+["201550003002",15,961,0.015609,38.089519,-97.929173],
+["201719571004",15,975,0.015385,38.478786,-100.911315],
+["201730095131",15,2534,0.005919,37.712574,-97.435172],
+["201730101152",15,2816,0.005327,37.712139,-97.189698],
+["201730105002",15,1991,0.007534,37.780309,-97.644477],
+["201730108021",15,1703,0.008808,37.749549,-97.26556],
+["201854707002",15,1261,0.011895,37.992588,-98.757233],
+["202090433011",15,1445,0.010381,39.049374,-94.63568],
+["202090447021",15,1951,0.007688,39.084762,-94.819041],
+["202090449001",15,1037,0.014465,39.068947,-94.888951],
+["200099712001",16,755,0.021192,38.580312,-98.895802],
+["200150202101",16,1582,0.010114,37.672151,-97.126117],
+["200150203002",16,1261,0.012688,37.829469,-96.854756],
+["200150205004",16,1004,0.015936,37.806518,-96.870986],
+["200479696001",16,811,0.019729,37.868754,-99.131236],
+["200579619021",16,1861,0.008598,37.793241,-100.069703],
+["200790303002",16,1675,0.009552,38.029493,-97.393231],
+["200790304001",16,1564,0.01023,38.027609,-97.334883],
+["200790306013",16,1433,0.011165,37.926874,-97.4271],
+["200910522013",16,1784,0.008969,39.036709,-94.701726],
+["200910526061",16,1992,0.008032,39.019768,-94.862115],
+["200910526083",16,2299,0.00696,38.946796,-94.836944],
+["200910526132",16,907,0.017641,39.011591,-94.847143],
+["200910526133",16,1939,0.008252,39.022183,-94.846234],
+["200910528051",16,1907,0.00839,38.892334,-94.857762],
+["200910529051",16,2828,0.005658,38.9076,-94.786443],
+["200910529052",16,1761,0.009086,38.894602,-94.79314],
+["200910529102",16,1997,0.008012,38.918441,-94.807638],
+["200910530041",16,1844,0.008677,38.931184,-94.730463],
+["200910533013",16,1293,0.012374,38.92289,-94.618822],
+["200910534032",16,1609,0.009944,38.876504,-94.746474],
+["200910534231",16,1936,0.008264,38.862651,-94.710532],
+["200910534272",16,1837,0.00871,38.838122,-94.731736],
+["200910535073",16,922,0.017354,38.857106,-94.766932],
+["200910538044",16,1499,0.010674,38.770173,-94.716983],
+["201030703003",16,893,0.017917,39.314081,-94.947598],
+["201030712023",16,1079,0.014829,39.068927,-94.961005],
+["201211001004",16,1442,0.011096,38.679832,-94.998044],
+["201211005003",16,1463,0.010936,38.571773,-94.768588],
+["201211006016",16,1468,0.010899,38.584763,-94.865948],
+["201339517001",16,561,0.02852,37.706427,-95.44442],
+["201719571001",16,887,0.018038,38.482397,-100.906263],
+["201730055022",16,2248,0.007117,37.556958,-97.339667],
+["201730077012",16,1338,0.011958,37.732958,-97.291323],
+["201730105001",16,2595,0.006166,37.780596,-97.535616],
+["201834758001",16,836,0.019139,39.777844,-98.813868],
+["201939531001",16,1043,0.01534,39.424069,-101.016312],
+["202090441041",16,1680,0.009524,39.122433,-94.745729],
+["202090447022",16,1342,0.011923,39.055672,-94.818711],
+["202090448071",16,953,0.016789,39.090956,-94.868831],
+["200019529002",17,591,0.028765,37.919627,-95.393835],
+["200099717001",17,1399,0.012152,38.362832,-98.760631],
+["200099718011",17,1080,0.015741,38.39935,-98.737565],
+["200150202052",17,2143,0.007933,37.732657,-96.850702],
+["200150205003",17,1481,0.011479,37.813751,-96.870693],
+["200354937002",17,2030,0.008374,37.094465,-97.034738],
+["200530866001",17,858,0.019814,38.604195,-98.33799],
+["200579618012",17,1484,0.011456,37.774108,-100.004726],
+["200639553003",17,1046,0.016252,38.924803,-100.634195],
+["200910504003",17,1479,0.011494,39.022411,-94.684713],
+["200910519121",17,1679,0.010125,38.967495,-94.706972],
+["200910522022",17,1521,0.011177,39.036656,-94.719247],
+["200910531081",17,2144,0.007929,38.907825,-94.698162],
+["200910534111",17,1696,0.010024,38.851455,-94.656564],
+["200910534131",17,2014,0.008441,38.861535,-94.663764],
+["200910534271",17,1760,0.009659,38.847402,-94.714431],
+["200910536042",17,1586,0.010719,38.879849,-94.848397],
+["200910537111",17,2325,0.007312,38.861827,-94.890171],
+["201137883003",17,862,0.019722,38.571291,-97.792397],
+["201259503001",17,909,0.018702,37.248534,-95.702767],
+["201259514001",17,1127,0.015084,37.030559,-95.569003],
+["201339520001",17,1399,0.012152,37.505319,-95.32383],
+["201359563002",17,732,0.023224,38.46534,-99.946239],
+["201359563004",17,633,0.026856,38.495918,-100.095528],
+["201550010001",17,998,0.017034,38.062334,-97.899093],
+["201550011001",17,2137,0.007955,38.132369,-97.916094],
+["201639747001",17,734,0.023161,39.208852,-99.339953],
+["201719571003",17,1167,0.014567,38.46071,-100.945515],
+["201730095102",17,2614,0.006503,37.686086,-97.489667],
+["201730100012",17,2698,0.006301,37.694094,-97.162155],
+["201730101111",17,2970,0.005724,37.771887,-97.25208],
+["201730102022",17,1783,0.009534,37.86858,-97.299313],
+["202090440022",17,1840,0.009239,39.082437,-94.752292],
+["200099716001",18,890,0.020225,38.373524,-98.779026],
+["200150202061",18,2031,0.008863,37.686223,-97.140299],
+["200354935002",18,1169,0.015398,37.242694,-96.983882],
+["200790301004",18,1922,0.009365,38.074612,-97.327627],
+["200910524142",18,2203,0.008171,38.975209,-94.751919],
+["200910524192",18,1864,0.009657,38.989708,-94.736202],
+["200910526091",18,1970,0.009137,38.975877,-94.885816],
+["200910526111",18,1380,0.013043,38.994092,-94.831446],
+["200910530133",18,1403,0.01283,38.921269,-94.710772],
+["200910532021",18,1944,0.009259,38.90547,-94.653911],
+["200910534132",18,2068,0.008704,38.86219,-94.654573],
+["200910534233",18,1507,0.011944,38.857938,-94.694987],
+["200910535084",18,1381,0.013034,38.864836,-94.783154],
+["200910536033",18,1624,0.011084,38.8764,-94.880945],
+["201030710003",18,823,0.021871,39.228143,-94.981067],
+["201039819006",18,1761,0.010221,39.35077,-94.918905],
+["201079551012",18,1789,0.010061,38.32441,-94.915621],
+["201137881001",18,881,0.020431,38.507737,-97.496202],
+["201211006015",18,1342,0.013413,38.5753,-94.875406],
+["201231767001",18,727,0.024759,39.352306,-98.309236],
+["201259506001",18,701,0.025678,37.216527,-95.688125],
+["201259506003",18,772,0.023316,37.217058,-95.708173],
+["201339518002",18,902,0.019956,37.678516,-95.464283],
+["201430857002",18,740,0.024324,39.216435,-97.805986],
+["201690009003",18,867,0.020761,38.823476,-97.609826],
+["201690012002",18,806,0.022333,38.660599,-97.480422],
+["201730095062",18,2407,0.007478,37.715553,-97.477141],
+["201730095071",18,2016,0.008929,37.700599,-97.489744],
+["201834759001",18,678,0.026549,39.893259,-98.789879],
+["200150201012",19,1108,0.017148,37.920105,-96.647643],
+["200150203001",19,1560,0.012179,37.834017,-96.844123],
+["200430203002",19,700,0.027143,39.738759,-94.998181],
+["200530866002",19,1120,0.016964,38.698551,-98.066652],
+["200790302002",19,1329,0.014296,38.051078,-97.365437],
+["200790306021",19,1228,0.015472,38.014036,-97.518669],
+["200895763003",19,1042,0.018234,39.882962,-98.201506],
+["200910519042",19,1246,0.015249,38.945735,-94.718405],
+["200910519072",19,1467,0.012952,38.97461,-94.697928],
+["200910523061",19,1602,0.01186,39.028839,-94.769721],
+["200910523062",19,1969,0.00965,39.03627,-94.765417],
+["200910524141",19,1815,0.010468,38.982353,-94.751383],
+["200910525051",19,1450,0.013103,38.981479,-94.777901],
+["200910526135",19,1564,0.012148,39.018729,-94.831263],
+["200910527013",19,1286,0.014774,38.968444,-94.931368],
+["200910528073",19,1538,0.012354,38.934286,-94.834343],
+["200910529063",19,2474,0.00768,38.892069,-94.813119],
+["200910529072",19,2265,0.008389,38.901305,-94.77603],
+["200910530051",19,1794,0.010591,38.929193,-94.749351],
+["200910531023",19,1907,0.009963,38.923543,-94.675899],
+["200910534254",19,1927,0.00986,38.8475,-94.747046],
+["200910534282",19,2159,0.0088,38.84732,-94.695738],
+["200910534301",19,2326,0.008169,38.832926,-94.639899],
+["200910537073",19,1664,0.011418,38.813558,-94.915204],
+["200910537091",19,1908,0.009958,38.811718,-94.937632],
+["200910538013",19,2046,0.009286,38.745535,-94.832519],
+["200910538032",19,1760,0.010795,38.803734,-94.642076],
+["201030705003",19,993,0.019134,39.292941,-94.901766],
+["201039819003",19,1704,0.01115,39.339265,-94.937247],
+["201050861004",19,715,0.026573,39.017174,-98.143546],
+["201211002001",19,1891,0.010048,38.731427,-94.825583],
+["201259513001",19,975,0.019487,37.040384,-95.939174],
+["201379517004",19,1033,0.018393,39.802553,-99.890445],
+["201550011002",19,1721,0.01104,38.100898,-97.84054],
+["201679739002",19,829,0.022919,39.05164,-98.733126],
+["201690003006",19,727,0.026135,38.82909,-97.61685],
+["201730101151",19,3923,0.004843,37.721921,-97.187776],
+["202090448042",19,1351,0.014064,39.150414,-94.833028],
+["200039537003",20,864,0.023148,38.164771,-95.163635],
+["200099715003",20,1057,0.018921,38.357,-98.803209],
+["200099717002",20,1266,0.015798,38.361964,-98.769803],
+["200354931002",20,1282,0.015601,37.132622,-96.724484],
+["200790303003",20,1711,0.011689,38.020023,-97.345772],
+["200790305004",20,1742,0.011481,38.133654,-97.43188],
+["200895763001",20,928,0.021552,39.662125,-98.240913],
+["200910519041",20,2234,0.008953,38.938537,-94.71414],
+["200910525061",20,1489,0.013432,38.948418,-94.796768],
+["200910527022",20,1463,0.013671,38.910465,-94.997326],
+["200910529083",20,1757,0.011383,38.894985,-94.768422],
+["200910530093",20,2310,0.008658,38.888288,-94.707612],
+["200910534142",20,2056,0.009728,38.875622,-94.653053],
+["200910534291",20,2296,0.008711,38.862018,-94.619277],
+["200910537031",20,1867,0.010712,38.80284,-94.920368],
+["201137884002",20,1316,0.015198,38.384847,-97.671227],
+["201154895001",20,782,0.025575,38.52223,-97.217577],
+["201231766003",20,935,0.02139,39.480909,-98.116173],
+["201259503003",20,966,0.020704,37.244332,-95.719931],
+["201259504002",20,1038,0.019268,37.225974,-95.696816],
+["201339517002",20,578,0.034602,37.688167,-95.456018],
+["201339518003",20,1114,0.017953,37.640711,-95.493505],
+["201379517005",20,941,0.021254,39.772746,-99.925743],
+["201459703001",20,722,0.027701,38.207178,-99.432329],
+["201550003001",20,2574,0.00777,38.09576,-97.924677],
+["201579781001",20,560,0.035714,39.916374,-97.521924],
+["201679739003",20,537,0.037244,38.822015,-98.659401],
+["201730095141",20,2308,0.008666,37.730343,-97.435345],
+["201799528002",20,1085,0.018433,39.349856,-100.441694],
+["202050974003",20,1054,0.018975,37.454696,-95.695907],
+["202090447032",20,2503,0.00799,39.135732,-94.832159],
+["200099711001",21,1633,0.01286,38.494372,-98.596397],
+["200099715001",21,1241,0.016922,38.383515,-98.79307],
+["200895763002",21,962,0.02183,39.783464,-98.201994],
+["200910528072",21,864,0.024306,38.920017,-94.843722],
+["200910530042",21,1812,0.011589,38.920136,-94.732955],
+["200910530081",21,2005,0.010474,38.907828,-94.736026],
+["200910531021",21,2125,0.009882,38.916636,-94.678325],
+["200910534181",21,1972,0.010649,38.839916,-94.672272],
+["201030702002",21,893,0.023516,39.322651,-94.925587],
+["201030704002",21,907,0.023153,39.305572,-94.92417],
+["201030707003",21,1464,0.014344,39.286296,-94.923765],
+["201050861001",21,972,0.021605,39.082527,-98.166292],
+["201137883002",21,1144,0.018357,38.443278,-97.79684],
+["201259514002",21,939,0.022364,37.017912,-95.629166],
+["201459703002",21,726,0.028926,38.164271,-99.124379],
+["201690003002",21,893,0.023516,38.834574,-97.632022],
+["201690005002",21,1210,0.017355,38.815864,-97.626632],
+["201730072012",21,2595,0.008092,37.701234,-97.198736],
+["201730103012",21,2774,0.00757,37.750232,-97.420525],
+["201730103013",21,3506,0.00599,37.743153,-97.455723],
+["201939531002",21,1367,0.015362,39.427335,-101.093532],
+["201939531003",21,1245,0.016867,39.3589,-101.091627],
+["202050974001",21,713,0.029453,37.408136,-95.654446],
+["202090448031",21,1615,0.013003,39.14317,-94.873207],
+["200019529003",22,638,0.034483,37.888337,-95.400285],
+["200354934002",22,1066,0.020638,37.264038,-97.023242],
+["200910526081",22,1914,0.011494,38.970907,-94.835937],
+["200910530112",22,2106,0.010446,38.891669,-94.752333],
+["200910531013",22,2113,0.010412,38.918422,-94.69815],
+["200910534264",22,1391,0.015816,38.861762,-94.729405],
+["200910537011",22,1699,0.012949,38.760281,-95.010334],
+["200910537052",22,1609,0.013673,38.809254,-94.898172],
+["200910537092",22,2007,0.010962,38.821727,-94.936394],
+["200910538031",22,2319,0.009487,38.760137,-94.642968],
+["201231766002",22,785,0.028025,39.453877,-98.13414],
+["201259505002",22,652,0.033742,37.207669,-95.746163],
+["201259511003",22,1118,0.019678,37.045648,-95.634102],
+["201339519002",22,994,0.022133,37.672124,-95.452428],
+["201359563003",22,650,0.033846,38.465823,-99.759739],
+["201690004002",22,788,0.027919,38.823501,-97.622],
+["201690005004",22,990,0.022222,38.802033,-97.617265],
+["201690012003",22,995,0.022111,38.659152,-97.655206],
+["201730056001",22,2242,0.009813,37.594926,-97.312035],
+["202050971002",22,890,0.024719,37.663535,-95.74696],
+["200099713001",23,1421,0.016186,38.501531,-98.804604],
+["200450003023",23,367,0.06267,38.95673,-95.23764],
+["200530867003",23,781,0.029449,38.745192,-98.218342],
+["200910525072",23,2199,0.010459,38.963058,-94.798967],
+["200910534183",23,2274,0.010114,38.847124,-94.681472],
+["200910535603",23,1968,0.011687,38.832853,-94.775392],
+["201030705001",23,1065,0.021596,39.294207,-94.919613],
+["201690001021",23,737,0.031208,38.849356,-97.587159],
+["201690009002",23,843,0.027284,38.823434,-97.602864],
+["201690009004",23,1215,0.01893,38.816228,-97.608815],
+["201730063001",23,879,0.026166,37.660999,-97.287333],
+["201939531005",23,1571,0.01464,39.357476,-101.017048],
+["201959558002",23,870,0.026437,38.911319,-99.872663],
+["202050974002",23,1102,0.020871,37.424611,-95.683509],
+["202090448032",23,1731,0.013287,39.180179,-94.882317],
+["200099714001",24,1171,0.020495,38.38356,-98.765244],
+["200099718014",24,1674,0.014337,38.377989,-98.840067],
+["200910524211",24,1711,0.014027,38.982005,-94.729012],
+["200910526072",24,2641,0.009087,39.015043,-94.879878],
+["200910526102",24,2183,0.010994,39.036026,-94.82987],
+["200910526131",24,1570,0.015287,39.02566,-94.829375],
+["200910528054",24,1656,0.014493,38.895944,-94.845677],
+["200910530122",24,2535,0.009467,38.920513,-94.718992],
+["200910535022",24,2563,0.009364,38.876104,-94.784568],
+["200910537093",24,2461,0.009752,38.812353,-94.955653],
+["201030711023",24,1389,0.017279,39.217744,-94.863943],
+["201050861002",24,598,0.040134,39.074884,-98.132212],
+["201339519003",24,947,0.025343,37.642158,-95.434139],
+["201414741003",24,964,0.024896,39.508154,-98.707949],
+["201474753002",24,1038,0.023121,39.734781,-99.354789],
+["201579782001",24,656,0.036585,39.916388,-97.786129],
+["201690003001",24,1047,0.022923,38.844344,-97.621086],
+["201690004001",24,984,0.02439,38.823497,-97.615771],
+["201834759002",24,1150,0.02087,39.670622,-98.780471],
+["200150206012",25,1487,0.016812,37.792917,-96.997909],
+["200199646003",25,1425,0.017544,37.119844,-96.182145],
+["200430202001",25,639,0.039124,39.826236,-95.093395],
+["200450004002",25,3301,0.007573,38.951585,-95.265284],
+["200659523002",25,773,0.032342,39.360432,-99.823139],
+["200910528062",25,3024,0.008267,38.906718,-94.824297],
+["200910528071",25,2428,0.010297,38.920008,-94.825292],
+["200910534172",25,1814,0.013782,38.861833,-94.672525],
+["200910537113",25,1991,0.012557,38.846897,-94.937447],
+["201137884003",25,1092,0.022894,38.405667,-97.666874],
+["201211006021",25,1805,0.01385,38.579514,-94.975563],
+["201259505001",25,814,0.030713,37.22767,-95.718909],
+["202050971001",25,973,0.025694,37.569055,-95.591824],
+["200019530003",26,582,0.044674,37.810739,-95.437475],
+["200099718013",26,1251,0.020783,38.358543,-98.748139],
+["200510729022",26,1670,0.015569,38.870938,-99.347127],
+["200910526104",26,2084,0.012476,39.042578,-94.832316],
+["200910528063",26,1908,0.013627,38.906738,-94.840991],
+["200910525052",27,1623,0.016636,38.97475,-94.787255],
+["200910528043",27,1678,0.016091,38.938215,-94.897601],
+["200910535062",27,2231,0.012102,38.872633,-94.76998],
+["200910537072",27,2608,0.010353,38.821703,-94.915896],
+["200910537124",27,1954,0.013818,38.767613,-94.909632],
+["201154896004",27,1014,0.026627,38.355852,-97.212571],
+["201690001013",27,886,0.030474,38.830092,-97.608838],
+["201834758002",27,906,0.029801,39.781536,-98.762298],
+["200019527001",28,1052,0.026616,37.987188,-95.380907],
+["200039536002",28,686,0.040816,38.284703,-95.255703],
+["200910534221",28,2247,0.012461,38.876414,-94.712092],
+["200910534292",28,2416,0.011589,38.861954,-94.639872],
+["201030704003",28,1226,0.022838,39.305921,-94.916377],
+["201030705004",28,2548,0.010989,39.275742,-94.907344],
+["201137884004",28,1583,0.017688,38.378431,-97.657829],
+["201137886003",28,1866,0.015005,38.358876,-97.699458],
+["201379517003",28,1273,0.021995,39.832251,-99.897583],
+["201430857001",28,892,0.03139,39.03382,-97.791593],
+["201474753001",28,832,0.033654,39.77025,-99.337707],
+["201959558001",28,924,0.030303,39.007954,-99.892739],
+["200910534113",29,2486,0.011665,38.844801,-94.65964],
+["201030710002",29,2068,0.014023,39.288802,-94.995623],
+["201679738004",29,594,0.048822,38.889947,-98.859971],
+["200430203001",30,1178,0.025467,39.835815,-94.960057],
+["200739658001",30,754,0.039788,37.724867,-96.088128],
+["200910526082",30,2205,0.013605,38.957057,-94.829121],
+["200910527014",30,1379,0.021755,38.967279,-94.968185],
+["201030703002",30,1642,0.01827,39.322566,-94.947071],
+["201030703005",30,980,0.030612,39.314573,-94.935771],
+["201099546003",30,1164,0.025773,39.126712,-100.833116],
+["201459702003",30,913,0.032859,38.177251,-99.097178],
+["201579783002",30,708,0.042373,39.827928,-97.651611],
+["201639746001",30,766,0.039164,39.426875,-99.318245],
+["201679738001",30,669,0.044843,38.930876,-98.819491],
+["201690003005",30,823,0.036452,38.834467,-97.61925],
+["201690006001",30,1182,0.025381,38.788467,-97.621712],
+["201814537004",30,1644,0.018248,39.368816,-101.706438],
+["202050973001",30,1064,0.028195,37.533224,-95.81595],
+["200019528002",31,1541,0.020117,37.947521,-95.381379],
+["200530867001",31,1341,0.023117,38.776619,-98.352863],
+["200599541022",31,1016,0.030512,38.710707,-95.085615],
+["200659523003",31,886,0.034989,39.349259,-99.884056],
+["201030701001",31,1286,0.024106,39.322161,-94.911059],
+["201030705002",31,1151,0.026933,39.296771,-94.911946],
+["201030711021",31,1151,0.026933,39.272191,-94.882852],
+["201137882002",31,1648,0.018811,38.563117,-97.659409],
+["201259504001",31,1112,0.027878,37.225754,-95.709128],
+["201430857004",31,984,0.031504,39.144105,-97.705853],
+["201459702001",31,1087,0.028519,38.18174,-99.072741],
+["201579783003",31,754,0.041114,39.811779,-97.608349],
+["201690001022",31,823,0.037667,38.842811,-97.598636],
+["201690003004",31,766,0.04047,38.834602,-97.614645],
+["201690011001",31,841,0.036861,38.868162,-97.444261],
+["201690011003",31,1027,0.030185,38.884965,-97.816701],
+["202090448043",31,2833,0.010942,39.18079,-94.826146],
+["200039536003",32,721,0.044383,38.277278,-95.256379],
+["200659523001",32,756,0.042328,39.371434,-99.873742],
+["200910527012",32,1462,0.021888,38.972913,-95.016328],
+["201030702001",32,1247,0.025662,39.324283,-94.93344],
+["201231767002",32,1034,0.030948,39.526719,-98.299188],
+["201414741001",32,898,0.035635,39.493679,-98.560698],
+["201414741002",32,907,0.035281,39.314975,-98.797893],
+["201659723002",32,1112,0.028777,38.540346,-99.176225],
+["201679738006",32,940,0.034043,38.856179,-98.865334],
+["201690011002",32,1065,0.030047,38.907894,-97.558127],
+["201690011004",32,886,0.036117,38.827232,-97.741396],
+["200099713002",33,1666,0.019808,38.500101,-98.756931],
+["200910534031",33,2389,0.013813,38.876254,-94.755715],
+["201030712022",33,1426,0.023142,39.09335,-94.995022],
+["201259510002",33,982,0.033605,37.03806,-95.618299],
+["201639747002",33,854,0.038642,39.24687,-99.294756],
+["201659723001",33,794,0.041562,38.521583,-99.314724],
+["200599545005",34,801,0.042447,38.430515,-95.294847],
+["201030712042",34,1920,0.017708,39.134949,-94.923041],
+["201339519001",34,1132,0.030035,37.675967,-95.441591],
+["201690002001",34,736,0.046196,38.862355,-97.617092],
+["202090448072",34,2116,0.016068,39.049488,-94.898327],
+["200599545001",35,1124,0.031139,38.624722,-95.128005],
+["200739658002",35,832,0.042067,37.70426,-96.370994],
+["201231766004",35,1242,0.02818,39.462514,-98.104647],
+["201430856002",35,651,0.053763,39.163719,-97.506966],
+["201690001012",35,1040,0.033654,38.833922,-97.589542],
+["201690004003",35,1169,0.02994,38.815518,-97.617285],
+["200039537002",36,935,0.038503,38.099675,-95.361766],
+["200599541023",36,656,0.054878,38.699112,-95.196025],
+["201030707001",36,1689,0.021314,39.295578,-94.94191],
+["201030714002",36,1181,0.030483,39.002966,-95.034838],
+["201339518001",36,1261,0.028549,37.673794,-95.499715],
+["201679738002",36,809,0.044499,38.899431,-98.891228],
+["201730095091",36,4137,0.008702,37.678726,-97.507692],
+["201339517003",37,1227,0.030155,37.708515,-95.49572],
+["201690001011",37,900,0.041111,38.833566,-97.599616],
+["202090448034",37,2389,0.015488,39.12214,-94.881274],
+["201231766001",38,1073,0.035415,39.388887,-98.023088],
+["201430856001",38,1357,0.028003,39.003851,-97.552652],
+["201690009001",38,1628,0.023342,38.820474,-97.587926],
+["200450003022",39,501,0.077844,38.952201,-95.24506],
+["200450009023",39,1208,0.032285,38.919611,-95.251121],
+["200910526041",39,2254,0.017303,38.995737,-94.866919],
+["201030714003",39,672,0.058036,38.999749,-95.123777],
+["201639747003",39,1049,0.037178,39.219629,-99.322168],
+["201679738003",39,850,0.045882,38.884728,-98.865939],
+["201690003003",39,974,0.040041,38.840337,-97.616582],
+["201690007002",39,1722,0.022648,38.798366,-97.59901],
+["201030714001",40,1639,0.024405,39.031675,-94.97529],
+["201459702005",40,1112,0.035971,38.160257,-99.113365],
+["201679739001",40,775,0.051613,38.85047,-98.959394],
+["200019528001",41,1179,0.034775,37.942439,-95.420724],
+["201030712051",41,2198,0.018653,39.1766,-94.926783],
+["201137882001",41,2330,0.017597,38.589846,-97.680885],
+["201459702002",41,972,0.042181,38.184945,-99.099191],
+["201579782002",41,773,0.05304,39.750947,-97.808516],
+["201579783001",41,711,0.057665,39.839262,-97.61508],
+["201690002002",41,1340,0.030597,38.85381,-97.614849],
+["202050973002",41,1376,0.029797,37.537545,-95.833969],
+["201030718002",42,824,0.050971,39.105638,-95.088848],
+["201110001021",42,284,0.147887,38.417349,-96.179401],
+["201154897001",42,923,0.045504,38.341086,-97.00597],
+["201430857003",42,1111,0.037804,39.108819,-97.69153],
+["201690001023",42,692,0.060694,38.842538,-97.607729],
+["201690008001",42,1543,0.02722,38.80899,-97.605793],
+["200019526001",43,1791,0.024009,37.873751,-95.203664],
+["201154897003",43,852,0.050469,38.369303,-96.994459],
+["200430202003",44,527,0.083491,39.701358,-95.122439],
+["200450003011",44,1535,0.028664,38.965633,-95.245848],
+["200450003012",44,1302,0.033794,38.965654,-95.239401],
+["201030711053",44,2352,0.018707,39.255899,-94.90938],
+["201154898004",44,1084,0.04059,38.194134,-96.955547],
+["201690010003",44,1055,0.041706,38.837697,-97.575323],
+["201730073012",44,1693,0.025989,37.704603,-97.253248],
+["200019529001",45,1001,0.044955,37.913443,-95.416871],
+["201154897002",45,1024,0.043945,38.355272,-97.008225],
+["200430202002",46,955,0.048168,39.776764,-95.058648],
+["200910526093",46,2448,0.018791,38.954581,-94.882088],
+["201030712021",46,1913,0.024046,39.100184,-94.938025],
+["201137884001",46,2449,0.018783,38.38569,-97.639469],
+["200450002022",47,649,0.072419,38.958505,-95.229697],
+["200450012033",47,1185,0.039662,38.773021,-95.173965],
+["200510727023",47,940,0.05,38.90402,-99.276007],
+["200510728022",47,1022,0.045988,38.892915,-99.342234],
+["200599545002",47,1095,0.042922,38.537896,-95.17752],
+["201690012001",47,1119,0.042002,38.753384,-97.492387],
+["200450009021",48,427,0.112412,38.931229,-95.256074],
+["200599545004",48,1054,0.045541,38.514696,-95.309285],
+["201030709001",48,1673,0.028691,39.369207,-95.004028],
+["201259502001",48,2507,0.019146,37.272246,-95.557026],
+["201579781002",48,512,0.09375,39.739374,-97.500773],
+["201659723003",48,1050,0.045714,38.520582,-99.328919],
+["201690009006",48,1392,0.034483,38.816316,-97.593266],
+["201030712041",49,2781,0.01762,39.13546,-94.949071],
+["201690005001",49,1411,0.034727,38.821952,-97.632149],
+["201959558003",49,1014,0.048323,39.009058,-99.859696],
+["201030711041",50,2616,0.019113,39.218483,-94.927149],
+["201030714004",50,538,0.092937,39.040398,-95.158935],
+["201690010002",50,1620,0.030864,38.813275,-97.569184],
+["200510727015",51,1005,0.050746,38.874582,-99.303982],
+["200299774002",52,779,0.066752,39.401315,-97.797907],
+["200510730003",52,952,0.054622,38.942798,-99.576725],
+["200599545003",52,1028,0.050584,38.443233,-95.153721],
+["201030703001",52,1632,0.031863,39.306262,-94.942288],
+["200510728023",53,598,0.088629,38.881772,-99.339251],
+["200450002011",54,670,0.080597,38.964475,-95.214907],
+["200510727011",54,1136,0.047535,38.868851,-99.309196],
+["201690006002",55,1694,0.032468,38.796567,-97.657305],
+["200510727022",56,978,0.05726,38.871466,-99.295096],
+["200410842001",57,1009,0.056492,38.912837,-97.359279],
+["200599541021",57,1423,0.040056,38.728971,-95.086949],
+["201690005003",57,2076,0.027457,38.808903,-97.622188],
+["200510729013",58,860,0.067442,38.877563,-99.33372],
+["200510729023",58,1075,0.053953,38.869797,-99.335657],
+["200510730001",58,1160,0.05,38.917828,-99.461186],
+["200599544004",58,841,0.068966,38.595,-95.248867],
+["201639746002",58,1516,0.038259,39.436126,-99.268257],
+["200510728012",59,1125,0.052444,38.89672,-99.329764],
+["200599545006",59,845,0.069822,38.449848,-95.423394],
+["200050819003",60,577,0.103986,39.565884,-95.125561],
+["202019786003",60,478,0.125523,39.907637,-97.256457],
+["200510726001",61,1178,0.051783,38.856871,-99.15088],
+["200510729011",61,985,0.061929,38.875372,-99.328202],
+["201030711031",61,2952,0.020664,39.274777,-94.939744],
+["200450003021",62,1013,0.061204,38.952695,-95.238855],
+["200510726002",62,1431,0.043326,38.917646,-99.169826],
+["200510727013",62,1056,0.058712,38.881785,-99.30405],
+["200510730002",62,1167,0.053128,38.933057,-99.541882],
+["200510728011",64,1266,0.050553,38.891396,-99.322023],
+["201030716001",64,1122,0.057041,39.110579,-95.155667],
+["200019528003",65,1093,0.059469,37.926279,-95.398681],
+["200050819004",65,708,0.091808,39.567974,-95.117771],
+["200510727014",65,925,0.07027,38.881884,-99.31333],
+["200450012024",66,1168,0.056507,38.908665,-95.073861],
+["200599543004",66,956,0.069038,38.600548,-95.272603],
+["200599544003",66,948,0.06962,38.606605,-95.263626],
+["200039536001",67,1831,0.036592,38.319224,-95.199827],
+["201154895002",68,732,0.092896,38.50337,-96.957738],
+["200510728021",69,1749,0.039451,38.908138,-99.359977],
+["200050819002",70,755,0.092715,39.569661,-95.126013],
+["200510729012",71,924,0.07684,38.871992,-99.321647],
+["201030718003",71,1141,0.062226,39.118363,-95.097812],
+["200299774001",73,616,0.118506,39.575457,-97.800752],
+["201030718001",73,1178,0.061969,39.07177,-95.102793],
+["200050818001",74,768,0.096354,39.536359,-95.171289],
+["200450003013",74,1633,0.045315,38.961092,-95.23919],
+["200510727021",75,1238,0.060582,38.838328,-99.286863],
+["200599543002",75,1477,0.050779,38.612829,-95.276987],
+["200450001002",76,662,0.114804,39.018354,-95.229045],
+["200510728013",76,1253,0.060654,38.887617,-99.331923],
+["200599542001",77,1115,0.069058,38.641183,-95.282069],
+["201030709002",77,1161,0.066322,39.36766,-95.119899],
+["201690008002",77,2917,0.026397,38.805228,-97.588231],
+["200050816003",81,600,0.135,39.616186,-95.242203],
+["200299773002",81,679,0.119293,39.563597,-97.660984],
+["200599544002",81,1486,0.054509,38.613645,-95.261529],
+["200450009041",83,1019,0.081452,38.939182,-95.244157],
+["200599543003",83,1481,0.056043,38.6012,-95.281053],
+["200430201003",84,584,0.143836,39.745465,-95.260667],
+["200039536004",85,1713,0.049621,38.278654,-95.233757],
+["200050818002",85,783,0.108557,39.52698,-95.114849],
+["200450012034",86,1949,0.044125,38.77504,-95.195596],
+["201030716002",87,1826,0.047645,39.166161,-95.103285],
+["200510728014",88,1161,0.075797,38.881946,-99.323731],
+["200599544001",88,1499,0.058706,38.587854,-95.266399],
+["201690010001",88,3052,0.028834,38.836731,-97.568581],
+["200410843002",89,770,0.115584,38.902536,-97.229392],
+["200450010012",92,1180,0.077966,38.927915,-95.232638],
+["202070966002",92,816,0.112745,37.89121,-95.622985],
+["200430201001",94,479,0.196242,39.899583,-95.258988],
+["202019786002",94,486,0.193416,39.901432,-97.026136],
+["200450001003",95,845,0.112426,38.976216,-95.202594],
+["200450007032",95,937,0.101387,38.960585,-95.281905],
+["200450009022",95,765,0.124183,38.931798,-95.246564],
+["201030710001",95,1277,0.074393,39.25683,-95.099555],
+["200450008012",96,964,0.099585,38.935324,-95.296535],
+["200510727012",96,1131,0.084881,38.890241,-99.309902],
+["201030718004",96,1586,0.06053,39.109149,-95.070371],
+["200599541012",97,861,0.11266,38.556936,-95.427012],
+["200039537001",98,1086,0.090239,38.276698,-95.411973],
+["201030718005",98,1841,0.053232,39.096688,-95.046234],
+["202070967001",98,632,0.155063,37.864759,-95.729864],
+["200050817013",99,911,0.108672,39.567393,-95.137932],
+["200599543001",99,1527,0.064833,38.593427,-95.304035]
+];
+
+let ALL_CENSUS_ROWS = [];
+
+async function loadCensusData() {
+  try {
+    for (const r of ALL_CENSUS_DATA) {
+      ALL_CENSUS_ROWS.push({
+        code:   r[0],
+        patNum: r[1],
+        pop:    r[2],
+        pct:    r[3],
+        lat:    r[4],
+        lon:    r[5],
+      });
+    }
+    return true;
+  } catch(e) {
+    console.warn('Inline census parse failed:', e);
+    return false;
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// BUILD CHOROPLETH LAYER (circle markers at block group centroids)
+// Using circles instead of actual polygon shapes to avoid needing heavy GeoJSON
+// ═══════════════════════════════════════════════════════
+function buildChoroplethLayer(layerId, rows) {
+  const cfg   = LAYER_CONFIG[layerId];
+  const group = L.layerGroup();
+
+  rows.forEach(r => {
+    if (!isFinite(r.lat) || !isFinite(r.lon)) return;
+    const col  = pctColor(r.pct, layerId);
+    const size = 8 + Math.min(r.pct * 300, 22);  // radius proportional to pct
+    const circle = L.circleMarker([r.lat, r.lon], {
+      radius:      size,
+      fillColor:   col,
+      color:       'rgba(0,0,0,0.1)',
+      weight:      0.5,
+      fillOpacity: 0.75,
+    });
+
+    const pctStr = (r.pct * 100).toFixed(2) + '%';
+    circle.bindTooltip(
+      `<b>Census Block Group</b><br>Code: ${r.code}<br>Patients: <b>${pctStr}</b> of pop`,
+      {sticky: true, direction: 'top'}
+    );
+    circle.bindPopup(`
+      <div class="popup-title">${cfg.label}</div>
+      <div class="popup-row"><span>Block Group</span><span class="popup-val">${r.code}</span></div>
+      <div class="popup-row"><span>Population</span><span class="popup-val">${r.pop.toLocaleString()}</span></div>
+      <div class="popup-row"><span>Patient %</span><span class="popup-accent">${pctStr}</span></div>
+      <div class="popup-row"><span>SVH Patients</span><span class="popup-val">~${Math.round(r.pop * r.pct)}</span></div>
+    `);
+    group.addLayer(circle);
+  });
+  return group;
+}
+
+// ═══════════════════════════════════════════════════════
+// BUILD COUNTY CHOROPLETH LAYER (filled county polygons)
+// ═══════════════════════════════════════════════════════
+function buildCountyChoropleth(layerId) {
+  const cfg = LAYER_CONFIG[layerId];
+
+  // Aggregate census block-group rows → county average pct
+  const countyStats = {};
+  ALL_CENSUS_ROWS.filter(r => cfg.filter(r.patNum)).forEach(r => {
+    const fips = r.code.substring(0, 5);   // e.g. "20177" (state + county)
+    if (!countyStats[fips]) countyStats[fips] = { sum: 0, count: 0, pop: 0 };
+    countyStats[fips].sum   += r.pct;
+    countyStats[fips].count += 1;
+    countyStats[fips].pop   += r.pop;
+  });
+
+  return L.geoJSON(COUNTY_GEOJSON, {
+    style: feature => {
+      const fips   = String(feature.id).padStart(5, '0');
+      const d      = countyStats[fips];
+      const avgPct = d ? d.sum / d.count : 0;
+      return {
+        fillColor:   pctColor(avgPct, layerId),
+        fillOpacity: 0.75,
+        color:       '#ffffff',
+        weight:      1.2,
+      };
+    },
+    onEachFeature: (feature, layer) => {
+      const fips    = String(feature.id).padStart(5, '0');
+      const d       = countyStats[fips];
+      const name    = feature.properties.name || fips;
+      if (d) {
+        const avg = (d.sum / d.count * 100).toFixed(2);
+        layer.bindTooltip(
+          `<b>${name} County</b><br>Avg patient %: <b>${avg}%</b><br>Block groups: ${d.count}`,
+          { sticky: true, direction: 'top' }
+        );
+        layer.bindPopup(`
+          <div class="popup-title">${name} County</div>
+          <div class="popup-row"><span>${cfg.label}</span></div>
+          <div class="popup-row"><span>Avg patient %</span><span class="popup-accent">${avg}%</span></div>
+          <div class="popup-row"><span>Block groups</span><span class="popup-val">${d.count}</span></div>
+          <div class="popup-row"><span>Est. population</span><span class="popup-val">${d.pop.toLocaleString()}</span></div>
+        `);
+      } else {
+        layer.bindTooltip(`<b>${name} County</b><br>No data`, { sticky: true });
+      }
+      layer.on('mouseover', function() { this.setStyle({ fillOpacity: 0.92, weight: 2 }); });
+      layer.on('mouseout',  function() { this.setStyle({ fillOpacity: 0.75, weight: 1.2 }); });
+    }
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+// BUILD FACILITIES LAYER (point markers)
+// ═══════════════════════════════════════════════════════
+function facilityColor(type) {
+  switch(type) {
+    case 'hospital': case 'ED': return '#D65F5F';
+    case 'clinic': return '#4878D0';
+    case 'specialty': case 'rehab': case 'behavioral': case 'mental': return '#956CB4';
+    case 'urgent': case 'lab': return '#6ACC64';
+    default: return '#4878D0';
+  }
+}
+
+function buildFacilitiesLayer() {
+  const group = L.layerGroup();
+
+  FACILITIES.forEach(f => {
+    const col  = facilityColor(f.type);
+    // Custom DivIcon — plain colored circle, no emoji
+    const divIcon = L.divIcon({
+      className: '',
+      html: `<div style="
+        background:${col};
+        width:14px;height:14px;
+        border-radius:50%;
+        border:2px solid rgba(255,255,255,0.9);
+        box-shadow:0 1px 4px rgba(0,0,0,0.4);
+      " title="${f.name}"></div>`,
+      iconSize:   [14, 14],
+      iconAnchor: [7, 7],
+    });
+
+    const marker = L.marker([f.lat, f.lon], {icon: divIcon});
+    marker.bindTooltip(`<b>${f.name}</b><br>${f.city}, ${f.county}`, {sticky: true, direction: 'top'});
+    marker.bindPopup(`
+      <div class="popup-title">${f.name}</div>
+      <div class="popup-row"><span>Address</span><span class="popup-val">${f.addr}</span></div>
+      <div class="popup-row"><span>City</span><span class="popup-val">${f.city}</span></div>
+      <div class="popup-row"><span>County</span><span class="popup-val">${f.county}</span></div>
+      <div class="popup-row"><span>Type</span><span class="popup-accent">${f.type.charAt(0).toUpperCase()+f.type.slice(1)}</span></div>
+    `);
+    group.addLayer(marker);
+  });
+  return group;
+}
+
+// ═══════════════════════════════════════════════════════
+// UI HELPERS
+// ═══════════════════════════════════════════════════════
+function setLoading(on) {
+  const el = document.getElementById('loading-overlay');
+  el.classList.toggle('active', on);
+}
+
+function updateUI(layerId) {
+  const cfg = LAYER_CONFIG[layerId];
+
+  // Buttons
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('btn-' + layerId).classList.add('active');
+
+  // Layer info card
+  document.getElementById('layer-name').textContent = cfg.label;
+  const badge = document.getElementById('layer-type-badge');
+  badge.textContent = cfg.type === 'point' ? 'Point Layer' : 'Polygon Layer';
+  badge.className   = 'layer-badge ' + (cfg.type === 'point' ? 'badge-point' : 'badge-polygon');
+
+  // Legend
+  const leg = document.getElementById('legend-container');
+  leg.innerHTML = cfg.legend.map(l =>
+    `<div class="legend-row">
+      <div class="${l.dot ? 'legend-dot' : 'legend-swatch'}" style="background:${l.color}"></div>
+      <span>${l.label}</span>
+    </div>`
+  ).join('');
+
+  // Panel
+
+  // KPIs
+  document.getElementById('kpi-val1').textContent = cfg.kv1;
+  document.getElementById('kpi-val2').textContent = cfg.kv2;
+
+}
+
+function updateStatCount(count) {
+}
+
+// ═══════════════════════════════════════════════════════
+// SELECT LAYER — main toggle function
+// ═══════════════════════════════════════════════════════
+async function selectLayer(layerId) {
+  if (activeLayer === layerId) return;
+
+  setLoading(true);
+  updateUI(layerId);
+
+  // Remove choropleth layers only — never touch facilitiesOverlay
+  Object.values(layers).forEach(l => {
+    if (map.hasLayer(l)) map.removeLayer(l);
+  });
+
+  if (layerId === 'facilities') {
+    // Re-use the overlay so there's never a duplicate layer on the map
+    if (!facilitiesOverlay) facilitiesOverlay = buildFacilitiesLayer();
+    layers[layerId] = facilitiesOverlay;
+    // Sync the checkbox
+    const cb = document.getElementById('facilities-toggle');
+    if (cb) cb.checked = true;
+    if (!map.hasLayer(facilitiesOverlay)) facilitiesOverlay.addTo(map);
+    updateStatCount(FACILITIES.length);
+  } else {
+    if (!layers[layerId]) {
+      const cfg  = LAYER_CONFIG[layerId];
+      const rows = ALL_CENSUS_ROWS.filter(r => cfg.filter(r.patNum));
+      layers[layerId] = COUNTY_GEOJSON
+        ? buildCountyChoropleth(layerId)
+        : buildChoroplethLayer(layerId, rows);
+      updateStatCount(rows.length);
+    } else {
+      const cfg  = LAYER_CONFIG[layerId];
+      const rows = ALL_CENSUS_ROWS.filter(r => cfg.filter(r.patNum));
+      updateStatCount(rows.length);
+    }
+    layers[layerId].addTo(map);
+
+    // Re-add the overlay on top if it's enabled
+    if (facilitiesOverlay && document.getElementById('facilities-toggle')?.checked) {
+      facilitiesOverlay.remove();
+      facilitiesOverlay.addTo(map);
+    }
+  }
+
+  activeLayer = layerId;
+
+  await new Promise(r => setTimeout(r, 180));
+  setLoading(false);
+}
+
+// ═══════════════════════════════════════════════════════
+// BOOT
+// ═══════════════════════════════════════════════════════
+(async function init() {
+  setLoading(true);
+  document.getElementById('layer-name').textContent = 'Loading data…';
+
+  const [ok] = await Promise.all([loadCensusData(), loadCountyBoundaries()]);
+
+  if (!ok) {
+    document.getElementById('layer-name').textContent = 'Data load error';
+    document.getElementById('loading-overlay').style.display = 'none';
+    return;
+  }
+
+  // Show initial layer
+  await selectLayer('overview');
+})();
+</script>
+<div id="dashboard-container">
+
+<div class="hdr">
+  <div class="hdr-left">
+    <h1 style="color: #f26522;">Charts and Insights</h1>
+    <p></p>
+  </div>
+  <div class="hdr-stats" style="align-content: center;">
+    <div class="hdr-stat"><div class="n">7.7M</div><div class="l">Encounters</div></div>
+    <div class="hdr-stat"><div class="n">947K</div><div class="l">Patients</div></div>
+    <div class="hdr-stat"><div class="n">2.63M</div><div class="l">Journeys</div></div>
+    <div class="hdr-stat"><div class="n">3.38M</div><div class="l">Gap Records</div></div>
+  </div>
+</div>
+
+<div class="tabs" id="tabs">
+  <div class="tab on" style="--qc:var(--q4)" onclick="go(0,this)">Visit Gaps</div>
+  <div class="tab"    style="--qc:var(--q4)" onclick="go(1,this)">Transportation</div>
+  <div class="tab"    style="--qc:var(--q4)" onclick="go(2,this)">Communities</div>
+  <div class="tab"    style="--qc:var(--q2)" onclick="go(3,this)">EDA Findings</div>
+  <div class="tab"    style="--qc:var(--q3)" onclick="go(4,this)">Modeling</div>
+  <div class="tab"    style="--qc:var(--q6)" onclick="go(5,this)">Solutions &amp; Next Steps</div>
+</div>
+
+<div class="pages">
+
+<!-- ═════ Q1 ═════ -->
+<div class="page on" id="p0" style="--qc:var(--q1)">
+  <div class="kpi-row">
+    <div class="kpi"><div class="lbl">Median Gap</div><div class="val">28d</div><div class="sub">Routine — expected</div></div>
+    <div class="kpi"><div class="lbl">P95 Gap</div><div class="val">438d</div><div class="sub">1 in 20 pairs &gt;14 months</div></div>
+    <div class="kpi"><div class="lbl">Gaps &gt; 90 days</div><div class="val">31.4%</div><div class="sub">Over 1M gap pairs</div></div>
+    <div class="kpi"><div class="lbl">Gaps &gt; 1 year</div><div class="val">12.6%</div><div class="sub">Large care-discontinuity tail</div></div>
+    <div class="kpi"><div class="lbl">Non-Standard MyChart</div><div class="val">183d</div><div class="sub">Avg gap — 2× Activated (113d)</div></div>
+  </div>
+  <div class="cg2">
+    <div class="card">
+      <div class="card-t">Gap Percentiles &amp; Average (days)</div>
+      <div class="ch h200"><canvas id="c_q1_dist"></canvas></div>
+      <div class="find">The median gap between visits is 28 days, but the average is 110 days, driven by a long tail of disengaged patients. <span class="hl">31.4%</span> of journey pairs have a gap over 90 days; 12.6% exceed a full year.</div>
+    </div>
+    <div class="card">
+      <div class="card-t">MyChart Status vs. Avg Gap (days)</div>
+      <div class="ch h200"><canvas id="c_q1_myc"></canvas></div>
+      <div class="find">Patients with "Non Standard" MyChart status have an average gap of <span class="hl">183 days</span> and 50.8% of their gaps exceed 90 days. Activated vs. not activated MyChart shows almost no difference in gap length (113 vs. 112 days).</div>
+    </div>
+  </div>
+  <div class="noise"><b>⚠</b> Single-visit journeys (60.9%) excluded — no gap to compute. Annual checkup visits inflate the &gt;90d count for appropriately low-acuity patients.</div>
+</div>
+
+<!-- ═════ Q4 ═════ -->
+<div class="page" id="p1" style="--qc:var(--q4)">
+  <div class="kpi-row">
+    <div class="kpi"><div class="lbl">Patients mapped</div><div class="val">196K</div><div class="sub">With valid block-group FIPS</div></div>
+    <div class="kpi"><div class="lbl">&gt;60 mi median gap</div><div class="val">48d</div><div class="sub">vs 28–30d for closer patients</div></div>
+    <div class="kpi"><div class="lbl">Tele avg gap</div><div class="val">104d</div><div class="sub">vs 119d in-person</div></div>
+    <div class="kpi"><div class="lbl">Tele median gap</div><div class="val">37d</div><div class="sub">vs 28d in-person (paradox)</div></div>
+    <div class="kpi"><div class="lbl">30–60 mi avg gap</div><div class="val">104d</div><div class="sub">Shortest band — motivated planners</div></div>
+  </div>
+  <div class="cg2">
+    <div class="card">
+      <div class="card-t">Distance to Clinic vs. Median Gap (days)</div>
+      <div class="ch h250"><canvas id="c_q4_dist"></canvas></div>
+      <div class="find">Patients &gt;60 miles from a clinic have median gaps of <span class="hl">48 days vs. 28–30 for closer patients</span>. The distance-gap relationship is non-linear: patients 30–60 miles out have slightly shorter average gaps (104 days) than those &lt;5 miles (124 days).</div>
+    </div>
+    <div class="card">
+      <div class="card-t">Telemedicine vs. In-Person — Avg &amp; Median Gap</div>
+      <div class="ch h250"><canvas id="c_q4_tele"></canvas></div>
+      <div class="find">Telemedicine reduces average care gaps by 15 days compared to in-person (104 vs. 119 days). Tele patients have a longer median gap (37 days) than in-person (28 days), but a shorter average, suggesting tele patients return more regularly once engaged.</div>
+    </div>
+  </div>
+  <div class="noise"><b>⚠</b> Distance is straight-line (haversine), not drive time. Dept coords are county centroid approximations. Tele N=8,596 pairs (small). Tele users self-select for digital access.</div>
+</div>
+
+<!-- ═════ Q5 ═════ -->
+<div class="page" id="p2" style="--qc:var(--q5)">
+  <div class="kpi-row">
+    <div class="kpi"><div class="lbl">Black single-visit esc%</div><div class="val">26.1%</div><div class="sub">vs 12.1% White — 2.2×</div></div>
+    <div class="kpi"><div class="lbl">NH/Pac. Islander esc%</div><div class="val">26.2%</div><div class="sub">Highest of any group</div></div>
+    <div class="kpi"><div class="lbl">AIAN esc%</div><div class="val">22.8%</div><div class="sub">American Indian / AK Native</div></div>
+    <div class="kpi"><div class="lbl">Geary County esc%</div><div class="val">24.1%</div><div class="sub">Fort Riley area — highest county</div></div>
+    <div class="kpi"><div class="lbl">Douglas MyChart %</div><div class="val">48.4%</div><div class="sub">Lowest activation — near-zero esc%</div></div>
+  </div>
+  <div class="cg2">
+    <div class="card">
+      <div class="card-t">Single-Visit Escalation Rate by Race</div>
+      <div class="ch h250"><canvas id="c_q5_esc"></canvas></div>
+      <div class="find">Black/African American patients have a single-visit rate of 26.1% vs. 12.1% for White patients. AIAN and NHPI patients also have elevated single-visit rates (~22–26%). Asian patients have the lowest single-visit rate at <span class="hl">10.6%</span>.</div>
+    </div>
+    <div class="card">
+      <div class="card-t">County Profile — Escalation % vs. Avg Journey Duration</div>
+      <div class="ch h250"><canvas id="c_q5_county"></canvas></div>
+      <div class="find">Geary County is a significant outlier: avg gap of 63 days, escalation rate of <span class="hl">24.1%</span>. Shawnee County dominates volume at 2M+ journeys with 10.8% escalation. Lyon and Riley Counties have near-zero escalation rates (0.1% and 0.3%).</div>
+    </div>
+  </div>
+  <div class="noise"><b>⚠</b> Race = OMB classification. County = department visited, not patient home. Single-visit escalation = first encounter was ED/inpatient — not failed outpatient escalation.</div>
+</div>
+
+
+<!-- ═════ EDA FINDINGS ═════ -->
+<div class="page" id="p3" style="--qc:var(--q2)">
+  <div class="kpi-row">
+    <div class="kpi"><div class="lbl">Median Care Gap</div><div class="val">28d</div><div class="sub">Avg 110d — heavy right skew</div></div>
+    <div class="kpi"><div class="lbl">Gaps &gt; 90 Days</div><div class="val">31.4%</div><div class="sub">12.6% exceed a full year</div></div>
+    <div class="kpi"><div class="lbl">SDOH Stress</div><div class="val">64.6%</div><div class="sub">Of screened patients report stress</div></div>
+    <div class="kpi"><div class="lbl">Journey Archetypes</div><div class="val">6</div><div class="sub">Across ~2.6M patient journeys</div></div>
+    <div class="kpi"><div class="lbl">Crisis Patients</div><div class="val">46K</div><div class="sub">&lt;2% of journeys, 100% escalation</div></div>
+  </div>
+
+  <!-- Q1 -->
+  <div class="cg1" style="margin-bottom:10px;">
+    <div class="card">
+      <div class="card-t">Q1 — Care Gaps (Time Between Visits)</div>
+      <div class="find" style="margin-top:0;">The median gap between visits is <span class="hl">28 days</span>, but the average is <span class="hl">110 days</span> — a massive right skew driven by a long tail of disengaged patients. 31.4% of journey pairs have a gap over 90 days; 12.6% exceed a full year.</div>
+      <table class="rtable" style="margin-top:16px;">
+        <thead><tr><th>Factor</th><th>Finding</th></tr></thead>
+        <tbody>
+          <tr><td>MyChart "Non Standard"</td><td>Avg gap of <strong>183 days</strong> — nearly 2× system average. 50.8% of gaps exceed 90 days.</td></tr>
+          <tr><td>MyChart Activated vs. Not</td><td>Almost no difference (113 vs. 112 days) — portal activation alone does not drive engagement.</td></tr>
+          <tr><td>Race</td><td>Asian patients have the longest avg gaps (122 days, 35.9% &gt;90d). AIAN shortest (97 days, 27.9% &gt;90d).</td></tr>
+          <tr><td>SVI Quartile</td><td>No meaningful difference — high- and low-SVI patients have nearly identical patterns.</td></tr>
+          <tr><td>Distance</td><td>Non-linear: &gt;60 mi = 48d median vs. 28–30d closer. 30–60 mi actually shortest avg (104d).</td></tr>
+          <tr><td>Telemedicine</td><td>Longer median (37d vs. 28d) but shorter average (104 vs. 119d) — tele patients return more regularly once engaged.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Q2 -->
+  <div class="cg1" style="margin-bottom:10px;">
+    <div class="card">
+      <div class="card-t">Q2 — Return Visit Likelihood</div>
+      <div class="find" style="margin-top:0;">Treatment visits have the highest return rate at <span class="hl">93.1%</span>; initial consults have the lowest at just <span class="hl">1.3%</span>. Age shows a U-shaped curve: 90+ year-olds return at 14.3% vs. 10.2% for 60–69.</div>
+      <table class="rtable" style="margin-top:16px;">
+        <thead><tr><th>Visit Type / Factor</th><th>Return Rate</th></tr></thead>
+        <tbody>
+          <tr><td>Treatment visits</td><td style="font-weight:800; color:var(--c2);">93.1%</td></tr>
+          <tr><td>Anti-coag visits</td><td style="font-weight:800; color:var(--c2);">92.7%</td></tr>
+          <tr><td>Lab visits</td><td>16.6%</td></tr>
+          <tr><td>Imaging</td><td>13.4%</td></tr>
+          <tr><td>Initial consults</td><td style="font-weight:800; color:var(--c1);">1.3%</td></tr>
+        </tbody>
+      </table>
+      <table class="rtable" style="margin-top:16px;">
+        <thead><tr><th>Condition</th><th>Return Rate</th></tr></thead>
+        <tbody>
+          <tr><td>Breast abnormalities / unspecified lumps</td><td style="font-weight:800;">76–82%</td></tr>
+          <tr><td>Anemia in chronic disease</td><td style="font-weight:800;">72%</td></tr>
+          <tr><td>Transplant status</td><td style="font-weight:800;">59%</td></tr>
+        </tbody>
+      </table>
+      <div class="find">Race is essentially flat for return rates — all groups cluster around 10–11%. MyChart status similarly flat; Inactivated patients are the outlier at <span class="hl">14.4%</span>.</div>
+    </div>
+  </div>
+
+  <!-- Q3 -->
+  <div class="cg1" style="margin-bottom:10px;">
+    <div class="card">
+      <div class="card-t">Q3 — Social Determinants &amp; Stress</div>
+      <div class="find" style="margin-top:0;"><span class="hl">64.6%</span> of patients who completed the SDOH stress screener reported any level of stress. Only ~22% of the patient population had any SDOH screener response — large coverage gap.</div>
+      <table class="rtable" style="margin-top:16px;">
+        <thead><tr><th>Stress Response</th><th>% of Screened</th></tr></thead>
+        <tbody>
+          <tr><td>Not at all</td><td>35.4%</td></tr>
+          <tr><td>Only a little</td><td>27.8%</td></tr>
+          <tr><td>To some extent</td><td>21.5%</td></tr>
+          <tr><td>Rather much</td><td style="color:var(--c1); font-weight:800;">8.4%</td></tr>
+          <tr><td>Very much</td><td style="color:var(--c1); font-weight:800;">7.0%</td></tr>
+        </tbody>
+      </table>
+      <table class="rtable" style="margin-top:16px;">
+        <thead><tr><th>SVI Metric</th><th>Q1 (Low)</th><th>Q4 (High)</th></tr></thead>
+        <tbody>
+          <tr><td>Avg journey duration</td><td>164 days</td><td style="color:var(--c1); font-weight:800;">139 days</td></tr>
+          <tr><td>Visits per journey</td><td>2.43</td><td style="color:var(--c1); font-weight:800;">2.25</td></tr>
+          <tr><td>Avg ED visits</td><td>0.056</td><td style="color:var(--c1); font-weight:800;">0.119</td></tr>
+          <tr><td>Escalation rate</td><td>6.1%</td><td style="color:var(--c1); font-weight:800;">11.8%</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Q4 -->
+  <div class="cg1" style="margin-bottom:10px;">
+    <div class="card">
+      <div class="card-t">Q4 — Access &amp; Geography</div>
+      <div class="find" style="margin-top:0;">Telemedicine reduces average care gaps by <span class="hl">15 days</span> (104 vs. 119). Patients &gt;60 miles out have median gaps of <span class="hl">48 days</span> vs. 28–30 for closer patients.</div>
+      <table class="rtable" style="margin-top:16px;">
+        <thead><tr><th>Factor</th><th>Finding</th></tr></thead>
+        <tbody>
+          <tr><td>Distance-gap relationship</td><td>Non-linear: 30–60 mi patients have shorter avg gaps (104d) than &lt;5 mi (124d) — possibly highly engaged referred population.</td></tr>
+          <tr><td>Wellness-only journeys</td><td>31,716 journeys (~2.6M total) consist entirely of annual wellness visits — inflates engagement metrics if not filtered.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Q5 -->
+  <div class="cg1" style="margin-bottom:10px;">
+    <div class="card">
+      <div class="card-t">Q5 — County &amp; Population-Level Patterns</div>
+      <div class="find" style="margin-top:0;">Geary County is a significant outlier: avg gap 63 days, escalation rate <span class="hl">24.1%</span> — nearly 2.3× the system average. Black/African American patients have a single-visit rate of <span class="hl">26.1%</span> vs. 12.1% for White.</div>
+      <table class="rtable" style="margin-top:16px;">
+        <thead><tr><th>County</th><th>Escalation</th><th>Note</th></tr></thead>
+        <tbody>
+          <tr><td>Geary (Junction City / Fort Riley)</td><td style="color:var(--c1); font-weight:800;">24.1%</td><td>Military population turnover</td></tr>
+          <tr><td>Shawnee (Topeka)</td><td>10.8%</td><td>2M+ journeys — dominates volume</td></tr>
+          <tr><td>Lyon (Emporia)</td><td style="color:var(--c2);">0.1%</td><td>Near-zero — possible data artifact</td></tr>
+          <tr><td>Riley (Manhattan)</td><td style="color:var(--c2);">0.3%</td><td>Near-zero — unique population mix</td></tr>
+        </tbody>
+      </table>
+      <table class="rtable" style="margin-top:16px;">
+        <thead><tr><th>Race</th><th>Single-Visit Rate</th></tr></thead>
+        <tbody>
+          <tr><td>Black / African American</td><td style="color:var(--c1); font-weight:800;">26.1%</td></tr>
+          <tr><td>NHPI</td><td style="color:var(--c1); font-weight:800;">~26%</td></tr>
+          <tr><td>AIAN</td><td style="color:var(--c1); font-weight:800;">~22%</td></tr>
+          <tr><td>White</td><td>12.1%</td></tr>
+          <tr><td>Asian</td><td style="color:var(--c2); font-weight:800;">10.6%</td></tr>
+        </tbody>
+      </table>
+      <div class="find">MyChart adoption correlates with county: Douglas County (Lawrence) has only 48.4% activation vs. 85.2% in Shawnee.</div>
+    </div>
+  </div>
+
+  <!-- Q6 -->
+  <div class="cg1" style="margin-bottom:10px;">
+    <div class="card">
+      <div class="card-t">Q6 — Patient Journey Archetypes</div>
+      <div class="find" style="margin-top:0;">Six archetypes identified. The 46K Crisis patients (&lt;2% of journeys) have <span class="hl">100% escalation</span> and consume disproportionate ED resources.</div>
+      <table class="rtable" style="margin-top:16px;">
+        <thead><tr><th>Archetype</th><th>Patients</th><th>Share</th><th>Avg Duration</th><th>Escalation</th></tr></thead>
+        <tbody>
+          <tr><td>Single Visit</td><td>1.6M</td><td>62%</td><td>1 encounter</td><td>13.3%</td></tr>
+          <tr><td>Episodic</td><td>568K</td><td>22%</td><td>355d (3.5 visits)</td><td>Near-zero</td></tr>
+          <tr><td>Managed Chronic</td><td>242K</td><td>9%</td><td>538d (7.1 visits)</td><td style="color:var(--c2); font-weight:800;">0%</td></tr>
+          <tr><td>Resolved Acute</td><td>174K</td><td>7%</td><td>127d (2.2 visits)</td><td style="color:var(--c2); font-weight:800;">0%</td></tr>
+          <tr><td style="font-weight:700;">Crisis Driven</td><td>24K</td><td>1%</td><td>258d</td><td style="color:var(--c1); font-weight:800;">100%</td></tr>
+          <tr><td style="font-weight:700;">Crisis Chronic</td><td>22K</td><td>1%</td><td>351d (5.2 visits)</td><td style="color:var(--c1); font-weight:800;">100%</td></tr>
+        </tbody>
+      </table>
+      <div class="find">Chronic condition journeys have nearly 2× the escalation of acute (9.4% vs. 15.5%), and journeys lasting 100–400 days have the highest escalation concentration.</div>
+    </div>
+  </div>
+
+  <div class="noise"><b>⚠</b> Single-visit journeys (60.9%) excluded from gap analysis. Race = OMB classification. SVI quartiles based on CDC/ATSDR index. Annual checkup visits may inflate &gt;90d gap counts for appropriately low-acuity patients.</div>
+</div>
+
+<!-- ═════ MODELING ═════ -->
+<div class="page" id="p4" style="--qc:var(--q3)">
+  <div class="kpi-row">
+    <div class="kpi"><div class="lbl">Logistic Reg AUC</div><div class="val">0.705</div><div class="sub">5-fold CV: 0.704 ± 0.009</div></div>
+    <div class="kpi"><div class="lbl">Escalation Recall</div><div class="val">64%</div><div class="sub">Catches 2 in 3 escalators</div></div>
+    <div class="kpi"><div class="lbl">Black Escalation OR</div><div class="val">2.25×</div><div class="sub">95% CI: 2.22–2.27</div></div>
+    <div class="kpi"><div class="lbl">Chi-Square p-value</div><div class="val">≈ 0</div><div class="sub">χ²(6) = 29,294</div></div>
+    <div class="kpi"><div class="lbl">Cox c-statistic</div><div class="val">0.557</div><div class="sub">Modest — value is in HRs</div></div>
+  </div>
+
+  <!-- Model 1 -->
+  <div class="cg1" style="margin-bottom:10px;">
+    <div class="card">
+      <div class="card-t">Model 1 — Logistic Regression (Predicting Escalation)</div>
+      <div class="find" style="margin-top:0;">The model achieves a ROC-AUC of <span class="hl">0.705</span> (5-fold CV: 0.704 ± 0.009), correctly ranking a random escalating patient above a non-escalating patient 70% of the time. Recall on the escalation class is <span class="hl">64%</span>.</div>
+      <table class="rtable" style="margin-top:16px;">
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>Effect</th>
+            <th>Direction</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Condition class</td>
+            <td>OR 0.65 per unit</td>
+            <td>Strongest predictor — acute &amp; chronic escalate more</td>
+          </tr>
+          <tr>
+            <td>Patient age</td>
+            <td>OR 0.75 per decade</td>
+            <td>Younger patients have higher escalation risk</td>
+          </tr>
+          <tr>
+            <td>Journey duration</td>
+            <td>Negative association</td>
+            <td>Longer journeys = lower escalation (stable managed care)</td>
+          </tr>
+          <tr>
+            <td>MyChart status</td>
+            <td>OR 1.31</td>
+            <td>Positive predictor — likely confound (sicker pts enrolled)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Model 2 -->
+  <div class="cg1" style="margin-bottom:10px;">
+    <div class="card">
+      <div class="card-t">Model 2 — Chi-Square Tests + Disparity Confidence Intervals</div>
+      <div class="find" style="margin-top:0;">Racial disparity in escalation is statistically confirmed: χ²(6) = 29,294, p ≈ 0, Cramér's V = <span class="hl">0.108</span> (medium effect). Single-visit disparity is real but smaller (V = 0.048).</div>
+      <table class="rtable" style="margin-top:16px;">
+        <thead>
+          <tr>
+            <th>Group</th>
+            <th>Escalation Rate Ratio vs. White</th>
+            <th>95% CI</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>NHPI</td>
+            <td style="color:var(--c1); font-weight:800;">2.34×</td>
+            <td>—</td>
+          </tr>
+          <tr>
+            <td>Black / African American</td>
+            <td style="color:var(--c1); font-weight:800;">2.25×</td>
+            <td>2.22 – 2.27</td>
+          </tr>
+          <tr>
+            <td>Two or More Races</td>
+            <td style="color:var(--c1); font-weight:800;">2.05×</td>
+            <td>—</td>
+          </tr>
+          <tr>
+            <td>AIAN</td>
+            <td style="color:var(--c1); font-weight:800;">1.94×</td>
+            <td>—</td>
+          </tr>
+          <tr>
+            <td>Asian</td>
+            <td style="color:var(--c2); font-weight:800;">0.87×</td>
+            <td>0.83 – 0.91</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Model 3 -->
+  <div class="cg1" style="margin-bottom:10px;">
+    <div class="card">
+      <div class="card-t">Model 3 — Cox Proportional Hazards (Time to Return)</div>
+      <div class="find" style="margin-top:0;">The log-rank test between White and Black patients is <span class="hl">NOT significant (p = 0.82)</span> — once patients reach the next visit, race does not predict how long it takes to return. The escalation disparity is driven by something upstream of visit timing.</div>
+      <table class="rtable" style="margin-top:16px;">
+        <thead>
+          <tr>
+            <th>Covariate</th>
+            <th>Hazard Ratio</th>
+            <th>Interpretation</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Acute condition</td>
+            <td style="font-weight:800;">1.49×</td>
+            <td>Return 49% faster than "other" (p &lt; 0.001)</td>
+          </tr>
+          <tr>
+            <td>Chronic condition</td>
+            <td style="font-weight:800;">1.42×</td>
+            <td>Return 42% faster than "other" (p &lt; 0.001)</td>
+          </tr>
+          <tr>
+            <td>AIAN patients</td>
+            <td style="color:var(--c2); font-weight:800;">1.138</td>
+            <td>Return 13.8% faster (p &lt; 0.001)</td>
+          </tr>
+          <tr>
+            <td>Non-activated MyChart</td>
+            <td style="color:var(--c1); font-weight:800;">0.926</td>
+            <td>Return 7.4% slower (p = 3.6×10⁻²²)</td>
+          </tr>
+          <tr>
+            <td>Asian patients</td>
+            <td style="color:var(--c1); font-weight:800;">0.922</td>
+            <td>Return 7.8% slower (p = 0.004)</td>
+          </tr>
+          <tr>
+            <td>Distance</td>
+            <td>—</td>
+            <td>NOT significant (p = 0.083) after adjustment</td>
+          </tr>
+          <tr>
+            <td>Smoking</td>
+            <td>—</td>
+            <td>NOT significant after adjustment</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="noise"><b>⚠</b> Logistic regression uses 5-fold CV. Chi-square CIs are tight due to large N (~2.6M). Cox c-statistic is modest (0.557) — clinical value is in hazard ratios, not individual prediction. MyChart OR in Model 1 is likely confounded by acuity.</div>
+</div>
+
+<!-- ═════ SOLUTIONS & NEXT STEPS ═════ -->
+<div class="page" id="p5" style="--qc:var(--q6)">
+  <div class="kpi-row">
+    <div class="kpi"><div class="lbl">Crisis Patients</div><div class="val">46K</div><div class="sub">&lt;2% of journeys, 100% escalation</div></div>
+    <div class="kpi"><div class="lbl">Gaps &gt; 90 Days</div><div class="val">31.4%</div><div class="sub">Over 1M gap pairs at risk</div></div>
+    <div class="kpi"><div class="lbl">Black Escalation Rate</div><div class="val">2.25×</div><div class="sub">vs. White — largest disparity</div></div>
+    <div class="kpi"><div class="lbl">High-SVI ED Rate</div><div class="val">2×</div><div class="sub">0.119 vs. 0.056 avg ED visits</div></div>
+    <div class="kpi"><div class="lbl">SDOH Screening Gap</div><div class="val">78%</div><div class="sub">Of patients never screened</div></div>
+  </div>
+
+  <!-- Solution 1 -->
+  <div class="cg1" style="margin-bottom:10px;">
+    <div class="card">
+      <div class="card-t">1. Deploy Mobile Care Units to High-Escalation Geographies</div>
+      <div class="find" style="margin-top:0;">Geary County has a <span class="hl">24.1% escalation rate</span> — 2.3× the system average — driven by military population turnover at Fort Riley. High-SVI quartile patients show 11.8% escalation vs. 6.1% in low-SVI areas, with nearly 2× ED utilization.</div>
+      <table class="rtable" style="margin-top:16px;">
+        <thead><tr><th>Action</th><th>Data Justification</th><th>Target</th></tr></thead>
+        <tbody>
+          <tr><td>Station mobile clinics in Geary County</td><td>24.1% escalation, 63-day avg gap — short, crisis-heavy journeys</td><td>Reduce Geary escalation to &lt;15%</td></tr>
+          <tr><td>Prioritize Q4 SVI census tracts</td><td>Escalation climbs monotonically: Q1=6.1%, Q2=6.8%, Q3=8.7%, Q4=11.8%</td><td>Close SVI escalation gradient</td></tr>
+          <tr><td>Co-locate with SDOH screening</td><td>78% of patients have never been screened; mobile units can close coverage gap</td><td>Screen &gt;50% of mobile unit patients</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Solution 2 -->
+  <div class="cg1" style="margin-bottom:10px;">
+    <div class="card">
+      <div class="card-t">2. Expand Telehealth to Re-Engage Long-Gap Patients</div>
+      <div class="find" style="margin-top:0;">Telemedicine reduces average care gaps by <span class="hl">15 days</span> (104 vs. 119). Patients &gt;60 miles out have median gaps of 48 days vs. 28–30 closer. The Cox model confirms distance is NOT significant once demographics are controlled — telehealth can neutralize the distance barrier.</div>
+      <table class="rtable" style="margin-top:16px;">
+        <thead><tr><th>Action</th><th>Data Justification</th><th>Target</th></tr></thead>
+        <tbody>
+          <tr><td>Proactive tele outreach for patients with &gt;90-day gaps</td><td>31.4% of journey pairs exceed 90 days; 12.6% exceed a full year</td><td>Reduce &gt;90-day gap rate to &lt;20%</td></tr>
+          <tr><td>Target rural patients &gt;60 miles</td><td>48-day median gap vs. 28–30 for closer — largest distance effect</td><td>Equalize rural/urban median gaps</td></tr>
+          <tr><td>Tele follow-up after initial consults</td><td>Initial consults have 1.3% return rate — nearly zero come back</td><td>Increase initial consult return to &gt;15%</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Solution 3 -->
+  <div class="cg1" style="margin-bottom:10px;">
+    <div class="card">
+      <div class="card-t">3. Launch Culturally Competent Outreach for Racial Disparities</div>
+      <div class="find" style="margin-top:0;">Black patients escalate at <span class="hl">2.25× the White rate</span> (CI: 2.22–2.27). The Cox model shows race does NOT predict time-to-return (p=0.82) — the disparity is upstream: acuity at first presentation, referral patterns, or structural access barriers.</div>
+      <table class="rtable" style="margin-top:16px;">
+        <thead><tr><th>Action</th><th>Data Justification</th><th>Target</th></tr></thead>
+        <tbody>
+          <tr><td>Community health worker programs in Black, AIAN, NHPI communities</td><td>Single-visit rates: Black 26.1%, NHPI ~26%, AIAN ~22% vs. White 12.1%</td><td>Reduce single-visit disparity by 50%</td></tr>
+          <tr><td>Targeted primary care navigation</td><td>Escalation disparity is not driven by gap length — it's at first contact</td><td>Shift first-contact from ED to primary care</td></tr>
+          <tr><td>Multilingual outreach in Douglas County</td><td>Only 48.4% MyChart activation vs. 85.2% in Shawnee — digital access gap</td><td>Raise Douglas activation to &gt;70%</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Solution 4 -->
+  <div class="cg1" style="margin-bottom:10px;">
+    <div class="card">
+      <div class="card-t">4. Build a Crisis-Patient Early Warning System</div>
+      <div class="find" style="margin-top:0;">The logistic regression model catches <span class="hl">64% of escalating patients</span> (AUC 0.705) using condition class, age, journey duration, and MyChart status. The 46K Crisis patients (&lt;2% of journeys) have 100% escalation and consume disproportionate ED resources.</div>
+      <table class="rtable" style="margin-top:16px;">
+        <thead><tr><th>Action</th><th>Data Justification</th><th>Target</th></tr></thead>
+        <tbody>
+          <tr><td>Deploy escalation risk score in EHR workflow</td><td>Model identifies 2 in 3 escalators; condition class is strongest predictor (OR 0.65)</td><td>Flag top-20% risk patients at intake</td></tr>
+          <tr><td>Proactive care management for Crisis Driven archetype</td><td>24K patients, 100% escalation, avg 258-day journey</td><td>Convert 25% of Crisis Driven to Managed Chronic</td></tr>
+          <tr><td>Age-targeted intervention for younger patients</td><td>Younger patients have significantly higher escalation risk (OR 0.75 per decade)</td><td>Reduce under-40 escalation rate</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Solution 5 -->
+  <div class="cg1" style="margin-bottom:10px;">
+    <div class="card">
+      <div class="card-t">5. Fix the MyChart Engagement Gap</div>
+      <div class="find" style="margin-top:0;">"Non Standard" MyChart patients have an average gap of <span class="hl">183 days</span> — nearly 2× the system average. But activated vs. not activated shows no difference (113 vs. 112 days). The Cox model finds non-activated patients return 7.4% slower (HR 0.926, p=3.6×10⁻²²) — modest but real.</div>
+      <table class="rtable" style="margin-top:16px;">
+        <thead><tr><th>Action</th><th>Data Justification</th><th>Target</th></tr></thead>
+        <tbody>
+          <tr><td>Audit and clean "Non Standard" MyChart records</td><td>183-day avg gap, 50.8% &gt;90 days — strongest MyChart signal in dataset</td><td>Reclassify 100% of Non Standard accounts</td></tr>
+          <tr><td>Redesign portal onboarding for engagement, not just activation</td><td>Activation alone shows zero impact (113 vs. 112 days)</td><td>Shift metric from activation rate to engagement rate</td></tr>
+          <tr><td>County-specific MyChart campaigns</td><td>Douglas County 48.4% vs. Shawnee 85.2% — wide adoption gap</td><td>Raise lowest-quartile counties to &gt;70%</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Solution 6 -->
+  <div class="cg1" style="margin-bottom:10px;">
+    <div class="card">
+      <div class="card-t">6. Scale SDOH Screening and Integrate into Care Pathways</div>
+      <div class="find" style="margin-top:0;">Only <span class="hl">~22% of patients</span> have any SDOH screener response. Of those screened, 64.6% report stress. High-SVI patients disengage faster (139 vs. 164 day journeys, 2.25 vs. 2.43 visits) while escalating at nearly 2× the rate.</div>
+      <table class="rtable" style="margin-top:16px;">
+        <thead><tr><th>Action</th><th>Data Justification</th><th>Target</th></tr></thead>
+        <tbody>
+          <tr><td>Universal SDOH screening at all encounter types</td><td>78% coverage gap leaves most social risk unidentified</td><td>Screen &gt;80% of patients within 12 months</td></tr>
+          <tr><td>Auto-referral for housing, food, transport needs</td><td>Housing tracts reach 14.8% patient rate; transport tracts 10–12.6%</td><td>Connect flagged patients to resources within 48 hours</td></tr>
+          <tr><td>Integrate stress scores into care plans</td><td>15.4% report "rather much" or "very much" stress — high-acuity social need</td><td>Behavioral health follow-up for high-stress patients</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="noise"><b>⚠</b> All targets are illustrative benchmarks based on current data distributions. Implementation requires clinical governance review, IRB consideration for predictive models, and community stakeholder engagement. County-level data reflects department location, not patient residence.</div>
+</div>
+
+</div><!-- /pages -->
+</div><!-- /dashboard-container -->
+
+<script>
+const D = {
+  q1_dist:{P25:3,P50:28,P75:135,P95:438,avg:110},
+  q1_myc: [{s:"Activated",avg:113},{s:"Pending",avg:112},{s:"Declined",avg:110},{s:"Inactivated",avg:90},{s:"Non Standard",avg:183}],
+  q1_race:[{r:"White",avg:113},{r:"Some Other",avg:110},{r:"Black/Af.Am.",avg:107},{r:"Two+",avg:116},{r:"Asian",avg:122},{r:"AIAN",avg:97},{r:"NH/PI",avg:109}],
+  q1_svi: [{q:"Q1 Low",pct:31.9},{q:"Q2",pct:32.7},{q:"Q3",pct:32.5},{q:"Q4 High",pct:31.9}],
+  q2_type:[{t:"Treatment",p:93.1},{t:"Anti-coag",p:92.7},{t:"Lab Requisition",p:65.9},{t:"Patient Outreach",p:60.6},{t:"Routine Prenatal",p:56.2},{t:"Hospital Enc.",p:45.5},{t:"Infusion",p:36.7},{t:"Telemedicine",p:27.0},{t:"Procedure",p:26.0},{t:"Follow-Up",p:24.0},{t:"Well Child",p:20.7},{t:"Office Visit",p:19.0},{t:"Lab Visit",p:16.6},{t:"Imaging",p:13.4},{t:"Initial consult",p:1.3}],
+  q2_cond:[{g:"Breast lump (unspec.)",p:81.9},{g:"Other breast disorders",p:76.0},{g:"Abnormal imaging",p:75.2},{g:"Anemia chronic disease",p:72.2},{g:"Transplanted organ",p:59.2},{g:"Coagulation defects",p:58.4},{g:"Female infertility",p:56.7},{g:"Electrolyte disorders",p:50.8},{g:"Venous embolism",p:50.3},{g:"Atrial fibrillation",p:46.3},{g:"High-risk pregnancy",p:45.8},{g:"Myeloid leukemia",p:40.5},{g:"Antenatal screening",p:39.7}],
+  q2_age: [{d:"0–9",p:18.7},{d:"10–19",p:10.2},{d:"20–29",p:12.6},{d:"30–39",p:12.3},{d:"40–49",p:12.2},{d:"50–59",p:10.5},{d:"60–69",p:10.2},{d:"70–79",p:11.0},{d:"80–89",p:11.8},{d:"90+",p:14.3}],
+  q2_race:[{r:"White",p:10.7},{r:"Some Other",p:10.6},{r:"Black/Af.Am.",p:10.7},{r:"Two+",p:12.0},{r:"Asian",p:10.4},{r:"AIAN",p:10.3},{r:"NH/PI",p:9.7}],
+  q3_svi: [{q:"Q1 Low",days:164,vis:2.43,esc:6.1,ed:0.056},{q:"Q2",days:159,vis:2.37,esc:6.8,ed:0.063},{q:"Q3",days:156,vis:2.35,esc:8.7,ed:0.084},{q:"Q4 High",days:139,vis:2.25,esc:11.8,ed:0.119}],
+  q3_stress:[{l:"Not at all",n:19145,pct:35.4,col:"#39d0d8"},{l:"Only a little",n:15022,pct:27.8,col:"#39d0d8"},{l:"To some extent",n:11592,pct:21.5,col:"#f26522"},{l:"Rather much",n:4522,pct:8.4,col:"#f26522"},{l:"Very much",n:3769,pct:7.0,col:"#f26522"}],
+  q4_dist:[{b:"<5 mi",med:30},{b:"5–15 mi",med:28},{b:"15–30 mi",med:29},{b:"30–60 mi",med:32},{b:">60 mi",med:48}],
+  q4_tele:[{t:"In-Person",avg:119,med:28},{t:"Telemedicine",avg:104,med:37}],
+  q5_race:[{r:"White",esc:12.1,cd:17376,cc:17577,tot:2054641},{r:"Some Other",esc:16.6,cd:2105,cc:1288,tot:192303},{r:"Black/Af.Am.",esc:26.1,cd:3023,cc:2303,tot:167609},{r:"Two+",esc:22.5,cd:1409,cc:609,tot:72828},{r:"Asian",esc:10.6,cd:159,cc:124,tot:20247},{r:"AIAN",esc:22.8,cd:265,cc:216,tot:18081},{r:"NH/PI",esc:26.2,cd:57,cc:49,tot:3856}],
+  q5_county:[{c:"Shawnee",esc:10.8,days:142,n:2039255},{c:"Geary",esc:24.1,days:63,n:163723},{c:"Lyon",esc:0.1,days:167,n:142188},{c:"Riley",esc:0.3,days:105,n:127600},{c:"Osage",esc:0.7,days:200,n:55327},{c:"Pottawatomie",esc:0.2,days:148,n:35719},{c:"Jefferson",esc:0.5,days:190,n:17592},{c:"Jackson",esc:0.4,days:175,n:16259},{c:"Douglas",esc:0.0,days:226,n:2146}],
+  q6_arch:[{a:"Single Visit",n:1603648,days:0,esc:13.3,col:"#39d0d8"},{a:"Episodic",n:567839,days:355,esc:0.4,col:"#39d0d8"},{a:"Managed Chronic",n:241710,days:538,esc:0.0,col:"#39d0d8"},{a:"Resolved Acute",n:174230,days:127,esc:0.0,col:"#39d0d8"},{a:"Crisis Driven",n:24451,days:258,esc:100.0,col:"#f26522"},{a:"Crisis Chronic",n:22223,days:351,esc:100.0,col:"#f26522"}]
+};
+
+// Chart.js defaults — Storymap color scheme
+Chart.defaults.color = '#0f3460';
+Chart.defaults.font.family = "'Calibri', 'Segoe UI', sans-serif";
+Chart.defaults.font.size = 13;
+const gridColor = 'rgba(15, 52, 96, 0.08)';
+const sc  = () => ({ ticks:{color:'#0f3460',font:{size:12,weight:600}}, grid:{color:gridColor,lineWidth:1} });
+const noG = () => ({ ticks:{color:'#0f3460',font:{size:12,weight:600}}, grid:{display:false} });
+
+function hbar(id, labels, data, colors){
+  new Chart(document.getElementById(id),{type:'bar',
+    data:{labels,datasets:[{data,backgroundColor:colors||'#4c72b088',borderRadius:4,barThickness:13}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{x:sc(),y:noG()}}});
+}
+function bar(id,labels,data,colors,pct=false){
+  new Chart(document.getElementById(id),{type:'bar',
+    data:{labels,datasets:[{data,backgroundColor:colors||'#4c72b088',borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>pct?ctx.parsed.y+'%':ctx.parsed.y}}},
+      scales:{x:noG(),y:{...sc(),ticks:{callback:v=>pct?v+'%':v,color:'#666680',font:{size:10}}}}}});
+}
+
+// Tab switching
+const tabs=document.querySelectorAll('.tab');
+const pages=document.querySelectorAll('.page');
+function go(i,btn){
+  tabs.forEach(t=>t.classList.remove('on'));
+  pages.forEach(p=>p.classList.remove('on'));
+  btn.classList.add('on');
+  pages[i].classList.add('on');
+  pages[i].scrollTop=0;
+}
+
+// ── CHARTS ──────────────────────────────────────────────────────────────────
+
+// Q1
+bar('c_q1_dist',['P25','P50','P75','P95','Avg'],[3,28,135,438,110],
+  ['#39d0d855','#39d0d8','#39d0d8cc','#f2652299','#f26522']);
+hbar('c_q1_myc',D.q1_myc.map(r=>r.s),D.q1_myc.map(r=>r.avg),
+  D.q1_myc.map(r=>r.avg>150?'#f2652299':r.avg<100?'#39d0d899':'#f2652288'));
+
+// Q4
+hbar('c_q4_dist',D.q4_dist.map(r=>r.b),D.q4_dist.map(r=>r.med),
+  D.q4_dist.map(r=>r.med>40?'#f2652299':r.med<29?'#39d0d899':'#39d0d888'));
+new Chart(document.getElementById('c_q4_tele'),{type:'bar',
+  data:{labels:D.q4_tele.map(r=>r.t),
+    datasets:[
+      {label:'Avg gap',data:D.q4_tele.map(r=>r.avg),backgroundColor:['#f2652288','#39d0d888'],borderRadius:0},
+      {label:'Median gap',data:D.q4_tele.map(r=>r.med),backgroundColor:['#f2652244','#39d0d844'],borderColor:['#f26522','#39d0d8'],borderWidth:1.5,borderRadius:0}
+    ]},
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{labels:{color:'#0f3460',font:{size:10}}}},
+    scales:{x:noG(),y:{...sc(),ticks:{callback:v=>v+'d',color:'#0f3460',font:{size:10}}}}}});
+
+// Q5
+bar('c_q5_esc',D.q5_race.map(r=>r.r),D.q5_race.map(r=>r.esc),
+  D.q5_race.map(r=>r.esc>22?'#f2652299':r.esc>16?'#f2652299':r.esc<12?'#39d0d8aa':'#39d0d8aa'),true);
+new Chart(document.getElementById('c_q5_county'),{type:'bubble',
+  data:{datasets:D.q5_county.map(c=>({
+    label:c.c,data:[{x:c.days,y:c.esc,r:Math.sqrt(c.n/1e3)*1.9}],
+    backgroundColor:c.esc>15?'#f2652255':c.esc>5?'#f2652255':'#39d0d855',
+    borderColor:c.esc>15?'#f26522':c.esc>5?'#f26522':'#39d0d8',borderWidth:1.5}))},
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{position:'right',labels:{color:'#0f3460',font:{size:10},boxWidth:9,padding:5}},
+      tooltip:{callbacks:{label:ctx=>{const c=D.q5_county[ctx.datasetIndex];return ` ${c.c}: ${c.esc}% esc · ${c.days}d avg`;}}}}
+    ,scales:{
+      x:{...sc(),title:{display:true,text:'Avg journey duration (days)',color:'#0f3460',font:{size:10}}},
+      y:{...sc(),title:{display:true,text:'Escalation %',color:'#0f3460',font:{size:10}},ticks:{callback:v=>v+'%',color:'#0f3460',font:{size:10}}}
+    }}}); 
+
+// Q6
+new Chart(document.getElementById('c_q6_arch'),{type:'doughnut',
+  data:{labels:D.q6_arch.map(a=>a.a),
+    datasets:[{data:D.q6_arch.map(a=>a.n),
+      backgroundColor:D.q6_arch.map(a=>a.col+'88'),
+      borderColor:D.q6_arch.map(a=>'#0f3460'),borderWidth:1.5,hoverOffset:8}]},
+  options:{responsive:true,maintainAspectRatio:false,cutout:'52%',
+    plugins:{legend:{position:'right',labels:{color:'#0f3460',font:{size:10},boxWidth:9,padding:5}},
+      tooltip:{callbacks:{label:ctx=>{const a=D.q6_arch[ctx.dataIndex];const p=(a.n/archTotal*100).toFixed(1);return ` ${a.a}: ${a.n.toLocaleString()} (${p}%)`;}}}}
+  }});
+hbar('c_q6_dur',D.q6_arch.map(a=>a.a),D.q6_arch.map(a=>a.days),
+  D.q6_arch.map(a=>a.col+'99'));
+</script>
+</body>
+</html>
