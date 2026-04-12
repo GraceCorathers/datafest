@@ -158,11 +158,11 @@ html, body {
   justify-content: space-between; flex-shrink: 0;
   box-shadow: none;
 }
-.hdr-left h1 { font-size: 28px; font-weight: 800; color: var(--t); }
-.hdr-left p  { font-size: 14px; color: var(--t); margin-top: 8px; }
-.hdr-stats   { display: flex; gap: 30px; }
-.hdr-stat .n { font-size: 28px; font-weight: 800; color: var(--c1); line-height: 1; text-align:center; }
-.hdr-stat .l { font-size: 11px; color: var(--t); text-transform: uppercase; letter-spacing: .08em; text-align:center; font-weight: 700;}
+.hdr-left h1 { font-size: 32px; font-weight: 800; color: var(--t); }
+.hdr-left p  { font-size: 15px; color: var(--t); margin-top: 8px; font-weight: 500; }
+.hdr-stats   { display: flex; gap: 40px; }
+.hdr-stat .n { font-size: 32px; font-weight: 800; color: var(--c1); line-height: 1; text-align:center; }
+.hdr-stat .l { font-size: 12px; color: var(--t); text-transform: uppercase; letter-spacing: .1em; text-align:center; font-weight: 800;}
 
 /* ── TABS ── */
 .tabs {
@@ -171,7 +171,7 @@ html, body {
   overflow-x: auto; padding: 0 20px;
 }
 .tab {
-  padding: 14px 24px; font-size: 15px; font-weight: 600;
+  padding: 16px 28px; font-size: 16px; font-weight: 700;
   color: var(--t); cursor: pointer; white-space: nowrap;
   border-bottom: 3px solid transparent; margin-bottom: -2px;
   transition: color .15s, border-color .15s; user-select: none;
@@ -192,11 +192,11 @@ html, body {
 }
 .kpi {
   background: var(--white); border: 2px solid var(--s);
-  border-top: 6px solid var(--qc); border-radius: 0; padding: 20px 18px;
+  border-top: 6px solid var(--qc); border-radius: 0; padding: 24px 20px;
 }
-.kpi .lbl { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--t); margin-bottom: 8px; }
-.kpi .val { font-size: 32px; font-weight: 800; color: var(--qc); line-height: 1; }
-.kpi .sub { font-size: 13px; color: var(--t); margin-top: 5px; }
+.kpi .lbl { font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: .1em; color: var(--t); margin-bottom: 10px; }
+.kpi .val { font-size: 36px; font-weight: 800; color: var(--qc); line-height: 1; }
+.kpi .sub { font-size: 14px; color: var(--t); margin-top: 8px; font-weight: 500; }
 
 /* ── GRIDS ── */
 .cg2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 18px; }
@@ -205,30 +205,31 @@ html, body {
 
 .card {
   background: var(--white); border: 2px solid var(--s);
-  border-radius: 0; padding: 20px; border-top: 6px solid var(--qc);
+  border-radius: 0; padding: 28px; border-top: 6px solid var(--qc);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
 }
 .card-t {
-  font-size: 13px; font-weight: 700; text-transform: uppercase;
-  letter-spacing: .08em; color: var(--t); margin-bottom: 14px;
+  font-size: 14px; font-weight: 800; text-transform: uppercase;
+  letter-spacing: .1em; color: var(--t); margin-bottom: 18px;
 }
 .ch { position: relative; width: 100%; }
 .ch canvas { position: absolute; top:0;left:0;width:100%!important;height:100%!important; }
-.h150{height:200px;}.h180{height:240px;}.h200{height:280px;}
-.h220{height:300px;}.h250{height:350px;}.h280{height:380px;}
+.h150{height:220px;}.h180{height:280px;}.h200{height:320px;}
+.h220{height:360px;}.h250{height:400px;}.h280{height:440px;}
 
 /* ── FINDINGS ── */
 .find {
-  margin-top: 14px; padding: 14px 16px; border-radius: 0;
-  font-size: 14px; line-height: 1.6; color: var(--t);
-  background: rgba(0,0,0,.022); border-left: 4px solid var(--qc);
+  margin-top:18px; padding:18px 20px; border-radius: 0;
+  font-size:14px; line-height: 1.7; color: var(--t);
+  background: rgba(0,0,0,.025); border-left: 4px solid var(--qc);font-weight:500;
 }
-.find strong { color: var(--t); display: block; margin-bottom: 5px; font-weight: 700; font-size: 15px; }
+.find strong { color: var(--t); display: block; margin-bottom: 6px; font-weight: 800; font-size: 16px; }
 .hl { font-weight: 800; color: var(--qc); }
 
 /* ── RACE TABLE ── */
-.rtable { width:100%; border-collapse:collapse; font-size:14px; }
-.rtable th { padding:12px 14px; color:var(--t); font-size:12px; text-transform:uppercase; letter-spacing:.08em; border-bottom:2px solid var(--s); text-align:left; font-weight: 700; }
-.rtable td { padding:12px 14px; border-bottom:1px solid var(--s); color: var(--t); }
+.rtable { width:100%; border-collapse:collapse; font-size:15px; }
+.rtable th { padding:14px 16px; color:var(--t); font-size:13px; text-transform:uppercase; letter-spacing:.1em; border-bottom:2px solid var(--s); text-align:left; font-weight: 800; }
+.rtable td { padding:14px 16px; border-bottom:1px solid var(--s); color: var(--t); font-weight:500; }
 .rtable tr:hover td { background:var(--bg-dash); }
 .bcell { position:relative;height:15px;background:var(--bg-dash);border-radius:0;overflow:hidden;min-width:60px; }
 .bfill { position:absolute;inset-block:0;left:0;border-radius:0;transition:width 1s; }
@@ -236,25 +237,25 @@ html, body {
 
 /* ── ARCHETYPE GRID ── */
 .arch-grid { display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:18px; }
-.arch-card { background:var(--white);border:2px solid var(--s);border-radius:0;padding:16px 12px;text-align:center;border-top:6px solid var(--qc); }
-.arch-n   { font-size:26px;font-weight:800;color:var(--qc); }
-.arch-lbl { font-size:12px;color:var(--t);margin:5px 0 8px;line-height:1.4;font-weight: 700; }
+.arch-card { background:var(--white);border:2px solid var(--s);border-radius:0;padding:18px 14px;text-align:center;border-top:6px solid var(--qc);box-shadow:0 2px 8px rgba(0,0,0,0.04); }
+.arch-n   { font-size:30px;font-weight:800;color:var(--qc); }
+.arch-lbl { font-size:13px;color:var(--t);margin:8px 0 10px;line-height:1.4;font-weight: 700; }
 .tag { display:inline-block;font-size:11px;font-weight:700;padding:3px 8px;border-radius:0;margin:2px;border:1px solid var(--s); }
 
 /* ── DONUT LEGEND ── */
-.dl  { display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:14px; }
-.dld { width:14px;height:14px;border-radius:50%;flex-shrink:0; }
-.dll { flex:1;color:var(--t);font-weight: 500; }
-.dln { font-weight:700;color:var(--t);width:45px; }
-.dlp { color:var(--t);width:40px;text-align:right; }
+.dl  { display:flex;align-items:center;gap:12px;margin-bottom:10px;font-size:15px; }
+.dld { width:16px;height:16px;border-radius:50%;flex-shrink:0; }
+.dll { flex:1;color:var(--t);font-weight: 600; }
+.dln { font-weight:800;color:var(--t);width:50px; }
+.dlp { color:var(--t);width:45px;text-align:right;font-weight:700; }
 
 /* ── NOISE ── */
 .noise {
-  margin-top:14px;padding:14px 16px;border-radius:0;
-  font-size:13px;color:var(--t);line-height:1.6;
-  background:#f0f0f8;border:2px solid var(--s);border-top:4px solid var(--qc);
+  margin-top:18px;padding:18px 20px;border-radius:0;
+  font-size:14px;color:var(--t);line-height:1.7;
+  background:#f5f7fb;border:2px solid var(--s);border-top:4px solid var(--qc);font-weight:500;
 }
-.noise b { color:var(--c1);font-weight: 700; }
+.noise b { color:var(--c1);font-weight: 800; }
 
 /* ── TRANSITION SECTION ── */
 .transition-section {
@@ -385,8 +386,7 @@ html, body {
 <div class="transition-section">
   <div class="transition-content">
     <h2>Now, Let's Explore <span class="transition-accent">The Data</span></h2>
-    <p>We've followed Samantha's journey. We've understood the problem. Now it's time to look at the numbers across our entire healthcare system and discover the patterns that emerge when we examine patient pathways through the lens of social determinants of health.</p>
-    <div class="transition-subtext">→ Six Questions That Changed How We Think About Care ←</div>
+    <p>We've followed Samantha's journey. We've understood the problem. Now it's time to look at the numbers across our entire healthcare system and discover the patterns that emerge when we examine the social determinants of health.</p>
   </div>
 </div>
 
@@ -398,10 +398,10 @@ html, body {
 
 <div class="hdr">
   <div class="hdr-left">
-    <h1>SVH DataFest 2026 — Six Questions About the Patient Journey</h1>
-    <p>Stormont Vail Health · Jan 2022 – Dec 2025 · All values from real patient data</p>
+    <h1 style="color: #f26522;">Charts and Insights</h1>
+    <p></p>
   </div>
-  <div class="hdr-stats">
+  <div class="hdr-stats" style="align-content: center;">
     <div class="hdr-stat"><div class="n">7.7M</div><div class="l">Encounters</div></div>
     <div class="hdr-stat"><div class="n">947K</div><div class="l">Patients</div></div>
     <div class="hdr-stat"><div class="n">2.63M</div><div class="l">Journeys</div></div>
@@ -410,12 +410,9 @@ html, body {
 </div>
 
 <div class="tabs" id="tabs">
-  <div class="tab on" style="--qc:var(--q1)" onclick="go(0,this)">Q1 · Visit Gaps</div>
-  <div class="tab"    style="--qc:var(--q2)" onclick="go(1,this)">Q2 · Repeated Tests</div>
-  <div class="tab"    style="--qc:var(--q3)" onclick="go(2,this)">Q3 · Home &amp; Stress</div>
-  <div class="tab"    style="--qc:var(--q4)" onclick="go(3,this)">Q4 · Transportation</div>
-  <div class="tab"    style="--qc:var(--q5)" onclick="go(4,this)">Q5 · Communities</div>
-  <div class="tab"    style="--qc:var(--q6)" onclick="go(5,this)">Q6 · Illness Type</div>
+  <div class="tab on" style="--qc:var(--q4)" onclick="go(0,this)">Visit Gaps</div>
+  <div class="tab"    style="--qc:var(--q4)" onclick="go(1,this)">Transportation</div>
+  <div class="tab"    style="--qc:var(--q4)" onclick="go(2,this)">Communities</div>
 </div>
 
 <div class="pages">
@@ -441,93 +438,11 @@ html, body {
       <div class="find"><strong>Digital engagement signal</strong>"Non Standard" patients average <span class="hl">183 days</span>. Inactivated (90d) are actually shorter — likely sicker and more acute, not less engaged.</div>
     </div>
   </div>
-  <div class="cg2">
-    <div class="card">
-      <div class="card-t">Race vs. Avg Gap (days)</div>
-      <div class="ch h180"><canvas id="c_q1_race"></canvas></div>
-      <div class="find"><strong>Asian patients wait longest</strong><span class="hl">122d</span> average. AIAN shortest (97d) — may reflect higher acute utilization, not better continuity.</div>
-    </div>
-    <div class="card">
-      <div class="card-t">SVI Quartile vs. % Gaps &gt; 90 Days</div>
-      <div class="ch h180"><canvas id="c_q1_svi"></canvas></div>
-      <div class="find"><strong>SVI doesn't predict gap timing</strong>All four quartiles: 31–33%. Vulnerability affects <em>what happens</em> at visits, not visit frequency.</div>
-    </div>
-  </div>
-  <div class="noise">By: Chloe Mai, Grace Corathers, Neha Jupalli, Aman Vyas, Ananda Chatterjee</div>
-</div>
-
-<!-- ═════ Q2 ═════ -->
-<div class="page" id="p1" style="--qc:var(--q2)">
-  <div class="kpi-row">
-    <div class="kpi"><div class="lbl">Treatment repeat rate</div><div class="val">93.1%</div><div class="sub">Clinically mandated (chemo, dialysis)</div></div>
-    <div class="kpi"><div class="lbl">Lab Requisition repeat</div><div class="val">65.9%</div><div class="sub">Likely order duplication</div></div>
-    <div class="kpi"><div class="lbl">Hospital Enc repeat</div><div class="val">45.5%</div><div class="sub">Frequent same-journey readmission</div></div>
-    <div class="kpi"><div class="lbl">Breast lump imaging</div><div class="val">81.9%</div><div class="sub">Highest condition-specific rate</div></div>
-    <div class="kpi"><div class="lbl">Initial consult repeat</div><div class="val">1.3%</div><div class="sub">Near-zero — as expected</div></div>
-  </div>
-  <div class="cg2">
-    <div class="card">
-      <div class="card-t">Repeat Rate by Visit Type (within 90 days)</div>
-      <div class="ch h280"><canvas id="c_q2_type"></canvas></div>
-      <div class="find"><strong>Context is everything</strong>Treatment &amp; Anti-coag (93%) are mandated. <span class="hl">Lab Requisition at 65.9%</span> likely captures order duplication. Hospital Encounter (45.5%) suggests frequent readmissions.</div>
-    </div>
-    <div class="card">
-      <div class="card-t">Top Conditions by Lab/Imaging Repeat Rate</div>
-      <div class="ch h280"><canvas id="c_q2_cond"></canvas></div>
-      <div class="find"><strong>Breast &amp; hematology drive repeats</strong>Staging work-ups (breast lump 81.9%, abnormal imaging 75.2%) dominate. Atrial fibrillation (46.3%) reflects appropriate monitoring protocols.</div>
-    </div>
-  </div>
-  <div class="cg2">
-    <div class="card">
-      <div class="card-t">Repeat Rate by Age Decade</div>
-      <div class="ch h180"><canvas id="c_q2_age"></canvas></div>
-      <div class="find"><strong>Children &amp; elderly repeat most</strong>0–9: <span class="hl">18.7%</span> (vaccines, growth checks). 90+: 14.3% (complex chronic management).</div>
-    </div>
-    <div class="card">
-      <div class="card-t">Repeat Rate by Race</div>
-      <div class="ch h180"><canvas id="c_q2_race"></canvas></div>
-      <div class="find"><strong>Minimal racial variation (10.3–12.0%)</strong>Test repetition is driven by clinical condition — a reassuring finding against differential treatment.</div>
-    </div>
-  </div>
-  <div class="noise"><b>⚠</b> Cannot distinguish test types within "Lab Visit." Treatment/anti-coag repeats are clinically mandated, not waste.</div>
-</div>
-
-<!-- ═════ Q3 ═════ -->
-<div class="page" id="p2" style="--qc:var(--q3)">
-  <div class="kpi-row">
-    <div class="kpi"><div class="lbl">High-SVI escalation</div><div class="val">11.8%</div><div class="sub">vs 6.1% low-SVI — nearly 2×</div></div>
-    <div class="kpi"><div class="lbl">High-SVI ED visits</div><div class="val">0.119</div><div class="sub">vs 0.056 low-SVI — 2.1×</div></div>
-    <div class="kpi"><div class="lbl">Patients with any stress</div><div class="val">64.6%</div><div class="sub">54,050 valid respondents</div></div>
-    <div class="kpi"><div class="lbl">Moderate–severe stress</div><div class="val">17.3%</div><div class="sub">"Rather much" or "Very much"</div></div>
-    <div class="kpi"><div class="lbl">SVI gap effect</div><div class="val">None</div><div class="sub">All quartiles ~32% over 90d</div></div>
-  </div>
-  <div class="cg2">
-    <div class="card">
-      <div class="card-t">SVI Quartile — Escalation Rate &amp; Avg ED Visits per Journey</div>
-      <div class="ch h220"><canvas id="c_q3_svi"></canvas></div>
-      <div class="find"><strong>Neighborhood vulnerability doubles crisis risk</strong>High-SVI: <span class="hl">11.8% escalation</span>, 2.1× more ED visits. Gap timing is flat — they don't visit less often, but each visit is more likely to be an emergency.</div>
-    </div>
-    <div class="card">
-      <div class="card-t">SDOH Stress Screener — First Response per Patient (n=54,050)</div>
-      <div style="display:flex;gap:14px;height:220px;align-items:center">
-        <div style="position:relative;flex:0 0 160px;height:160px"><canvas id="c_q3_stress"></canvas></div>
-        <div id="stressLeg" style="flex:1;overflow:hidden"></div>
-      </div>
-      <div class="find"><strong>Nearly 2 in 3 patients report stress</strong><span class="hl">64.6%</span> report some level. Robust across first vs. most-recent visit (64.6% vs 64.0%). Self-reported SDOH signal in SVH's own data.</div>
-    </div>
-  </div>
-  <div class="cg1">
-    <div class="card">
-      <div class="card-t">SVI Quartile — Journey Duration (days) &amp; Avg Visit Count (×60 scaled)</div>
-      <div class="ch h150"><canvas id="c_q3_full"></canvas></div>
-      <div class="find"><strong>Shorter high-SVI journeys = care drop-out</strong>High-SVI: 2.25 visits, 139-day journeys vs 2.43 visits &amp; 164 days in low-SVI. Structural barriers cause premature journey termination.</div>
-    </div>
-  </div>
-  <div class="noise"><b>⚠</b> 61% of patients have *Unspecified census block — SVI analysis covers 39% with valid FIPS. Stress screener covers ~25% of SDOH respondents (self-selected).</div>
+  <div class="noise"><b>⚠</b> Single-visit journeys (60.9%) excluded — no gap to compute. Annual checkup visits inflate the &gt;90d count for appropriately low-acuity patients.</div>
 </div>
 
 <!-- ═════ Q4 ═════ -->
-<div class="page" id="p3" style="--qc:var(--q4)">
+<div class="page" id="p1" style="--qc:var(--q4)">
   <div class="kpi-row">
     <div class="kpi"><div class="lbl">Patients mapped</div><div class="val">196K</div><div class="sub">With valid block-group FIPS</div></div>
     <div class="kpi"><div class="lbl">&gt;60 mi median gap</div><div class="val">48d</div><div class="sub">vs 28–30d for closer patients</div></div>
@@ -551,7 +466,7 @@ html, body {
 </div>
 
 <!-- ═════ Q5 ═════ -->
-<div class="page" id="p4" style="--qc:var(--q5)">
+<div class="page" id="p2" style="--qc:var(--q5)">
   <div class="kpi-row">
     <div class="kpi"><div class="lbl">Black single-visit esc%</div><div class="val">26.1%</div><div class="sub">vs 12.1% White — 2.2×</div></div>
     <div class="kpi"><div class="lbl">NH/Pac. Islander esc%</div><div class="val">26.2%</div><div class="sub">Highest of any group</div></div>
@@ -566,48 +481,22 @@ html, body {
       <div class="find"><strong>Starkest disparity in the dataset</strong>Black &amp; NH/PI patients: <span class="hl">~26% first-contact emergency rate</span> vs 12.1% White. First and only SVH contact = ED visit. An access failure, not a clinical difference.</div>
     </div>
     <div class="card">
-      <div class="card-t">Race — Escalation % &amp; Crisis Journey Share</div>
-      <div id="raceTable" style="overflow-x:auto;margin-top:4px"></div>
-      <div class="find"><strong>Systemic pattern across multiple groups</strong>AIAN (22.8%), Two+ (22.5%), and Some Other Race (16.6%) all elevated. Asian patients (10.6%) are below-average. Disparity is structural.</div>
-    </div>
-  </div>
-  <div class="cg1">
-    <div class="card">
-      <div class="card-t">County Profile — Escalation % vs. Avg Journey Duration (bubble = encounter volume)</div>
-      <div class="ch h220"><canvas id="c_q5_county"></canvas></div>
+      <div class="card-t">County Profile — Escalation % vs. Avg Journey Duration</div>
+      <div class="ch h250"><canvas id="c_q5_county"></canvas></div>
       <div class="find"><strong>Geary vs. Osage: two very different care realities</strong>Geary (24.1% esc, 63d) = short crisis-heavy, military-adjacent population. Osage/Jefferson (≤0.7% esc, 190–200d) = sustained well-managed outpatient care.</div>
     </div>
   </div>
   <div class="noise"><b>⚠</b> Race = OMB classification. County = department visited, not patient home. Single-visit escalation = first encounter was ED/inpatient — not failed outpatient escalation.</div>
 </div>
 
-<!-- ═════ Q6 ═════ -->
-<div class="page" id="p5" style="--qc:var(--q6)">
-  <div class="kpi-row">
-    <div class="kpi"><div class="lbl">Single-visit journeys</div><div class="val">60.9%</div><div class="sub">1.6M — appear once, don't return</div></div>
-    <div class="kpi"><div class="lbl">Single-visit esc%</div><div class="val">13.3%</div><div class="sub">First contact = emergency</div></div>
-    <div class="kpi"><div class="lbl">Managed Chronic avg</div><div class="val">538d</div><div class="sub">7.1 visits — the ideal pathway</div></div>
-    <div class="kpi"><div class="lbl">Crisis journeys</div><div class="val">46,674</div><div class="sub">Crisis Driven + Crisis Chronic</div></div>
-    <div class="kpi"><div class="lbl">Acute esc%</div><div class="val">15.5%</div><div class="sub">vs 9.4% chronic, 6.1% other</div></div>
-  </div>
-  <div class="arch-grid" id="archCards"></div>
-  <div class="cg2">
-    <div class="card">
-      <div class="card-t">Archetype Distribution (2.63M journeys)</div>
-      <div class="ch h220"><canvas id="c_q6_arch"></canvas></div>
-      <div class="find"><strong>Most patients touch SVH once</strong>Only 9.2% reach Managed Chronic — the ideal pathway. <span class="hl">46,674 Crisis journeys</span>: every encounter is an emergency.</div>
-    </div>
-    <div class="card">
-      <div class="card-t">Avg Journey Duration by Archetype (days)</div>
-      <div class="ch h220"><canvas id="c_q6_dur"></canvas></div>
-      <div class="find"><strong>Crisis Chronic: long engagement, never stabilized</strong>538d for Managed Chronic = sustained appropriate care. Crisis Chronic: 351d with <span class="hl">100% escalation</span> — returning patients who are never stabilized.</div>
-    </div>
-  </div>
-  <div class="noise"><b>⚠</b> ICD-10 chronic/acute classification uses chapter-prefix heuristics. Archetype boundaries are analyst-defined, not clinical standards.</div>
-</div>
 
 </div><!-- /pages -->
-
+<div class="transition-section">
+  <div class="transition-content">
+    <h2>The Takeaway<span class="transition-accent"></span></h2>
+    <p>We've followed Samantha's journey. We've understood the problem. Now it's time to look at the numbers across our entire healthcare system and discover the patterns that emerge when we examine the social determinants of health.</p>
+  </div>
+</div>
 </div><!-- /dashboard-container -->
 
 <script>
@@ -632,10 +521,10 @@ const D = {
 // Chart.js defaults — Storymap color scheme
 Chart.defaults.color = '#0f3460';
 Chart.defaults.font.family = "'Calibri', 'Segoe UI', sans-serif";
-Chart.defaults.font.size = 11;
-const gridColor = '#0f3460';
-const sc  = () => ({ ticks:{color:'#0f3460',font:{size:10}}, grid:{color:gridColor} });
-const noG = () => ({ ticks:{color:'#0f3460',font:{size:10}}, grid:{display:false} });
+Chart.defaults.font.size = 13;
+const gridColor = 'rgba(15, 52, 96, 0.08)';
+const sc  = () => ({ ticks:{color:'#0f3460',font:{size:12,weight:600}}, grid:{color:gridColor,lineWidth:1} });
+const noG = () => ({ ticks:{color:'#0f3460',font:{size:12,weight:600}}, grid:{display:false} });
 
 function hbar(id, labels, data, colors){
   new Chart(document.getElementById(id),{type:'bar',
@@ -663,47 +552,6 @@ function go(i,btn){
   pages[i].scrollTop=0;
 }
 
-// Archetype summary cards
-const archTotal=D.q6_arch.reduce((s,a)=>s+a.n,0);
-D.q6_arch.forEach(a=>{
-  const pct=(a.n/archTotal*100).toFixed(1);
-  const escTag=a.esc>0
-    ?`<span class="tag" style="background:rgba(196,78,82,.1);color:#c44e52">${a.esc}% esc</span>`
-    :`<span class="tag" style="background:rgba(85,168,104,.1);color:#55a868">0% esc</span>`;
-  document.getElementById('archCards').innerHTML+=`
-    <div class="arch-card" style="border-top:3px solid ${a.col}">
-      <div class="arch-n" style="color:${a.col}">${a.n>=1e6?(a.n/1e6).toFixed(2)+'M':a.n>=1e3?(a.n/1e3).toFixed(0)+'K':a.n}</div>
-      <div class="arch-lbl">${a.a}</div>
-      <span class="tag" style="background:rgba(76,114,176,.1);color:#4c72b0">${pct}%</span>
-      <span class="tag" style="background:rgba(181,137,26,.1);color:#b5891a">${a.days}d</span>
-      ${escTag}
-    </div>`;
-});
-
-// Race table
-const maxE=Math.max(...D.q5_race.map(r=>r.esc));
-let th=`<table class="rtable"><thead><tr><th>Race</th><th>Single-Visit Esc%</th><th>Crisis %</th><th>Journeys</th></tr></thead><tbody>`;
-D.q5_race.forEach(r=>{
-  const w=(r.esc/maxE*100).toFixed(0);
-  const col=r.esc>20?'#f26522':r.esc>15?'#f26522':r.esc<12?'#39d0d8':'#39d0d8';
-  const crisis=((r.cd+r.cc)/r.tot*100).toFixed(1);
-  th+=`<tr><td style="font-weight:600">${r.r}</td>
-    <td><div class="bcell"><div class="bfill" style="width:${w}%;background:${col}"></div><div class="blbl">${r.esc}%</div></div></td>
-    <td style="font-weight:700;color:${col}">${crisis}%</td>
-    <td style="color:var(--m)">${(r.tot/1e3).toFixed(0)}K</td></tr>`;
-});
-document.getElementById('raceTable').innerHTML=th+'</tbody></table>';
-
-// Stress donut legend
-D.q3_stress.forEach(s=>{
-  document.getElementById('stressLeg').innerHTML+=`<div class="dl">
-    <div class="dld" style="background:${s.col}"></div>
-    <div class="dll">${s.l}</div>
-    <div class="dln">${(s.n/1e3).toFixed(1)}K</div>
-    <div class="dlp">${s.pct}%</div>
-  </div>`;
-});
-
 // ── CHARTS ──────────────────────────────────────────────────────────────────
 
 // Q1
@@ -711,55 +559,6 @@ bar('c_q1_dist',['P25','P50','P75','P95','Avg'],[3,28,135,438,110],
   ['#39d0d855','#39d0d8','#39d0d8cc','#f2652299','#f26522']);
 hbar('c_q1_myc',D.q1_myc.map(r=>r.s),D.q1_myc.map(r=>r.avg),
   D.q1_myc.map(r=>r.avg>150?'#f2652299':r.avg<100?'#39d0d899':'#f2652288'));
-hbar('c_q1_race',D.q1_race.map(r=>r.r),D.q1_race.map(r=>r.avg),
-  D.q1_race.map(r=>r.avg>120?'#f2652299':r.avg<100?'#39d0d899':'#f2652288'));
-bar('c_q1_svi',D.q1_svi.map(r=>r.q),D.q1_svi.map(r=>r.pct),
-  ['#39d0d844','#39d0d888','#f2652244','#f2652288'],true);
-
-// Q2
-hbar('c_q2_type',D.q2_type.map(r=>r.t),D.q2_type.map(r=>r.p),
-  D.q2_type.map(r=>r.p>60?'#f2652288':r.p>30?'#39d0d8aa':'#f2652288'));
-hbar('c_q2_cond',D.q2_cond.map(r=>r.g),D.q2_cond.map(r=>r.p),
-  D.q2_cond.map(r=>r.p>70?'#f2652299':r.p>50?'#f2652299':'#f2652288'));
-bar('c_q2_age',D.q2_age.map(r=>r.d),D.q2_age.map(r=>r.p),
-  D.q2_age.map(r=>r.p>15?'#f2652299':r.p>12?'#f2652299':'#f2652288'),true);
-bar('c_q2_race',D.q2_race.map(r=>r.r),D.q2_race.map(r=>r.p),'#f2652288',true);
-
-// Q3 — SVI dual
-new Chart(document.getElementById('c_q3_svi'),{type:'bar',
-  data:{labels:D.q3_svi.map(r=>r.q),
-    datasets:[
-      {label:'Escalation %',data:D.q3_svi.map(r=>r.esc),
-       backgroundColor:['#39d0d899','#39d0d899','#f2652299','#f2652299'],borderRadius:0},
-      {label:'Avg ED visits ×10',data:D.q3_svi.map(r=>+(r.ed*10).toFixed(2)),
-       backgroundColor:['#39d0d844','#39d0d844','#f2652244','#f2652244'],
-       borderColor:['#39d0d8','#39d0d8','#f26522','#f26522'],borderWidth:1.5,borderRadius:0}
-    ]},
-  options:{responsive:true,maintainAspectRatio:false,
-    plugins:{legend:{labels:{color:'#0f3460',font:{size:10}}}},
-    scales:{x:noG(),y:{...sc(),ticks:{callback:v=>v+'%',color:'#0f3460',font:{size:10}}}}}});
-
-// Q3 — stress donut
-new Chart(document.getElementById('c_q3_stress'),{type:'doughnut',
-  data:{labels:D.q3_stress.map(r=>r.l),
-    datasets:[{data:D.q3_stress.map(r=>r.n),
-      backgroundColor:D.q3_stress.map(r=>'#f26522'+(Math.floor(Math.random()*5)+7)+'0'),
-      borderColor:D.q3_stress.map(r=>'#0f3460'),borderWidth:1.5,hoverOffset:5}]},
-  options:{responsive:true,maintainAspectRatio:false,cutout:'65%',
-    plugins:{legend:{display:false},
-      tooltip:{callbacks:{label:ctx=>{const s=D.q3_stress[ctx.dataIndex];return ` ${s.l}: ${s.n.toLocaleString()} (${s.pct}%)`;}}}}
-  }});
-
-// Q3 — SVI journey
-new Chart(document.getElementById('c_q3_full'),{type:'bar',
-  data:{labels:D.q3_svi.map(r=>r.q),
-    datasets:[
-      {label:'Avg Duration (days)',data:D.q3_svi.map(r=>r.days),backgroundColor:'#f2652266',borderColor:'#f26522',borderWidth:1,borderRadius:0},
-      {label:'Avg Visits ×60',data:D.q3_svi.map(r=>+(r.vis*60).toFixed(0)),backgroundColor:'#39d0d866',borderColor:'#39d0d8',borderWidth:1,borderRadius:0}
-    ]},
-  options:{responsive:true,maintainAspectRatio:false,
-    plugins:{legend:{labels:{color:'#0f3460',font:{size:10}}}},
-    scales:{x:noG(),y:sc()}}});
 
 // Q4
 hbar('c_q4_dist',D.q4_dist.map(r=>r.b),D.q4_dist.map(r=>r.med),
